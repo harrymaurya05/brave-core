@@ -210,9 +210,10 @@ provideStrings({
   braveWalletRestoreLegacyCheckBox: 'Import from legacy Brave crypto wallets?',
   braveWalletRestoreFormText: 'New Password',
 
-  // Tool Tips
+  // Clipboard
   braveWalletToolTipCopyToClipboard: 'Copy to Clipboard',
   braveWalletToolTipCopiedToClipboard: 'Copied!',
+  braveWalletPasteFromClipboard: 'Paste from clipboard',
 
   // Accounts Tab
   braveWalletAccountsPrimary: 'Primary crypto accounts',

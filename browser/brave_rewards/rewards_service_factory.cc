@@ -50,10 +50,6 @@ RewardsService* RewardsServiceFactory::GetForProfile(
     return testing_service_;
   }
 
-  if (!brave::IsRegularProfile(profile)) {
-    return nullptr;
-  }
-
   return static_cast<RewardsService*>(
       GetInstance()->GetServiceForBrowserContext(profile, true));
 }
@@ -103,6 +99,11 @@ KeyedService* RewardsServiceFactory::BuildServiceInstanceFor(
                         std::move(private_observer),
                         std::move(notification_observer));
   return rewards_service.release();
+}
+
+content::BrowserContext* RewardsServiceFactory::GetBrowserContextToUse(
+    content::BrowserContext* context) const {
+  return brave::IsRegularProfile(context) ? context : nullptr;
 }
 
 // static

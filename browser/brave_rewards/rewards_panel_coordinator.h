@@ -1,0 +1,83 @@
+/* Copyright (c) 2022 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef BRAVE_BROWSER_BRAVE_REWARDS_REWARDS_PANEL_COORDINATOR_H_
+#define BRAVE_BROWSER_BRAVE_REWARDS_REWARDS_PANEL_COORDINATOR_H_
+
+#include <memory>
+#include <string>
+
+#include "base/memory/weak_ptr.h"
+#include "brave/components/brave_rewards/common/brave_rewards_panel.mojom.h"
+#include "chrome/browser/ui/browser_user_data.h"
+#include "url/gurl.h"
+
+namespace brave_rewards {
+
+class RewardsPanelCoordinator
+    : public BrowserUserData<RewardsPanelCoordinator> {
+ public:
+  explicit RewardsPanelCoordinator(Browser* browser);
+
+  RewardsPanelCoordinator(const RewardsPanelCoordinator&) = delete;
+  RewardsPanelCoordinator& operator=(const RewardsPanelCoordinator&) = delete;
+
+  ~RewardsPanelCoordinator() override;
+
+  static bool IsRewardsPanelURLForTesting(const GURL& url);
+
+  // Ensures that a `RewardsPanelCoordinator` has been added to the specified
+  // `Browser` instance, if appropriate, and returns the pointer to it.
+  static RewardsPanelCoordinator* RegisterForBrowser(Browser* browser);
+
+  // Opens the Rewards panel with the default view.
+  bool OpenRewardsPanel();
+
+  // Displays the Rewards onboarding tour in the Rewards panel.
+  bool ShowRewardsTour();
+
+  // Displays a grant captcha for the specified grant in the Rewards panel.
+  bool ShowGrantCaptcha(const std::string& grant_id);
+
+  // Opens the Rewards panel in order to display the currently scheduled
+  // adaptive captcha for the user.
+  bool ShowAdaptiveCaptcha();
+
+  // Opens the Rewards panel in order to display the Brave Talk Rewards opt-in.
+  bool ShowBraveTalkOptIn();
+
+  class Delegate {
+   public:
+    virtual ~Delegate();
+
+    // Called when an application component requests that the Rewards panel be
+    // opened.
+    virtual bool OpenRewardsPanel(const mojom::RewardsPanelArgs& args) = 0;
+  };
+
+  // Sets the `Delegate` that will take responsibility for showing the Rewards
+  // panel when requested.
+  void SetDelegate(base::WeakPtr<Delegate> delegate) { delegate_ = delegate; }
+
+  // Retrieves the `mojom::RewardsPanelArgs` associated with the most recent
+  // Rewards panel request.
+  const mojom::RewardsPanelArgs& panel_args() const { return panel_args_; }
+
+ private:
+  friend class BrowserUserData<RewardsPanelCoordinator>;
+
+  // Opens the Rewards panel using the specified arguments.
+  bool OpenWithArgs(mojom::RewardsPanelArgs&& args);
+
+  mojom::RewardsPanelArgs panel_args_;
+  base::WeakPtr<Delegate> delegate_;
+  std::unique_ptr<Delegate> extension_handler_;
+
+  BROWSER_USER_DATA_KEY_DECL();
+};
+
+}  // namespace brave_rewards
+
+#endif  // BRAVE_BROWSER_BRAVE_REWARDS_REWARDS_PANEL_COORDINATOR_H_

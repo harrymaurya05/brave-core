@@ -594,6 +594,16 @@ void BatLedgerImpl::UpdateMediaDuration(
   ledger_->UpdateMediaDuration(window_id, publisher_key, duration, first_visit);
 }
 
+void BatLedgerImpl::IsPublisherRegistered(
+    const std::string& publisher_id,
+    IsPublisherRegisteredCallback callback) {
+  ledger_->IsPublisherRegistered(
+      publisher_id, [shared_callback = std::make_shared<decltype(callback)>(
+                         std::move(callback))](bool is_registered) {
+        std::move(*shared_callback).Run(is_registered);
+      });
+}
+
 // static
 void BatLedgerImpl::OnPublisherInfo(
     CallbackHolder<GetPublisherInfoCallback>* holder,

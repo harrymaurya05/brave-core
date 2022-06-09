@@ -49,10 +49,9 @@ public class NetworkSelectorActivity
         JsonRpcService jsonRpcService = getJsonRpcService();
         assert jsonRpcService != null;
         jsonRpcService.getAllNetworks(CoinType.ETH, chains -> {
-            NetworkInfo[] customNetworks = Utils.getCustomNetworks(chains);
             networkSelectorAdapter =
-                    new NetworkSelectorAdapter(this, Utils.getNetworksList(this, customNetworks),
-                            Utils.getNetworksAbbrevList(this, customNetworks));
+                    new NetworkSelectorAdapter(this, Utils.makeNetworksList(this, chains),
+                            Utils.makeNetworksAbbrevList(this, chains));
             networkSelectorAdapter.setOnNetworkItemSelected(this);
             mRVNetworkSelector.setAdapter(networkSelectorAdapter);
             fetchSelectedNetwork();
@@ -62,12 +61,9 @@ public class NetworkSelectorActivity
     private void fetchSelectedNetwork() {
         JsonRpcService jsonRpcService = getJsonRpcService();
         assert jsonRpcService != null;
-        jsonRpcService.getChainId(CoinType.ETH, chainId -> {
-            jsonRpcService.getAllNetworks(CoinType.ETH, chains -> {
-                NetworkInfo[] customNetworks = Utils.getCustomNetworks(chains);
-                mSelectedNetwork = Utils.getNetworkText(this, chainId, customNetworks).toString();
-                networkSelectorAdapter.setSelectedNetwork(mSelectedNetwork);
-            });
+        jsonRpcService.getNetwork(CoinType.ETH, selectedNetwork -> {
+            mSelectedNetwork = selectedNetwork.chainName;
+            networkSelectorAdapter.setSelectedNetwork(mSelectedNetwork);
         });
     }
 
@@ -76,10 +72,9 @@ public class NetworkSelectorActivity
         JsonRpcService jsonRpcService = getJsonRpcService();
         if (jsonRpcService != null) {
             jsonRpcService.getAllNetworks(CoinType.ETH, chains -> {
-                NetworkInfo[] customNetworks = Utils.getCustomNetworks(chains);
                 jsonRpcService.setNetwork(
-                        Utils.getNetworkConst(
-                                this, networkSelectorItem.getNetworkName(), customNetworks),
+                        Utils.getNetworkInfoByName(
+                                networkSelectorItem.getNetworkName(), chains).chainId,
                         CoinType.ETH, (success) -> {
                             if (!success) {
                                 Toast.makeText(this,

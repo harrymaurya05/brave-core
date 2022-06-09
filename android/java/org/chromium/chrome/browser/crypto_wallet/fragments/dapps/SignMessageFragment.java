@@ -139,12 +139,8 @@ public class SignMessageFragment extends BaseDAppsBottomSheetDialogFragment {
     }
 
     private void updateNetwork() {
-        getJsonRpcService().getChainId(CoinType.ETH, chainId -> {
-            getJsonRpcService().getAllNetworks(CoinType.ETH, chains -> {
-                NetworkInfo[] customNetworks = Utils.getCustomNetworks(chains);
-                mNetworkName.setText(
-                        Utils.getNetworkText(getActivity(), chainId, customNetworks).toString());
-            });
+        getJsonRpcService().getNetwork(CoinType.ETH, selectedNetwork -> {
+            mNetworkName.setText(selectedNetwork.chainName);
         });
     }
 }

@@ -169,7 +169,7 @@ public class BraveWalletDAppsActivity extends BraveWalletBaseActivity
                             accountInfosTemp = new AccountInfo[] {};
                         }
                         mPendingTxHelper = new PendingTxHelper(
-                                getTxService(), accountInfosTemp, false, null, true);
+                                getTxService(), accountInfosTemp, false, true);
                         mPendingTxHelper.mHasNoPendingTxAfterProcessing.observe(
                                 this, hasNoPendingTx -> {
                                     if (hasNoPendingTx) {

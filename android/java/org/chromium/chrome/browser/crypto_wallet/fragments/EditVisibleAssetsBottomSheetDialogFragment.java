@@ -67,6 +67,7 @@ public class EditVisibleAssetsBottomSheetDialogFragment extends BottomSheetDialo
     private WalletCoinAdapter walletCoinAdapter;
     private WalletCoinAdapter.AdapterType mType;
     private String mChainId;
+    private boolean mIsCustomNetwork;
     private DismissListener mDismissListener;
     private Boolean mIsAssetsListChanged;
 
@@ -119,9 +120,10 @@ public class EditVisibleAssetsBottomSheetDialogFragment extends BottomSheetDialo
         return null;
     }
 
-    public void setChainId(String chainId) {
+    public void setChainId(String chainId, boolean isCustomNetwork) {
         assert (chainId != null && !chainId.isEmpty());
         mChainId = chainId;
+        mIsCustomNetwork = isCustomNetwork;
     }
 
     public void setDismissListener(DismissListener dismissListener) {
@@ -308,7 +310,7 @@ public class EditVisibleAssetsBottomSheetDialogFragment extends BottomSheetDialo
                 token.isErc20 = !isErc721;
                 token.isErc721 = isErc721;
                 token.symbol = tokenSymbolEdit.getText().toString();
-                token.decimals = 18;
+                token.decimals = Utils.ETH_DEFAULT_DECIMALS;
                 token.chainId = mChainId;
                 token.coin = CoinType.ETH;
                 try {
@@ -416,7 +418,7 @@ public class EditVisibleAssetsBottomSheetDialogFragment extends BottomSheetDialo
         walletCoinAdapter = new WalletCoinAdapter(mType);
         List<WalletListItemModel> walletListItemModelList = new ArrayList<>();
         String tokensPath = BlockchainRegistryFactory.getInstance().getTokensIconsLocation();
-        if (!Utils.isCustomNetwork(mChainId)) {
+        if (!mIsCustomNetwork) {
             // Add ETH as a first item always
             BlockchainToken eth = Utils.createEthereumBlockchainToken(mChainId);
             WalletListItemModel itemModelEth =
@@ -428,7 +430,7 @@ public class EditVisibleAssetsBottomSheetDialogFragment extends BottomSheetDialo
             walletListItemModelList.add(itemModelEth);
         }
         for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].symbol.equals("ETH") && !Utils.isCustomNetwork(mChainId)) {
+            if (tokens[i].symbol.equals("ETH") && !mIsCustomNetwork) {
                 // We have added ETH already
                 continue;
             }

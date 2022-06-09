@@ -5,6 +5,7 @@
 
 package org.chromium.chrome.browser.crypto_wallet.util;
 
+import org.chromium.base.Callback;
 import org.chromium.brave_wallet.mojom.BlockchainRegistry;
 import org.chromium.brave_wallet.mojom.BlockchainToken;
 import org.chromium.brave_wallet.mojom.BraveWalletConstants;
@@ -12,6 +13,7 @@ import org.chromium.brave_wallet.mojom.BraveWalletService;
 import org.chromium.brave_wallet.mojom.CoinType;
 import org.chromium.brave_wallet.mojom.OnRampProvider;
 import org.chromium.chrome.browser.crypto_wallet.util.Utils;
+import org.chromium.mojo.bindings.Callbacks;
 
 import java.lang.UnsupportedOperationException;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class TokenUtils {
     }
 
     public static void getUserAssetsFiltered(BraveWalletService braveWalletService, String chainId,
-            TokenType tokenType, BraveWalletService.GetUserAssets_Response callback) {
+            TokenType tokenType, Callbacks.Callback1<BlockchainToken[]> callback) {
         braveWalletService.getUserAssets(chainId, CoinType.ETH, (BlockchainToken[] tokens) -> {
             BlockchainToken[] filteredTokens = filterTokens(tokens, tokenType, true);
             callback.call(filteredTokens);
@@ -58,7 +60,7 @@ public class TokenUtils {
 
     public static void getAllTokensFiltered(BraveWalletService braveWalletService,
             BlockchainRegistry blockchainRegistry, String chainId, TokenType tokenType,
-            BlockchainRegistry.GetAllTokens_Response callback) {
+            Callbacks.Callback1<BlockchainToken[]> callback) {
         blockchainRegistry.getAllTokens(
                 BraveWalletConstants.MAINNET_CHAIN_ID, CoinType.ETH, (BlockchainToken[] tokens) -> {
                     braveWalletService.getUserAssets(
@@ -70,8 +72,23 @@ public class TokenUtils {
                 });
     }
 
+    public static void getUserOrAllTokensFiltered(
+            BraveWalletService braveWalletService, BlockchainRegistry blockchainRegistry,
+            String chainId, TokenType tokenType, boolean userAssetsOnly,
+            Callbacks.Callback1<BlockchainToken[]> callback) {
+        if (userAssetsOnly)
+            getUserAssetsFiltered(braveWalletService, chainId, tokenType, userAssets -> {
+                callback.call(userAssets);
+            });
+        else
+            getAllTokensFiltered(braveWalletService, blockchainRegistry, chainId, tokenType,
+                    allTokens -> {
+                callback.call(allTokens);
+            });
+    }
+
     public static void getBuyTokensFiltered(BlockchainRegistry blockchainRegistry,
-            TokenType tokenType, BlockchainRegistry.GetAllTokens_Response callback) {
+            TokenType tokenType, Callbacks.Callback1<BlockchainToken[]> callback) {
         blockchainRegistry.getBuyTokens(OnRampProvider.WYRE, BraveWalletConstants.MAINNET_CHAIN_ID,
                 (BlockchainToken[] tokens) -> {
                     BlockchainToken[] filteredTokens = filterTokens(tokens, tokenType, false);
@@ -80,7 +97,7 @@ public class TokenUtils {
     }
 
     public static void isCustomToken(BlockchainToken token, BlockchainRegistry blockchainRegistry,
-            org.chromium.mojo.bindings.Callbacks.Callback1<Boolean> callback) {
+            Callbacks.Callback1<Boolean> callback) {
         blockchainRegistry.getAllTokens(
                 BraveWalletConstants.MAINNET_CHAIN_ID, CoinType.ETH, (BlockchainToken[] tokens) -> {
                     boolean isCustom = true;
@@ -126,5 +143,26 @@ public class TokenUtils {
         }
 
         return false;
+    }
+
+    public static void getExactUserAsset(BraveWalletService braveWalletService, String chainId,
+            String assetSymbol, String assetName, String assetId, String contractAddress,
+            int assetDecimals, Callback<BlockchainToken> callback) {
+        getUserAssetsFiltered(
+                braveWalletService, chainId, TokenUtils.TokenType.ALL, (userAssets) -> {
+                    BlockchainToken resultToken = null;
+                    for (BlockchainToken userAsset : userAssets) {
+                        if (chainId.equals(userAsset.chainId)
+                                && assetSymbol.equals(userAsset.symbol)
+                                && assetName.equals(userAsset.name)
+                                && (assetId.isEmpty() || assetId.equals(userAsset.tokenId))
+                                && contractAddress.equals(userAsset.contractAddress)
+                                && assetDecimals == userAsset.decimals) {
+                            resultToken = userAsset;
+                        }
+                    }
+
+                    callback.onResult(resultToken);
+                });
     }
 }

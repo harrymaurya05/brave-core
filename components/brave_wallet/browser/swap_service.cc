@@ -23,11 +23,11 @@ net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
       semantics {
         sender: "Swap Service"
         description:
-          "This service is used to obtain 0x price swap quotes and transactions to sign."
+          "This service is used to obtain swap price quotes and transactions to sign."
         trigger:
           "Triggered by uses of the native Brave wallet."
         data:
-          "Ethereum JSON RPC response bodies."
+          "0x and Jupiter API response bodies."
         destination: WEBSITE
       }
       policy {
@@ -40,7 +40,7 @@ net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
     )");
 }
 
-bool IsMainnetNetworkSupported(const std::string& chain_id) {
+bool IsMainnetEVMNetworkSupported(const std::string& chain_id) {
   return (chain_id == brave_wallet::mojom::kMainnetChainId ||
           chain_id == brave_wallet::mojom::kPolygonMainnetChainId ||
           chain_id == brave_wallet::mojom::kBinanceSmartChainMainnetChainId ||
@@ -50,14 +50,18 @@ bool IsMainnetNetworkSupported(const std::string& chain_id) {
           chain_id == brave_wallet::mojom::kOptimismMainnetChainId);
 }
 
-bool IsNetworkSupported(const std::string& chain_id) {
+bool IsEVMNetworkSupported(const std::string& chain_id) {
   return (chain_id == brave_wallet::mojom::kRopstenChainId ||
-          IsMainnetNetworkSupported(chain_id));
+          IsMainnetEVMNetworkSupported(chain_id));
 }
 
-GURL AppendSwapParams(const GURL& swap_url,
-                      const brave_wallet::mojom::SwapParams& params,
-                      const std::string& chain_id) {
+bool IsSolanaNetworkSupported(const std::string& chain_id) {
+  return chain_id == brave_wallet::mojom::kSolanaMainnet;
+}
+
+GURL Append0xSwapParams(const GURL& swap_url,
+                        const brave_wallet::mojom::SwapParams& params,
+                        const std::string& chain_id) {
   GURL url = swap_url;
   if (!params.taker_address.empty())
     url = net::AppendQueryParameter(url, "takerAddress", params.taker_address);
@@ -84,6 +88,25 @@ GURL AppendSwapParams(const GURL& swap_url,
     url = net::AppendQueryParameter(url, "affiliateAddress", affiliate_address);
   if (!params.gas_price.empty())
     url = net::AppendQueryParameter(url, "gasPrice", params.gas_price);
+  return url;
+}
+
+GURL AppendJupiterSwapParams(
+    const GURL& swap_url,
+    const brave_wallet::mojom::JupiterQuoteParams& params,
+    const std::string& chain_id) {
+  GURL url = swap_url;
+  if (!params.input_mint.empty())
+    url = net::AppendQueryParameter(url, "inputMint", params.input_mint);
+  if (!params.output_mint.empty())
+    url = net::AppendQueryParameter(url, "outputMint", params.output_mint);
+  if (!params.amount.empty())
+    url = net::AppendQueryParameter(url, "amount", params.amount);
+  url = net::AppendQueryParameter(url, "feeBps",
+                                  brave_wallet::SwapService::GetFee(chain_id));
+  url = net::AppendQueryParameter(
+      url, "slippagePercentage",
+      base::StringPrintf("%.6f", params.slippage_percentage));
   return url;
 }
 
@@ -121,8 +144,10 @@ void SwapService::SetBaseURLForTest(const GURL& base_url_for_test) {
 // static
 std::string SwapService::GetFee(const std::string& chain_id) {
   std::string fee;
-  if (IsNetworkSupported(chain_id)) {
+  if (IsEVMNetworkSupported(chain_id)) {
     fee = brave_wallet::kBuyTokenPercentageFee;
+  } else if (IsSolanaNetworkSupported(chain_id)) {
+    fee = brave_wallet::kSolanaBuyTokenFeeBps;
   }
 
   return fee;
@@ -149,6 +174,8 @@ std::string SwapService::GetBaseSwapURL(const std::string& chain_id) {
     url = brave_wallet::kCeloSwapBaseAPIURL;
   } else if (chain_id == brave_wallet::mojom::kOptimismMainnetChainId) {
     url = brave_wallet::kOptimismSwapBaseAPIURL;
+  } else if (chain_id == brave_wallet::mojom::kSolanaMainnet) {
+    url = brave_wallet::kSolanaSwapBaseAPIURL;
   }
 
   return url;
@@ -162,7 +189,9 @@ std::string SwapService::GetFeeRecipient(const std::string& chain_id) {
   // the production multisig address.
   if (chain_id == brave_wallet::mojom::kRopstenChainId) {
     feeRecipient = brave_wallet::kRopstenFeeRecipient;
-  } else if (IsMainnetNetworkSupported(chain_id)) {
+  } else if (IsMainnetEVMNetworkSupported(chain_id)) {
+    feeRecipient = brave_wallet::kFeeRecipient;
+  } else if (IsSolanaNetworkSupported(chain_id)) {
     feeRecipient = brave_wallet::kFeeRecipient;
   }
 
@@ -173,7 +202,7 @@ std::string SwapService::GetFeeRecipient(const std::string& chain_id) {
 std::string SwapService::GetAffiliateAddress(const std::string& chain_id) {
   std::string affiliateAddress;
 
-  if (IsMainnetNetworkSupported(chain_id)) {
+  if (IsMainnetEVMNetworkSupported(chain_id)) {
     affiliateAddress = brave_wallet::kAffiliateAddress;
   }
 
@@ -188,7 +217,7 @@ GURL SwapService::GetPriceQuoteURL(mojom::SwapParamsPtr swap_params,
                              ? GetBaseSwapURL(chain_id).c_str()
                              : base_url_for_test_.spec().c_str());
   GURL url(spec);
-  url = AppendSwapParams(url, *swap_params, chain_id);
+  url = Append0xSwapParams(url, *swap_params, chain_id);
   // That flag prevents an allowance validation on a swap exchange proxy side.
   // We do in clients allowance validation.
   url = net::AppendQueryParameter(url, "skipValidation", "true");
@@ -204,13 +233,43 @@ GURL SwapService::GetTransactionPayloadURL(mojom::SwapParamsPtr swap_params,
                              ? GetBaseSwapURL(chain_id).c_str()
                              : base_url_for_test_.spec().c_str());
   GURL url(spec);
-  url = AppendSwapParams(url, *swap_params, chain_id);
+  url = Append0xSwapParams(url, *swap_params, chain_id);
   return url;
+}
+
+// static
+GURL SwapService::GetJupiterPriceQuoteURL(
+    mojom::JupiterQuoteParamsPtr swap_params,
+    const std::string& chain_id) {
+  std::string spec =
+      base::StringPrintf("%sv1/quote", base_url_for_test_.is_empty()
+                                           ? GetBaseSwapURL(chain_id).c_str()
+                                           : base_url_for_test_.spec().c_str());
+  GURL url(spec);
+  url = AppendJupiterSwapParams(url, *swap_params, chain_id);
+
+  return url;
+}
+
+// static
+GURL SwapService::GetJupiterSwapTransactionsURL(const std::string& chain_id) {
+  std::string spec =
+      base::StringPrintf("%sv1/swap", base_url_for_test_.is_empty()
+                                          ? GetBaseSwapURL(chain_id).c_str()
+                                          : base_url_for_test_.spec().c_str());
+  GURL url(spec);
+  return url;
+}
+
+void SwapService::IsSwapSupported(const std::string& chain_id,
+                                  IsSwapSupportedCallback callback) {
+  std::move(callback).Run(IsEVMNetworkSupported(chain_id) ||
+                          IsSolanaNetworkSupported(chain_id));
 }
 
 void SwapService::GetPriceQuote(mojom::SwapParamsPtr swap_params,
                                 GetPriceQuoteCallback callback) {
-  if (!IsNetworkSupported(
+  if (!IsEVMNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::ETH))) {
     std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
     return;
@@ -247,7 +306,7 @@ void SwapService::OnGetPriceQuote(
 void SwapService::GetTransactionPayload(
     mojom::SwapParamsPtr swap_params,
     GetTransactionPayloadCallback callback) {
-  if (!IsNetworkSupported(
+  if (!IsEVMNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::ETH))) {
     std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
     return;
@@ -282,9 +341,85 @@ void SwapService::OnGetTransactionPayload(
   std::move(callback).Run(true, std::move(swap_response), absl::nullopt);
 }
 
-void SwapService::IsSwapSupported(const std::string& chain_id,
-                                  IsSwapSupportedCallback callback) {
-  std::move(callback).Run(IsNetworkSupported(chain_id));
+void SwapService::GetJupiterPriceQuote(mojom::JupiterQuoteParamsPtr swap_params,
+                                       GetJupiterPriceQuoteCallback callback) {
+  if (!IsSolanaNetworkSupported(
+          json_rpc_service_->GetChainId(mojom::CoinType::SOL))) {
+    std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
+    return;
+  }
+
+  auto internal_callback =
+      base::BindOnce(&SwapService::OnGetJupiterPriceQuote,
+                     weak_ptr_factory_.GetWeakPtr(), std::move(callback));
+  api_request_helper_.Request(
+      "GET",
+      GetJupiterPriceQuoteURL(
+          std::move(swap_params),
+          json_rpc_service_->GetChainId(mojom::CoinType::SOL)),
+      "", "", true, std::move(internal_callback));
+}
+
+void SwapService::OnGetJupiterPriceQuote(
+    GetJupiterPriceQuoteCallback callback,
+    const int status,
+    const std::string& body,
+    const base::flat_map<std::string, std::string>& headers) {
+  if (status < 200 || status > 299) {
+    std::move(callback).Run(false, nullptr, body);
+    return;
+  }
+  mojom::JupiterSwapQuotePtr swap_quote = ParseJupiterSwapQuote(body);
+
+  if (!swap_quote) {
+    std::move(callback).Run(false, nullptr,
+                            "Could not parse response body: " + body);
+    return;
+  }
+
+  std::move(callback).Run(true, std::move(swap_quote), absl::nullopt);
+}
+
+void SwapService::GetJupiterTransactions(
+    mojom::JupiterTransactionParamsPtr params,
+    GetJupiterTransactionsCallback callback) {
+  if (!IsSolanaNetworkSupported(
+          json_rpc_service_->GetChainId(mojom::CoinType::SOL))) {
+    std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
+    return;
+  }
+
+  auto internal_callback =
+      base::BindOnce(&SwapService::OnGetJupiterTransactions,
+                     weak_ptr_factory_.GetWeakPtr(), std::move(callback));
+
+  api_request_helper_.Request(
+      "POST",
+      GetJupiterSwapTransactionsURL(
+          json_rpc_service_->GetChainId(mojom::CoinType::SOL)),
+      EncodeJupiterTransactionParams(std::move(params)), "application/json",
+      true, std::move(internal_callback));
+}
+
+void SwapService::OnGetJupiterTransactions(
+    GetJupiterTransactionsCallback callback,
+    const int status,
+    const std::string& body,
+    const base::flat_map<std::string, std::string>& headers) {
+  if (status < 200 || status > 299) {
+    std::move(callback).Run(false, nullptr, body);
+    return;
+  }
+  mojom::JupiterSwapTransactionsPtr swap_transactions =
+      ParseJupiterSwapTransactions(body);
+
+  if (!swap_transactions) {
+    std::move(callback).Run(false, nullptr,
+                            "Could not parse response body: " + body);
+    return;
+  }
+
+  std::move(callback).Run(true, std::move(swap_transactions), absl::nullopt);
 }
 
 }  // namespace brave_wallet

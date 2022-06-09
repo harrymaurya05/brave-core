@@ -324,6 +324,58 @@ struct SwapResponse {
   // Note we could also expose "sources" later
 };
 
+struct JupiterFee {
+  uint64 amount;
+  string mint;
+  double pct;
+};
+
+struct JupiterMarketInfo {
+  string id;
+  string label;
+  string input_mint;
+  string output_mint;
+  bool not_enough_liquidity;
+  uint64 in_amount;
+  uint64 out_amount;
+  double price_impact_pct;
+  JupiterFee lp_fee;
+  JupiterFee platform_fee;
+};
+
+struct JupiterRoute {
+  uint64 in_amount;
+  uint64 out_amount;
+  uint64 amount;
+  uint64 other_amount_threshold;
+  uint64 out_amount_with_slippage;
+  string swap_mode;
+  double price_impact_pct;
+  array<JupiterMarketInfo> market_infos;
+};
+
+struct JupiterSwapQuote {
+  array<JupiterRoute> routes;
+};
+
+struct JupiterQuoteParams {
+  string input_mint;
+  string output_mint;
+  string amount;
+  double slippage_percentage;
+};
+
+struct JupiterTransactionParams {
+  JupiterRoute route;
+  string user_public_key;
+};
+
+struct JupiterSwapTransactions {
+  string setup_transaction;
+  string swap_transaction;
+  string cleanup_transaction;
+};
+
 const string kLedgerHardwareVendor = "Ledger";
 const string kTrezorHardwareVendor = "Trezor";
 
@@ -603,6 +655,14 @@ interface SwapService {
   // Obtains transaction payload data for a swap
   GetTransactionPayload(SwapParams params) =>
       (bool success, SwapResponse? response, string? error_response);
+
+  // Obtains a price quote from Jupiter for a Solana swap
+  GetJupiterPriceQuote(JupiterQuoteParams params) =>
+      (bool success, JupiterSwapQuote? response, string? error_response);
+
+  // Get the serialized transactions to perform the swap
+  GetJupiterTransactions(JupiterTransactionParams params) =>
+      (bool success, JupiterSwapTransactions? response, string? error_response);
 
   // Obtains whether the given chain id supports swap
   IsSwapSupported(string chain_id) => (bool result);

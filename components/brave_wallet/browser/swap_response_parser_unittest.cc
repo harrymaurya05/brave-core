@@ -8,7 +8,9 @@
 #include <vector>
 
 #include "base/i18n/time_formatting.h"
+#include "base/json/json_reader.h"
 #include "base/strings/utf_string_conversions.h"
+#include "brave/components/brave_wallet/browser/json_rpc_requests_helper.h"
 #include "brave/components/brave_wallet/browser/swap_response_parser.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -138,6 +140,191 @@ TEST(SwapResponseParserUnitTest, ParseTransactionPayload) {
   ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
   json = "";
   ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
+}
+
+TEST(SwapResponseParserUnitTest, JupiterSwapQuote) {
+  std::string json(R"(
+    {
+      "data": [
+        {
+          "inAmount": 10000,
+          "outAmount": 261273,
+          "amount": 10000,
+          "otherAmountThreshold": 258660,
+          "outAmountWithSlippage": 258660,
+          "swapMode": "ExactIn",
+          "priceImpactPct": 0.008955716118219659,
+          "marketInfos": [
+            {
+              "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
+              "label": "Orca",
+              "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+              "notEnoughLiquidity": false,
+              "inAmount": 10000,
+              "outAmount": 117001203,
+              "priceImpactPct": 1.1965687502207775e-7,
+              "lpFee": {
+                "amount": 30,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "pct": 0.003
+			  },
+              "platformFee": {
+                "amount": 0,
+                "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+                "pct": 0
+              }
+            }
+          ]
+        }
+      ],
+      "timeTaken": 0.044471802000089156
+    })");
+  mojom::JupiterSwapQuotePtr swap_quote = ParseJupiterSwapQuote(json);
+  ASSERT_TRUE(swap_quote);
+  ASSERT_EQ(swap_quote->routes.size(), 1UL);
+  ASSERT_EQ(swap_quote->routes.at(0)->in_amount, 10000ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->out_amount, 261273ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->amount, 10000ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->other_amount_threshold, 258660ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->out_amount_with_slippage, 258660ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->swap_mode, "ExactIn");
+  ASSERT_EQ(swap_quote->routes.at(0)->price_impact_pct, 0.008955716118219659);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.size(), 1UL);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->id,
+            "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK");
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->label, "Orca");
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->input_mint,
+            "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->output_mint,
+            "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey");
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->not_enough_liquidity,
+            false);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->in_amount, 10000ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->out_amount,
+            117001203ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->price_impact_pct,
+            1.1965687502207775e-7);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->lp_fee->amount,
+            30ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->lp_fee->mint,
+            "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->lp_fee->pct, 0.003);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->platform_fee->amount,
+            0ULL);
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->platform_fee->mint,
+            "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey");
+  ASSERT_EQ(swap_quote->routes.at(0)->market_infos.at(0)->platform_fee->pct, 0);
+
+  ASSERT_FALSE(ParseJupiterSwapQuote(""));
+  ASSERT_FALSE(ParseJupiterSwapQuote(R"({"price": "3"})"));
+}
+
+TEST(SwapResponseParserUnitTest, JupiterSwapTransactions) {
+  std::string json(R"(
+    {
+      "setupTransaction": "setup",
+      "swapTransaction": "swap",
+      "cleanupTransaction": "cleanup"
+    })");
+
+  auto swap_transactions = ParseJupiterSwapTransactions(json);
+  ASSERT_TRUE(swap_transactions);
+  ASSERT_EQ(swap_transactions->setup_transaction, "setup");
+  ASSERT_EQ(swap_transactions->swap_transaction, "swap");
+  ASSERT_EQ(swap_transactions->cleanup_transaction, "cleanup");
+
+  ASSERT_FALSE(ParseJupiterSwapTransactions(""));
+  ASSERT_FALSE(ParseJupiterSwapTransactions(R"({"foo": "bar"})"));
+}
+
+TEST(SwapResponseParserUnitTest, JupiterTransactionParams) {
+  std::string json(R"(
+    {
+      "data": [
+        {
+          "inAmount": 10000,
+          "outAmount": 261273,
+          "amount": 10000,
+          "otherAmountThreshold": 258660,
+          "outAmountWithSlippage": 258660,
+          "swapMode": "ExactIn",
+          "priceImpactPct": 0.008955716118219659,
+          "marketInfos": [
+            {
+              "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
+              "label": "Orca",
+              "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+              "notEnoughLiquidity": false,
+              "inAmount": 10000,
+              "outAmount": 117001203,
+              "priceImpactPct": 1.1965687502207775e-7,
+              "lpFee": {
+                "amount": 30,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "pct": 0.003
+			  },
+              "platformFee": {
+                "amount": 0,
+                "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+                "pct": 0
+              }
+            }
+          ]
+        }
+      ],
+      "timeTaken": 0.044471802000089156
+    })");
+  mojom::JupiterSwapQuotePtr swap_quote = ParseJupiterSwapQuote(json);
+  ASSERT_TRUE(swap_quote);
+
+  mojom::JupiterTransactionParams params;
+  params.route = swap_quote->routes.at(0).Clone();
+  params.user_public_key = "mockPubKey";
+  auto encoded_params = EncodeJupiterTransactionParams(params.Clone());
+
+  std::string expected_params(R"(
+    {
+      "feeAccount": "8eekKfUAGSJbq3CdA2TmHb8tKuyzd5gtEas3MYAtXzrT",
+      "route": {
+        "inAmount": 10000,
+        "outAmount": 261273,
+        "amount": 10000,
+        "otherAmountThreshold": 258660,
+        "outAmountWithSlippage": 258660,
+        "swapMode": "ExactIn",
+        "priceImpactPct": 0.008955716118219659,
+        "marketInfos": [
+          {
+            "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
+            "label": "Orca",
+            "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+            "notEnoughLiquidity": false,
+            "inAmount": 10000,
+            "outAmount": 117001203,
+            "priceImpactPct": 1.1965687502207775e-7,
+            "lpFee": {
+              "amount": 30,
+              "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              "pct": 0.003
+            },
+            "platformFee": {
+              "amount": 0,
+              "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+              "pct": 0.0
+            }
+          }
+        ]
+      },
+      "userPublicKey": "mockPubKey"
+    })");
+
+  auto expected_params_value = base::JSONReader::Read(
+      expected_params,
+      base::JSON_PARSE_CHROMIUM_EXTENSIONS | base::JSON_ALLOW_TRAILING_COMMAS);
+  ASSERT_EQ(encoded_params, GetJSON(*expected_params_value));
 }
 
 }  // namespace brave_wallet

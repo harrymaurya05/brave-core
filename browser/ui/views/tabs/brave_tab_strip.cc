@@ -5,18 +5,32 @@
 
 #include "brave/browser/ui/views/tabs/brave_tab_strip.h"
 
+#include <utility>
+
 #include "brave/browser/profiles/profile_util.h"
 #include "brave/browser/themes/brave_dark_mode_utils.h"
+#include "brave/browser/ui/views/tabs/brave_tab_drag_context.h"
+#include "brave/browser/ui/views/tabs/brave_vertical_tab_utils.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/views/tabs/tab.h"
 #include "chrome/browser/ui/views/tabs/tab_strip_controller.h"
 #include "third_party/skia/include/core/SkColor.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
+
+BraveTabStrip::BraveTabStrip(std::unique_ptr<TabStripController> controller)
+    : TabStrip(std::move(controller)),
+      brave_drag_context_(std::make_unique<BraveTabDragContext>(
+          this,
+          reinterpret_cast<TabDragContext*>(drag_context_.get()))) {}
 
 BraveTabStrip::~BraveTabStrip() = default;
 
 SkColor BraveTabStrip::GetTabSeparatorColor() const {
+  if (ShouldShowVerticalTabs())
+    return SK_ColorTRANSPARENT;
+
   Profile* profile = controller()->GetProfile();
   if (!brave::IsRegularProfile(profile)) {
     if (profile->IsTor())
@@ -36,3 +50,10 @@ SkColor BraveTabStrip::GetTabSeparatorColor() const {
   return dark_mode ? SkColorSetRGB(0x39, 0x38, 0x38)
                    : SkColorSetRGB(0xBE, 0xBF, 0xBF);
 }
+
+TabDragContext* BraveTabStrip::GetDragContext() {
+  return brave_drag_context_.get();
+}
+
+BEGIN_METADATA(BraveTabStrip, TabStrip)
+END_METADATA

@@ -42,6 +42,10 @@
 #include "brave/components/ipfs/features.h"
 #endif
 
+#if !BUILDFLAG(IS_ANDROID)
+#include "brave/browser/ui/tabs/features.h"
+#endif
+
 using brave_shields::features::kBraveAdblockCnameUncloaking;
 using brave_shields::features::kBraveAdblockCollapseBlockedElements;
 using brave_shields::features::kBraveAdblockCookieListDefault;
@@ -301,6 +305,9 @@ constexpr char kRestrictWebSocketsPoolName[] = "Restrict WebSockets pool";
 constexpr char kRestrictWebSocketsPoolDescription[] =
     "Limits simultaneous active WebSockets connections per eTLD+1";
 
+constexpr char kBraveVerticalTabsName[] = "Vertical tabs";
+constexpr char kBraveVerticalTabsDescription[] =
+    "Uses vertical tabs instead of tabstrip";
 }  // namespace
 
 }  // namespace flag_descriptions
@@ -421,6 +428,17 @@ constexpr char kRestrictWebSocketsPoolDescription[] =
 #else
 #define BRAVE_TRANSLATE_GO_FEATURE_ENTRIES
 #endif  // BUILDFLAG(ENABLE_BRAVE_TRANSLATE_GO)
+
+#if BUILDFLAG(IS_ANDROID)
+#define BRAVE_VERTICAL_TABS_FEATURE_ENTRY
+#else
+#define BRAVE_VERTICAL_TABS_FEATURE_ENTRY \
+    {kBraveVerticalTabsFeatureInternalName,  \
+    flag_descriptions::kBraveVerticalTabsName, \
+    flag_descriptions::kBraveVerticalTabsDescription, \
+    kOsWin, \
+    FEATURE_VALUE_TYPE(features::kBraveVerticalTabs)},
+#endif  // BUILDFLAG(IS_ANDROID)
 
 #define BRAVE_ABOUT_FLAGS_FEATURE_ENTRIES                                   \
     {"use-dev-updater-url",                                                 \
@@ -545,4 +563,5 @@ constexpr char kRestrictWebSocketsPoolDescription[] =
     BRAVE_VPN_FEATURE_ENTRIES                                               \
     BRAVE_SKU_SDK_FEATURE_ENTRIES                                           \
     SPEEDREADER_FEATURE_ENTRIES                                             \
-    BRAVE_TRANSLATE_GO_FEATURE_ENTRIES
+    BRAVE_TRANSLATE_GO_FEATURE_ENTRIES                                      \
+    BRAVE_VERTICAL_TABS_FEATURE_ENTRY

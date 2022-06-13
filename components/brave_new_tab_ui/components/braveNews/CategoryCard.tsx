@@ -6,6 +6,10 @@ const Container = styled(Flex) <{ background: string }>`
     background-image: url("${p => p.background}");
     color: white;
     border-radius: 8px;
+
+    :hover {
+        opacity: 0.8;
+    }
 `
 
 const Text = styled.span`

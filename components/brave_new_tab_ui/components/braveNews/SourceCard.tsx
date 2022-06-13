@@ -9,6 +9,10 @@ const Container = styled(Flex)<{ background?: string }>`
     background: ${p => p.background};
     padding: 16px 20px;
     color: white;
+
+    :hover {
+        opacity: 0.8;
+    }
 `
 
 export default function SourceCard(props: { icon: React.ReactNode, text: string, id: string, background?: string }) {

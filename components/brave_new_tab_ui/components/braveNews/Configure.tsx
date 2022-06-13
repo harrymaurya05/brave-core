@@ -2,6 +2,8 @@ import { Toggle } from '../../components/toggle';
 import * as React from 'react';
 import styled from 'styled-components';
 import Flex from '../Flex';
+import SourceEntry from './SourceEntry';
+import Discover from './Discover';
 
 const Grid = styled.div`
     width: 100%;
@@ -19,7 +21,6 @@ const Grid = styled.div`
 
 const Header = styled.div`
     grid-area: header;
-    background: red;
     align-items: center;
     display: flex;
     gap: 12px;
@@ -32,7 +33,6 @@ const HeaderText = styled.span`
 
 const BackButtonContainer = styled.div`
     grid-area: back-button;
-    background: green;
     align-items: center;
     display: flex;
     padding: 12px;
@@ -79,11 +79,11 @@ const SidebarTitle = styled.span`
 const SidebarSubtitle = styled.span`
     font-weight: 500;
     font-size: 12px;
+    color: #868E96;
 `
 
 const Content = styled.div`
     grid-area: content;
-    background: yellow;
     padding: 12px;
 `
 
@@ -114,13 +114,11 @@ export default function Configure() {
                 <SidebarSubtitle>{fakeModel.sources.length} sources</SidebarSubtitle>
             </Flex>
             <Flex direction='column'>
-                {fakeModel.sources.map((s, i) => <Flex key={i} direction='row' justify='space-between'>
-                    <span>{s.title}</span>
-                    <span>❤</span>
-                </Flex>)}
+                {fakeModel.sources.map((s, i) => <SourceEntry key={i} sourceId={s.title} />)}
             </Flex>
         </Sidebar>
         <Content>
+            <Discover/>
         </Content>
     </Grid>
 }

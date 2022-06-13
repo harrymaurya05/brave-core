@@ -40,7 +40,7 @@ void BraveSyncServerCommands::PermanentlyDeleteAccount(
 
   if (post_result.value() != SyncerError::SYNCER_OK) {
     LOG(WARNING) << "Post ClearServerData failed post_result.value()="
-                 << post_result.value();
+                 << post_result.value() << " " << post_result.ToString();
   }
 
   if (response.has_error_code()) {

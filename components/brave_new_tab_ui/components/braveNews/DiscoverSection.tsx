@@ -11,11 +11,13 @@ interface Props {
 
 const Container = styled(Flex)`
     padding: 16px 0;
+    cursor: pointer;
 `
 
 const Header = styled.span`
     font-weight: 600;
     font-size: 16px;
+    margin: 8px 0;
 `
 
 const Link = styled.a`
@@ -29,6 +31,7 @@ const Subtitle = styled.span`
 `
 
 const ItemsContainer = styled.div`
+    margin: 8px 0;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 208px));
     grid-template-rows: repeat(auto-fit, 102px);

@@ -66,7 +66,6 @@ const Hr = styled.hr`
 
 const Sidebar = styled.div`
     grid-area: sidebar;
-    background: blue;
     padding: 12px;
 `
 

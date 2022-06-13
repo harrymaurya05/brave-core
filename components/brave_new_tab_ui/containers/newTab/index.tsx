@@ -53,6 +53,8 @@ import { FTXState } from '../../widgets/ftx/ftx_state'
 import Settings, { TabType as SettingsTabType } from './settings'
 import { MAX_GRID_SIZE } from '../../constants/new_tab_ui'
 
+import Configure from '../../components/braveNews/Configure'
+
 interface Props {
   newTabData: NewTab.State
   gridSitesData: NewTab.GridSitesState
@@ -1131,6 +1133,9 @@ class NewTabPage extends React.Component<Props, State> {
             showTopSites={showTopSites}
             showBrandedWallpaper={isShowingBrandedWallpaper}
         >
+          <dialog open style={{ width: '100vw', height: '100vh', zIndex: 1000}}>
+            <Configure/>
+          </dialog>
           {newTabData.showStats &&
           <Page.GridItemStats>
             <Stats

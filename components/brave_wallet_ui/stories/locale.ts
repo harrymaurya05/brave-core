@@ -145,7 +145,7 @@ provideStrings({
 
   // Create Password
   braveWalletCreatePasswordTitle: 'Create a new password',
-  braveWalletCreatePasswordDescription: 'You will need to enter the password to access your wallet from your Browser.',
+  braveWalletCreatePasswordDescription: 'You will need this password to access your Brave Wallet.',
   braveWalletCreatePasswordInput: 'Enter new password',
   braveWalletConfirmPasswordInput: 'Re-enter password',
   braveWalletCreatePasswordError: 'Password criteria doesn\'t match.',
@@ -179,8 +179,14 @@ provideStrings({
   braveWalletImportOrRestoreWalletTitle: 'Connect to your existing wallet',
   braveWalletImportOrRestoreDescription: 'By connecting to your wallet, you may need to enter your 12 word recovery phrase to restore/import. We support Ethereum wallet at this time.',
   braveWalletRestoreMyBraveWallet: 'Restore my Brave Wallet',
-  braveWalletImportFromMetaMask: 'Import from MetaMask',
   braveWalletCreateWalletInsteadLink: 'Never mind, I’ll create a new wallet',
+  braveWalletImportPasswordError: 'Password is not correct',
+
+  braveWalletImportFromMetaMask: 'Import from MetaMask',
+  braveWalletMetaMaskPasswordInputPlaceholder: 'Type MetaMask password',
+  braveWalletImportFromMetaMaskSeedInstructions: 'Type your MetaMask 12 words recovery phrase.',
+  braveWalletMetaMaskExtensionDetected: 'We detected the MetaMask extension in your browser',
+  braveWalletMetaMaskExtensionImportDescription: 'By entering the password you can Import your MetaMask wallet to Brave Wallet easily.',
 
   // Lock Screen
   braveWalletLockScreenTitle: 'Enter password to unlock wallet',
@@ -619,5 +625,8 @@ provideStrings({
 
   // Help Center
   braveWalletHelpCenter: 'Help Center',
-  braveWalletHelpCenterText: 'Need help? See'
+  braveWalletHelpCenterText: 'Need help? See',
+
+  // Input field labels
+  braveWalletInputLabelPassword: 'Password'
 })

@@ -1,6 +1,7 @@
 import { Toggle } from '../../components/toggle';
 import * as React from 'react';
 import styled from 'styled-components';
+import Flex from '../Flex';
 
 const Grid = styled.div`
     width: 100%;
@@ -66,14 +67,35 @@ const Hr = styled.hr`
 const Sidebar = styled.div`
     grid-area: sidebar;
     background: blue;
+    padding: 12px;
+`
+
+const SidebarTitle = styled.span`
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 36px;
+`
+
+const SidebarSubtitle = styled.span`
+    font-weight: 500;
+    font-size: 12px;
 `
 
 const Content = styled.div`
     grid-area: content;
     background: yellow;
+    padding: 12px;
 `
 
 export default function Configure() {
+    const fakeModel = {
+        sources: [
+            { title: 'First' },
+            { title: 'Second' },
+            { title: 'Third' },
+            { title: 'Fourth' },
+        ]
+    };
     return <Grid>
         <BackButtonContainer>
             <BackButton>
@@ -87,10 +109,18 @@ export default function Configure() {
         </Header>
         <Hr />
         <Sidebar>
-
+            <Flex direction='row' justify='space-between' align='center'>
+                <SidebarTitle>Following</SidebarTitle>
+                <SidebarSubtitle>{fakeModel.sources.length} sources</SidebarSubtitle>
+            </Flex>
+            <Flex direction='column'>
+                {fakeModel.sources.map((s, i) => <Flex key={i} direction='row' justify='space-between'>
+                    <span>{s.title}</span>
+                    <span>❤</span>
+                </Flex>)}
+            </Flex>
         </Sidebar>
         <Content>
-
         </Content>
     </Grid>
 }

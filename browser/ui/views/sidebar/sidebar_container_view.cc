@@ -12,15 +12,16 @@
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/sidebar/sidebar_controller.h"
 #include "brave/browser/ui/sidebar/sidebar_model.h"
-#include "brave/browser/ui/sidebar/sidebar_model_data.h"
 #include "brave/browser/ui/sidebar/sidebar_service_factory.h"
 #include "brave/browser/ui/views/frame/brave_browser_view.h"
+#include "brave/browser/ui/views/side_panel/brave_side_panel.h"
 #include "brave/browser/ui/views/sidebar/sidebar_control_view.h"
-#include "brave/browser/ui/views/sidebar/sidebar_panel_webview.h"
+#include "brave/components/sidebar/sidebar_item.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/themes/theme_properties.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
+#include "chrome/browser/ui/views/side_panel/side_panel_entry.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents.h"
@@ -37,22 +38,24 @@
 namespace {
 
 using ShowSidebarOption = sidebar::SidebarService::ShowSidebarOption;
+using BuiltInItemType = sidebar::SidebarItem::BuiltInItemType;
 
 sidebar::SidebarService* GetSidebarService(BraveBrowser* browser) {
   return sidebar::SidebarServiceFactory::GetForProfile(browser->profile());
 }
 
-size_t GetPreferredPanelWidthForCurrentItem(BraveBrowser* browser) {
-  auto* controller = browser->sidebar_controller();
-  int active_index = controller->model()->active_index();
-  const auto item = GetSidebarService(browser)->items()[active_index];
-  // Shortcut type doesn't use panel.
-  if (!item.open_in_panel)
-    return 0;
-
-  constexpr size_t kPanelWidthForBuiltIn = 260;
-  constexpr size_t kPanelWidthForNonBuiltIn = 360;
-  return IsBuiltInType(item) ? kPanelWidthForBuiltIn : kPanelWidthForNonBuiltIn;
+SidePanelEntry::Id SidePanelIdFromSideBarItem(const sidebar::SidebarItem item) {
+  DCHECK(item.open_in_panel);
+  switch (item.built_in_item_type) {
+    case BuiltInItemType::kReadingList:
+      return SidePanelEntry::Id::kReadingList;
+    case BuiltInItemType::kBookmarks:
+      return SidePanelEntry::Id::kBookmarks;
+    default:
+      // We really shouldn't get here, add a new case for any new types which
+      // we want to support.
+      return SidePanelEntry::Id::kReadingList;
+  }
 }
 
 }  // namespace
@@ -90,11 +93,16 @@ class SidebarContainerView::BrowserWindowEventObserver
   SidebarContainerView* host_ = nullptr;
 };
 
-SidebarContainerView::SidebarContainerView(BraveBrowser* browser)
+SidebarContainerView::SidebarContainerView(
+    BraveBrowser* browser,
+    SidePanelCoordinator* side_panel_coordinator,
+    std::unique_ptr<BraveSidePanel> side_panel)
     : browser_(browser),
+      side_panel_coordinator_(side_panel_coordinator),
       browser_window_event_observer_(
           std::make_unique<BrowserWindowEventObserver>(this)) {
   SetNotifyEnterExitOnChild(true);
+  side_panel_ = AddChildView(std::move(side_panel));
 }
 
 SidebarContainerView::~SidebarContainerView() = default;
@@ -129,42 +137,13 @@ void SidebarContainerView::UpdateSidebar() {
   sidebar_control_view_->Update();
 }
 
-void SidebarContainerView::ShowCustomContextMenu(
-    const gfx::Point& point,
-    std::unique_ptr<ui::MenuModel> menu_model) {
-  if (!sidebar_panel_webview_->GetVisible()) {
-    LOG(ERROR) << __func__
-               << " sidebar panel UI is loaded at non sidebar panel!";
-    return;
-  }
-
-  sidebar_panel_webview_->ShowCustomContextMenu(point, std::move(menu_model));
-}
-
-void SidebarContainerView::HideCustomContextMenu() {
-  if (!sidebar_panel_webview_->GetVisible()) {
-    LOG(ERROR) << __func__
-               << " sidebar panel UI is loaded at non sidebar panel!";
-    return;
-  }
-
-  sidebar_panel_webview_->HideCustomContextMenu();
-}
-
-bool SidebarContainerView::HandleKeyboardEvent(
-    content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
-  DCHECK(sidebar_panel_webview_->GetVisible());
-  return sidebar_panel_webview_->TreatUnHandledKeyboardEvent(source, event);
-}
-
 void SidebarContainerView::UpdateBackgroundAndBorder() {
   if (const ui::ThemeProvider* theme_provider = GetThemeProvider()) {
     constexpr int kBorderThickness = 1;
     // Fill background because panel's color uses alpha value.
     SetBackground(views::CreateSolidBackground(
         theme_provider->GetColor(ThemeProperties::COLOR_TOOLBAR)));
-    if (sidebar_panel_webview_ && sidebar_panel_webview_->GetVisible()) {
+    if (side_panel_ && side_panel_->GetVisible()) {
       SetBorder(views::CreateSolidSidedBorder(
           gfx::Insets::TLBR(0, 0, 0, kBorderThickness),
           theme_provider->GetColor(
@@ -179,8 +158,8 @@ void SidebarContainerView::UpdateBackgroundAndBorder() {
 void SidebarContainerView::AddChildViews() {
   sidebar_control_view_ =
       AddChildView(std::make_unique<SidebarControlView>(browser_));
-  sidebar_panel_webview_ =
-      AddChildView(std::make_unique<SidebarPanelWebView>(browser_->profile()));
+
+  ReorderChildView(side_panel_, 1);
 }
 
 void SidebarContainerView::Layout() {
@@ -191,10 +170,9 @@ void SidebarContainerView::Layout() {
       sidebar_control_view_->GetPreferredSize().width();
   sidebar_control_view_->SetBounds(0, 0, control_view_preferred_width,
                                    height());
-  if (sidebar_panel_webview_->GetVisible()) {
-    sidebar_panel_webview_->SetBounds(
-        control_view_preferred_width, 0,
-        GetPreferredPanelWidthForCurrentItem(browser_), height());
+  if (side_panel_->GetVisible()) {
+    side_panel_->SetBounds(control_view_preferred_width, 0,
+                           side_panel_->GetPreferredSize().width(), height());
   }
 }
 
@@ -205,8 +183,8 @@ gfx::Size SidebarContainerView::CalculatePreferredSize() const {
 
   int preferred_width =
       sidebar_control_view_->GetPreferredSize().width() + GetInsets().width();
-  if (sidebar_panel_webview_->GetVisible())
-    preferred_width += GetPreferredPanelWidthForCurrentItem(browser_);
+  if (side_panel_->GetVisible())
+    preferred_width += side_panel_->GetPreferredSize().width();
   // height is determined by parent.
   return {preferred_width, 0};
 }
@@ -218,7 +196,7 @@ void SidebarContainerView::OnThemeChanged() {
 }
 
 bool SidebarContainerView::ShouldShowSidebar() const {
-  return sidebar_panel_webview_->GetVisible() ||
+  return side_panel_->GetVisible() ||
          sidebar_control_view_->IsItemReorderingInProgress() ||
          sidebar_control_view_->IsBubbleWidgetVisible();
 }
@@ -261,20 +239,26 @@ void SidebarContainerView::OnMouseExited(const ui::MouseEvent& event) {
 
 void SidebarContainerView::OnActiveIndexChanged(int old_index, int new_index) {
   if (new_index == -1) {
-    sidebar_panel_webview_->SetVisible(false);
+    side_panel_coordinator_->Close();
     GetFocusManager()->ClearFocus();
   } else {
     const auto item = sidebar_model_->GetAllSidebarItems()[new_index];
-    if (item.open_in_panel) {
-      sidebar_panel_webview_->SetWebContents(
-          sidebar_model_->GetWebContentsAt(new_index));
-      sidebar_panel_webview_->SetVisible(true);
-      // When panel is opened, it will get focused.
-      sidebar_panel_webview_->RequestFocus();
+    if (!item.open_in_panel) {
+      side_panel_coordinator_->Close();
     } else {
-      sidebar_panel_webview_->SetVisible(false);
-      GetFocusManager()->ClearFocus();
+      // Get side panel entry information
+      side_panel_coordinator_->Show(SidePanelIdFromSideBarItem(item));
     }
+    // if (item.open_in_panel) {
+    //   sidebar_panel_webview_->SetWebContents(
+    //       sidebar_model_->GetWebContentsAt(new_index));
+    //   sidebar_panel_webview_->SetVisible(true);
+    //   // When panel is opened, it will get focused.
+    //   sidebar_panel_webview_->RequestFocus();
+    // } else {
+    //   sidebar_panel_webview_->SetVisible(false);
+    //   GetFocusManager()->ClearFocus();
+    // }
   }
   UpdateBackgroundAndBorder();
   InvalidateLayout();

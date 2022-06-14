@@ -10,7 +10,6 @@
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/sidebar/sidebar.h"
 #include "brave/browser/ui/sidebar/sidebar_model.h"
-#include "brave/browser/ui/sidebar/sidebar_model_data.h"
 #include "brave/browser/ui/sidebar/sidebar_service_factory.h"
 #include "brave/browser/ui/sidebar/sidebar_utils.h"
 #include "brave/components/sidebar/sidebar_service.h"

@@ -1,0 +1,12 @@
+diff --git a/chrome/browser/ui/views/side_panel/side_panel_coordinator.cc b/chrome/browser/ui/views/side_panel/side_panel_coordinator.cc
+index 78db88142b5734dc824596e0a3c1c6d7b5cf2bac..831afa811c0f3e282a89fb7ba2f218d765a29268 100644
+--- a/chrome/browser/ui/views/side_panel/side_panel_coordinator.cc
++++ b/chrome/browser/ui/views/side_panel/side_panel_coordinator.cc
+@@ -274,6 +274,7 @@ SidePanelRegistry* SidePanelCoordinator::GetActiveContextualRegistry() const {
+ }
+ 
+ std::unique_ptr<views::View> SidePanelCoordinator::CreateHeader() {
++  BRAVE_SIDE_PANEL_COORDINATOR_CREATE_HEADER
+   auto header = std::make_unique<views::FlexLayoutView>();
+   // ChromeLayoutProvider for providing margins.
+   ChromeLayoutProvider* const chrome_layout_provider =

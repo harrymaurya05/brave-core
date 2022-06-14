@@ -99,16 +99,6 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, BasicTest) {
 
   controller()->ActivateItemAt(2);
 
-  // Sidebar items at 2, 3 are opened in panel.
-  // Check their webcontents are sidebar webcontents.
-  EXPECT_TRUE(model()->IsSidebarWebContents(model()->GetWebContentsAt(2)));
-  EXPECT_FALSE(
-      model()->IsSidebarWebContents(tab_model()->GetActiveWebContents()));
-  EXPECT_EQ(browser(),
-            chrome::FindBrowserWithWebContents(model()->GetWebContentsAt(2)));
-  EXPECT_EQ(browser(), chrome::FindBrowserWithWebContents(
-                           tab_model()->GetActiveWebContents()));
-
   // Remove Item at index 0 change active index from 3 to 2.
   SidebarServiceFactory::GetForProfile(browser()->profile())->RemoveItemAt(0);
   EXPECT_EQ(2UL, model()->GetAllSidebarItems().size());

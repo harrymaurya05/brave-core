@@ -48,6 +48,7 @@
     "contexts": ["webui"],
     "matches": [
       "chrome://bookmarks/*",
+      "chrome://bookmarks-side-panel.top-chrome/*",
       "chrome://read-later.top-chrome/*",
       "chrome://sidebar-bookmarks.top-chrome/*"
     ],

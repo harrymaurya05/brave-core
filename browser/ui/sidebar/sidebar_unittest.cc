@@ -140,8 +140,6 @@ TEST(SidebarUtilTest, ConvertURLToBuiltInItemURLTest) {
   EXPECT_EQ(GURL(kBraveTalkURL),
             ConvertURLToBuiltInItemURL(
                 GURL("https://talk.brave.com/1Ar1vHfLBWX2sAdi")));
-  EXPECT_EQ(GURL(kSidebarBookmarksURL),
-            ConvertURLToBuiltInItemURL(GURL(chrome::kChromeUIBookmarksURL)));
   EXPECT_EQ(
       GURL(kBraveUIWalletPageURL),
       ConvertURLToBuiltInItemURL(GURL("chrome://wallet/crypto/onboarding")));

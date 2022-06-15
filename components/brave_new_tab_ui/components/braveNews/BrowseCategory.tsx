@@ -1,9 +1,9 @@
 import Button from "$web-components/button";
+import Toggle from "$web-components/toggle";
 import * as React from "react";
 import styled from "styled-components";
 import Flex from "../Flex";
-import { StyledCheckbox } from "../toggle/style";
-import CategoryCard from "./CategoryCard";
+import FeedCard from "./FeedCard";
 import { BackArrow, Heart } from "./Icons";
 
 const Container = styled.div`
@@ -11,10 +11,15 @@ const Container = styled.div`
     overflow: auto;
 `
 
+const BackButton = styled(Button)`
+    justify-self: start;
+`
+
 const Header = styled(Flex)`
-    > * {
-        flex: 1;
-    }
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    justify-self: center;
 `
 
 const HeaderText = styled(Flex)`
@@ -28,6 +33,13 @@ const FeedCardsContainer = styled('div')`
     grid-template-columns: repeat(auto-fill, auto);
 `
 
+const colors = [
+    'black',
+    'green',
+    'white',
+    'salmon'
+]
+
 export default function BrowseCategory(props: { categoryId: string }) {
     const feeds = [
         { title: 'First' },
@@ -38,24 +50,22 @@ export default function BrowseCategory(props: { categoryId: string }) {
     const categoryName = "Business";
     return <Container>
         <Header direction="row" align="center">
-            <Button onClick={console.log}>
+            <BackButton onClick={console.log}>
                 {BackArrow} Back
-            </Button>
+            </BackButton>
             <HeaderText>
                 {categoryName}
             </HeaderText>
-            {/* Placeholder div, so everything is centered nicely */}
-            <div />
         </Header>
         <Flex direction="row" justify="space-between" align="center">
-            <span><StyledCheckbox />Select All</span>
+            <div><Toggle/> Select All</div>
             <Button isPrimary onClick={console.log}>
                 {Heart}
                 Follow
             </Button>
         </Flex>
         <FeedCardsContainer>
-            {feeds.map(f => <CategoryCard key={f.title} backgroundUrl="" categoryId={f.title} text={f.title} />)}
+            {feeds.map((f, i) => <FeedCard key={f.title} backgroundColor={colors[i%colors.length]} name={f.title} following={i%2==0} />)}
         </FeedCardsContainer>
     </Container>
 }

@@ -1,11 +1,13 @@
 import * as React from "react";
 import styled from "styled-components";
 import Flex from "../Flex";
-import SourceEntry from "./SourceEntry";
 import Discover from "./Discover";
 import { BackArrow, Cross } from "./Icons";
 import Button from "$web-components/button";
 import Toggle from '$web-components/toggle';
+import FeedList from "./FeedList";
+import { useState } from "react";
+import DisabledPlaceholder from "./DisabledPlaceholder";
 
 const Grid = styled.div`
   width: 100%;
@@ -71,32 +73,14 @@ const Sidebar = styled.div`
   padding: 12px;
 `;
 
-const SidebarTitle = styled.span`
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 36px;
-`;
-
-const SidebarSubtitle = styled.span`
-  font-weight: 500;
-  font-size: 12px;
-  color: #868e96;
-`;
-
 const Content = styled.div`
   grid-area: content;
   padding: 12px;
 `;
 
 export default function Configure() {
-  const fakeModel = {
-    sources: [
-      { title: "First" },
-      { title: "Second" },
-      { title: "Third" },
-      { title: "Fourth" }
-    ]
-  };
+  const [enabled, setEnabled] = useState(true);
+
   return (
     <Grid>
       <BackButtonContainer>
@@ -110,24 +94,18 @@ export default function Configure() {
       <Header>
         <Flex direction="row" align="center" gap={8}>
           <HeaderText>Brave News</HeaderText>
-          <Toggle></Toggle>
+          <Toggle isOn={enabled} onChange={setEnabled}/>
         </Flex>
         <CloseButton onClick={console.log}>{Cross}</CloseButton>
       </Header>
       <Hr />
       <Sidebar>
-        <Flex direction="row" justify="space-between" align="center">
-          <SidebarTitle>Following</SidebarTitle>
-          <SidebarSubtitle>{fakeModel.sources.length} sources</SidebarSubtitle>
-        </Flex>
-        <Flex direction="column">
-          {fakeModel.sources.map((s, i) => (
-            <SourceEntry key={i} sourceId={s.title} />
-          ))}
-        </Flex>
+        <FeedList />
       </Sidebar>
       <Content>
-        <Discover />
+        {enabled
+          ? <Discover />
+          : <DisabledPlaceholder enableBraveNews={() => setEnabled(true)} />}
       </Content>
     </Grid>
   );

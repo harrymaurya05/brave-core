@@ -25,7 +25,7 @@ const Grid = styled.div`
 
 const Header = styled(Flex)`
   grid-area: header;
-  padding: 12px;
+  padding: 24px;
 `;
 
 const HeaderText = styled.span`
@@ -66,8 +66,10 @@ const Hr = styled.hr`
 
 const Sidebar = styled.div`
   position: relative;
+  overflow: auto;
   grid-area: sidebar;
-  padding: 12px;
+  padding: 28px 32px;
+  background: var(--background2);
 `;
 
 // Overlay on top of the sidebar, shown when it is disabled.
@@ -83,7 +85,8 @@ const SidebarOverlay = styled.div`
 
 const Content = styled.div`
   grid-area: content;
-  padding: 12px;
+  overflow: auto;
+  padding: 20px 64px;
 `;
 
 export default function Configure() {

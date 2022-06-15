@@ -8,6 +8,7 @@ import Toggle from '$web-components/toggle';
 import FeedList from "./FeedList";
 import { useState } from "react";
 import DisabledPlaceholder from "./DisabledPlaceholder";
+import BrowseCategory from "./BrowseCategory";
 
 const Grid = styled.div`
   width: 100%;
@@ -91,11 +92,21 @@ const Content = styled.div`
 
 export default function Configure() {
   const [enabled, setEnabled] = useState(true);
+  const [browsingCategoryId, setBrowsingCategoryId] = useState<string>();
+
+  let content: JSX.Element;
+  if (!enabled) {
+    content = <DisabledPlaceholder enableBraveNews={() => setEnabled(true)} />
+  } else if (browsingCategoryId) {
+    content = <BrowseCategory categoryId={browsingCategoryId} />;
+  } else {
+    content = <Discover setBrowsingCategory={setBrowsingCategoryId} />
+  }
 
   return (
     <Grid>
       <BackButtonContainer>
-        <BackButton onClick={console.log}>
+        <BackButton onClick={() => setBrowsingCategoryId('business')}>
           {BackArrow}
           <BackButtonText>
             Back to <b>Dashboard</b>
@@ -115,9 +126,7 @@ export default function Configure() {
         {!enabled && <SidebarOverlay />}
       </Sidebar>
       <Content>
-        {enabled
-          ? <Discover />
-          : <DisabledPlaceholder enableBraveNews={() => setEnabled(true)} />}
+        {content}
       </Content>
     </Grid>
   );

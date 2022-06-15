@@ -27,6 +27,7 @@ const Header = styled.div`
   display: flex;
   gap: 12px;
   padding: 12px;
+  justify-content: space-between;
 `;
 
 const HeaderText = styled.span`
@@ -113,8 +114,10 @@ export default function Configure() {
         </BackButton>
       </BackButtonContainer>
       <Header>
-        <HeaderText>Brave News</HeaderText>
-        <Toggle></Toggle>
+        <Flex direction="row" align="center" gap={8}>
+          <HeaderText>Brave News</HeaderText>
+          <Toggle></Toggle>
+        </Flex>
         <CloseButton onClick={console.log}>{Cross}</CloseButton>
       </Header>
       <Hr />

@@ -2,7 +2,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import Flex from "../Flex";
-import SourceEntry from "./SourceEntry";
+import FeedListEntry from "./FeedListEntry";
 
 const Title = styled.span`
   font-size: 18px;
@@ -33,7 +33,7 @@ export default function FeedList() {
         </Flex>
         <Flex direction="column">
             {fakeModel.sources.map((s, i) => (
-                <SourceEntry key={i} sourceId={s.title} />
+                <FeedListEntry key={i} sourceId={s.title} />
             ))}
         </Flex>
     </div>

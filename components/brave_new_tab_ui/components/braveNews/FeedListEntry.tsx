@@ -10,9 +10,10 @@ interface Props {
 
 const Container = styled(Flex)`
     padding: 10px 0;
+    cursor: pointer;
     
     :hover {
-        opacity: 0.8;
+        opacity: 0.5;
     }
 `
 

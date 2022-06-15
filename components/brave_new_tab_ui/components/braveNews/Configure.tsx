@@ -23,13 +23,9 @@ const Grid = styled.div`
     "sidebar content";
 `;
 
-const Header = styled.div`
+const Header = styled(Flex)`
   grid-area: header;
-  align-items: center;
-  display: flex;
-  gap: 12px;
   padding: 12px;
-  justify-content: space-between;
 `;
 
 const HeaderText = styled.span`
@@ -91,12 +87,12 @@ export default function Configure() {
           </BackButtonText>
         </BackButton>
       </BackButtonContainer>
-      <Header>
-        <Flex direction="row" align="center" gap={8}>
+      <Header direction="row-reverse" gap={12} align="center" justify="space-between">
+        <CloseButton onClick={console.log}>{Cross}</CloseButton>
+        {enabled && <Flex direction="row" align="center" gap={8}>
           <HeaderText>Brave News</HeaderText>
           <Toggle isOn={enabled} onChange={setEnabled}/>
-        </Flex>
-        <CloseButton onClick={console.log}>{Cross}</CloseButton>
+        </Flex>}
       </Header>
       <Hr />
       <Sidebar>

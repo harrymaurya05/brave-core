@@ -49,16 +49,9 @@ const BackButtonContainer = styled.div`
   padding: 12px;
 `;
 
-const BackButton = styled.button`
-  all: unset;
-  cursor: pointer;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-
-  :hover {
-    opacity: 0.8;
-  }
+const BackButton = styled(Button)`
+  --inner-border-size: 0;
+  --outer-border-size: 0;
 `;
 
 const BackButtonText = styled.span`
@@ -106,7 +99,7 @@ export default function Configure() {
   return (
     <Grid>
       <BackButtonContainer>
-        <BackButton>
+        <BackButton onClick={console.log}>
           {BackArrow}
           <BackButtonText>
             Back to <b>Dashboard</b>

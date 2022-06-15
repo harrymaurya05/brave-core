@@ -1,4 +1,3 @@
-import { Toggle } from "../../components/toggle";
 import * as React from "react";
 import styled from "styled-components";
 import Flex from "../Flex";
@@ -6,6 +5,7 @@ import SourceEntry from "./SourceEntry";
 import Discover from "./Discover";
 import { BackArrow, Cross } from "./Icons";
 import Button from "$web-components/button";
+import Toggle from '$web-components/toggle';
 
 const Grid = styled.div`
   width: 100%;
@@ -32,6 +32,7 @@ const Header = styled.div`
 
 const HeaderText = styled.span`
   font-size: 16px;
+  font-weight: 500;
 `;
 
 const CloseButton = styled(Button)`

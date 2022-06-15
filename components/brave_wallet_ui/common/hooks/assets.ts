@@ -104,9 +104,14 @@ export function useAssets () {
     return [...rampAssetOptions, ...wyreAssetOptions].filter(asset => asset.chainId === selectedNetwork.chainId)
   }, [rampAssetOptions, wyreAssetOptions, selectedNetwork])
 
+  const buyAssetOptionsAllChains = React.useMemo(() => {
+    return [...rampAssetOptions, ...wyreAssetOptions]
+  }, [rampAssetOptions, wyreAssetOptions, selectedNetwork])
+
   return {
     sendAssetOptions: assetsByNetwork,
     buyAssetOptions,
+    buyAssetOptionsAllChains,
     rampAssetOptions,
     wyreAssetOptions,
     panelUserAssetList: assetsByValueAndNetwork

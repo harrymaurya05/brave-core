@@ -7,14 +7,14 @@ import { createReducer } from 'redux-act'
 import * as Actions from '../actions/wallet_page_actions'
 import {
   BraveWallet,
-  PageState,
-  ImportWalletError
+  PageState
 } from '../../constants/types'
 import {
   WalletCreatedPayloadType,
   RecoveryWordsAvailablePayloadType,
   PrivateKeyAvailablePayloadType,
-  SelectAssetPayloadType
+  SelectAssetPayloadType,
+  ImportWalletErrorPayloadType
 } from '../constants/action_types'
 
 const defaultState: PageState = {
@@ -35,7 +35,8 @@ const defaultState: PageState = {
   setupStillInProgress: false,
   isCryptoWalletsInitialized: false,
   isMetaMaskInitialized: false,
-  isImportWalletsCheckComplete: false
+  isImportWalletsCheckComplete: false,
+  importWalletAttempts: 0
 }
 
 export const createPageReducer = (initialState: PageState) => {
@@ -143,10 +144,15 @@ export const createPageReducer = (initialState: PageState) => {
     }
   })
 
-  reducer.on(Actions.setImportWalletError, (state: PageState, payload: ImportWalletError) => {
+  reducer.on(Actions.setImportWalletError, (state: PageState, {
+    hasError,
+    errorMessage,
+    incrementAttempts
+  }: ImportWalletErrorPayloadType) => {
     return {
       ...state,
-      importWalletError: payload
+      importWalletError: { hasError, errorMessage },
+      importWalletAttempts: incrementAttempts ? state.importWalletAttempts + 1 : state.importWalletAttempts
     }
   })
 

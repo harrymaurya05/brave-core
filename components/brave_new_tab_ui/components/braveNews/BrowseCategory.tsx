@@ -4,7 +4,8 @@ import * as React from "react";
 import styled from "styled-components";
 import Flex from "../Flex";
 import FeedCard from "./FeedCard";
-import { BackArrow, Heart } from "./Icons";
+import FollowButton from "./FollowButton";
+import { BackArrow } from "./Icons";
 
 const Container = styled.div`
     height: 100%;
@@ -59,10 +60,7 @@ export default function BrowseCategory(props: { categoryId: string }) {
         </Header>
         <Flex direction="row" justify="space-between" align="center">
             <div><Toggle/> Select All</div>
-            <Button isPrimary onClick={console.log}>
-                {Heart}
-                Follow
-            </Button>
+            <FollowButton following={false} onClick={console.log} />
         </Flex>
         <FeedCardsContainer>
             {feeds.map((f, i) => <FeedCard key={f.title} backgroundColor={colors[i%colors.length]} name={f.title} following={i%2==0} />)}

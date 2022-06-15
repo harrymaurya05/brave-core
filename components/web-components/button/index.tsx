@@ -6,7 +6,7 @@ import style from './button.module.scss'
 
 type Scale = 'tiny' | 'small' | 'regular' | 'large' | 'jumbo'
 
-interface Props {
+export interface ButtonProps {
   scale?: Scale
   isPrimary?: boolean
   isTertiary?: boolean
@@ -40,7 +40,7 @@ export function ButtonIconContainer (props: React.PropsWithChildren<{}>) {
   )
 }
 
-export default function Button (props: Props) {
+export default function Button (props: ButtonProps) {
   const { scale = 'regular', className } = props
   return (
     <button

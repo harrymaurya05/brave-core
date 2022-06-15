@@ -1133,7 +1133,7 @@ class NewTabPage extends React.Component<Props, State> {
             showTopSites={showTopSites}
             showBrandedWallpaper={isShowingBrandedWallpaper}
         >
-          <dialog open style={{ width: '100vw', height: '100vh', zIndex: 1000}}>
+          <dialog open style={{ borderRadius: '8px', border: 'none', width: 'min(100vw, 1092px)', height: 'min(100vh, 712)', zIndex: 1000, background: 'white'}}>
             <Configure/>
           </dialog>
           {newTabData.showStats &&

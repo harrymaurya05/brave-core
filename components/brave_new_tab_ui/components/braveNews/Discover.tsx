@@ -1,11 +1,12 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import Flex from '../Flex';
-import Button from '../outlineButton';
-import CategoryCard from './CategoryCard';
-import DiscoverSection from './DiscoverSection';
-import { DoubleHeart, Rocket, History } from './Icons';
-import SourceCard from './SourceCard';
+import TextInput from '$web-components/input'
+import * as React from 'react'
+import styled from 'styled-components'
+import Flex from '../Flex'
+import Button from '../outlineButton'
+import CategoryCard from './CategoryCard'
+import DiscoverSection from './DiscoverSection'
+import { DoubleHeart, Rocket, History } from './Icons'
+import SourceCard from './SourceCard'
 
 const Header = styled.span`
     font-size: 24px;
@@ -13,8 +14,11 @@ const Header = styled.span`
     padding: 12px 0;
 `
 
-const SearchInput = styled.input`
+const SearchInput = styled(TextInput)`
     margin: 16px 0;
+    border-radius: 4px;
+    --interactive8: #AEB1C2;
+    --focus-border: #737ADE;
 `
 
 const Link = styled.a`
@@ -39,10 +43,10 @@ const LoadMoreButton = styled(Button)`
     }
 `
 
-export default function Discover() {
+export default function Discover () {
     return <Flex direction='column'>
         <Header>Discover</Header>
-        <SearchInput type="search" />
+        <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' />
         <DiscoverSection name='Trending' sectionId='trending' >
             <SourceCard icon={Rocket} text="Popular" id='popular' background='#353DAB' />
             <SourceCard icon={History} text="Newly added" id='new' background='#207DC9' />

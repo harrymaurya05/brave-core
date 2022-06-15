@@ -97,6 +97,7 @@ KeyedService* BraveVpnServiceFactory::BuildServiceInstanceFor(
 #endif
   return vpn_service;
 #elif BUILDFLAG(IS_ANDROID)
+  // TODO(bsclifton): this needs to change here because it needs to init mojom
   return new BraveVpnService(shared_url_loader_factory, callback);
 #endif
 }

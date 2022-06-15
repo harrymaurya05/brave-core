@@ -858,6 +858,8 @@ BraveVPNOSConnectionAPI* BraveVpnService::GetBraveVPNConnectionAPI() {
   return BraveVPNOSConnectionAPI::GetInstance();
 }
 
+// NOTE(bsclifton): Desktop uses API to create a ticket.
+// Android and iOS directly send an email.
 void BraveVpnService::OnCreateSupportTicket(
     CreateSupportTicketCallback callback,
     int status,
@@ -869,6 +871,19 @@ void BraveVpnService::OnCreateSupportTicket(
   std::move(callback).Run(success, body);
 }
 #endif  // !BUILDFLAG(IS_ANDROID)
+
+#if BUILDFLAG(IS_ANDROID)
+
+void BraveVpnService::GetPurchaseToken(GetPurchaseTokenCallback callback) {
+  // TODO(bsclifton): get the real purchase token
+
+  std::move(callback).Run(
+      "oohdhbmbebmciddpbcicgnko.AO-J1OxJGS6-"
+      "tNYvzofx7RO2hJSEgQmi6tOrLHEB4zJ2OhsyhX3mhEe4QKS0MVxtJCBNIAlBP5jAgDPqdXDN"
+      "z15JhIXt5QYcIExIxe5H5ifbhAsHILlUXlE");
+}
+
+#endif
 
 void BraveVpnService::AddObserver(
     mojo::PendingRemote<mojom::ServiceObserver> observer) {

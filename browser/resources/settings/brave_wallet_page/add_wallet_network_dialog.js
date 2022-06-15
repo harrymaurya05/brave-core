@@ -94,7 +94,7 @@ Polymer({
     currencySymbolValue_: String,
     currencyDecimalsValue_: Number
   },
-  
+
   browserProxy_: null,
 
   /** @override */
@@ -122,6 +122,19 @@ Polymer({
     this.updatePlusButtonState('rpc')
     this.updatePlusButtonState('icon')
     this.updatePlusButtonState('block')
+  },
+
+  connectedCallback: function() {
+    if (loadTimeData.getBoolean('exposeElementsForTesting')) {
+      window.testing = window.testing || {}
+      window.testing['addWalletNetworkDialog'] = this.shadowRoot
+    }
+  },
+
+  disconnectedCallback: function() {
+    if (loadTimeData.getBoolean('exposeElementsForTesting')) {
+      delete window.testing['addWalletNetworkDialog']
+    }
   },
 
   validateURL: function(value) {

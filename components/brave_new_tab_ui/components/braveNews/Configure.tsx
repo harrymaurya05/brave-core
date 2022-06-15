@@ -65,9 +65,21 @@ const Hr = styled.hr`
 `;
 
 const Sidebar = styled.div`
+  position: relative;
   grid-area: sidebar;
   padding: 12px;
 `;
+
+// Overlay on top of the sidebar, shown when it is disabled.
+const SidebarOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  opacity: 0.7;
+`
 
 const Content = styled.div`
   grid-area: content;
@@ -91,12 +103,13 @@ export default function Configure() {
         <CloseButton onClick={console.log}>{Cross}</CloseButton>
         {enabled && <Flex direction="row" align="center" gap={8}>
           <HeaderText>Brave News</HeaderText>
-          <Toggle isOn={enabled} onChange={setEnabled}/>
+          <Toggle isOn={enabled} onChange={setEnabled} />
         </Flex>}
       </Header>
       <Hr />
       <Sidebar>
         <FeedList />
+        {!enabled && <SidebarOverlay />}
       </Sidebar>
       <Content>
         {enabled

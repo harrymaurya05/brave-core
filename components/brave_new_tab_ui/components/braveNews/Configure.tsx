@@ -9,7 +9,7 @@ import FeedList from "./FeedList";
 import { useState } from "react";
 import DisabledPlaceholder from "./DisabledPlaceholder";
 import BrowseCategory from "./BrowseCategory";
-import { usePref } from "../../hooks/usePref";
+import { useNewTabPref } from "../../hooks/usePref";
 
 const Grid = styled.div`
   width: 100%;
@@ -92,7 +92,7 @@ const Content = styled.div`
 `;
 
 export default function Configure() {
-  const [enabled, setEnabled] = usePref('isBraveTodayOptedIn');
+  const [enabled, setEnabled] = useNewTabPref('isBraveTodayOptedIn');
   const [browsingCategoryId, setBrowsingCategoryId] = useState<string>();
 
   let content: JSX.Element;

@@ -99,7 +99,7 @@ const TokenLists = (props: Props) => {
     <>
       <FilterTokenRow>
         <SearchBar placeholder={getLocale('braveWalletSearchText')} action={onFilterAssets} />
-        <NetworkFilterSelector />
+        <NetworkFilterSelector networkListSubset={networks} />
       </FilterTokenRow>
       {fungibleTokenList.map((item) =>
         <PortfolioAssetItem

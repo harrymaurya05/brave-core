@@ -14,6 +14,11 @@ export type Publishers = Record<string, BraveNews.Publisher>
 // Create singleton connection to browser interface
 let braveNewsControllerInstance: BraveNews.BraveNewsControllerRemote
 
+export const isPublisherEnabled = (publisher: BraveNews.Publisher) =>
+    publisher.isEnabled
+        && publisher.userEnabledStatus == BraveNews.UserEnabled.NOT_MODIFIED
+    || publisher.userEnabledStatus == BraveNews.UserEnabled.ENABLED;
+
 export default function getBraveNewsController () {
   // Make connection on first call (not in module root, so that storybook
   // doesn't try to connect, or pages which use exported types

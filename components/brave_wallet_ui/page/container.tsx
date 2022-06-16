@@ -35,6 +35,8 @@ import { OnboardingRoutes } from './screens/onboarding/onboarding.routes'
 import BackupWallet from '../stories/screens/backup-wallet'
 import { SweepstakesBanner } from '../components/desktop/sweepstakes-banner'
 import { Skeleton } from '../components/shared/loading-skeleton/styles'
+import { FundWalletScreen } from './screens/fund-wallet/fund-wallet'
+import { OnboardingSuccess } from './screens/onboarding/onboarding-success/onboarding-success'
 
 export const Container = () => {
   // routing
@@ -177,6 +179,15 @@ export const Container = () => {
 
               {isWalletLocked &&
                 <Switch>
+
+                  <Route path={WalletRoutes.OnboardingComplete} exact>
+                    <OnboardingSuccess />
+                  </Route>
+
+                  <Route path={WalletRoutes.FundWalletPage} exact={true}>
+                    <FundWalletScreen />
+                  </Route>
+
                   <Route path={WalletRoutes.Unlock} exact={true}>
                     <OnboardingWrapper>
                       <LockScreen
@@ -202,6 +213,14 @@ export const Container = () => {
 
               {!isWalletLocked &&
                 <Switch>
+                  <Route path={WalletRoutes.OnboardingComplete} exact>
+                    <OnboardingSuccess />
+                  </Route>
+
+                  <Route path={WalletRoutes.FundWalletPage} exact={true}>
+                    <FundWalletScreen />
+                  </Route>
+
                   <Route path={WalletRoutes.Backup} exact={true}>
                     <OnboardingWrapper>
                       <BackupWallet

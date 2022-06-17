@@ -14,7 +14,10 @@ export const getUniqueAssets = (assets: BraveWallet.BlockchainToken[]) => {
   })
 }
 
-export const isSelectedAssetInAssetOptions = (selectedAsset: BraveWallet.BlockchainToken, assetOptions: BraveWallet.BlockchainToken[]) => {
+export const isSelectedAssetInAssetOptions = (
+  selectedAsset: BraveWallet.BlockchainToken,
+  assetOptions: BraveWallet.BlockchainToken[]
+) => {
   return assetOptions.findIndex(asset => {
     return asset.contractAddress.toLowerCase() === selectedAsset?.contractAddress.toLowerCase() &&
       asset.chainId === selectedAsset.chainId &&
@@ -30,4 +33,11 @@ export const getRampAssetSymbol = (asset: BraveWallet.BlockchainToken) => {
 
   const rampNetworkPrefix = getRampNetworkPrefix(asset.chainId)
   return rampNetworkPrefix !== '' ? `${rampNetworkPrefix}_${asset.symbol.toUpperCase()}` : asset.symbol
+}
+
+export const addLogoToToken = (token: BraveWallet.BlockchainToken) => {
+  return {
+    ...token,
+    logo: `chrome://erc-token-images/${token.logo}`
+  }
 }

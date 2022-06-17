@@ -293,8 +293,8 @@ void SwapService::OnGetPriceQuote(
     std::move(callback).Run(false, nullptr, body);
     return;
   }
-  auto swap_response = mojom::SwapResponse::New();
-  if (!ParseSwapResponse(body, false, &swap_response)) {
+  mojom::SwapResponsePtr swap_response = ParseSwapResponse(body, false);
+  if (!swap_response) {
     std::move(callback).Run(false, nullptr,
                             "Could not parse response body: " + body);
     return;
@@ -331,8 +331,8 @@ void SwapService::OnGetTransactionPayload(
     std::move(callback).Run(false, nullptr, body);
     return;
   }
-  auto swap_response = mojom::SwapResponse::New();
-  if (!ParseSwapResponse(body, true, &swap_response)) {
+  mojom::SwapResponsePtr swap_response = ParseSwapResponse(body, true);
+  if (!swap_response) {
     std::move(callback).Run(false, nullptr,
                             "Could not parse response body: " + body);
     return;

@@ -14,71 +14,24 @@
 
 namespace {
 
-bool ParseResultFromDict(const base::Value::Dict& response_dict,
-                         const std::string& key,
-                         std::string* output_val) {
-  const auto* val = response_dict.FindString(key);
+absl::optional<std::string> ParseResultFromDict(
+    const base::DictionaryValue* response_dict,
+    const std::string& key) {
+  const auto* val = response_dict->FindStringKey(key);
   if (!val) {
-    return false;
+    return absl::nullopt;
   }
-  *output_val = *val;
-  return true;
-}
 
-bool ParseUint64ResultFromValue(const base::Value& value,
-                                const std::string& key,
-                                uint64_t* output_val) {
-  auto val = value.FindIntKey(key);
-  if (!val)
-    return false;
-
-  *output_val = static_cast<uint64_t>(*val);
-  return true;
-}
-
-bool ParseDoubleResultFromValue(const base::Value& value,
-                                const std::string& key,
-                                double* output_val) {
-  auto val = value.FindDoubleKey(key);
-  if (!val)
-    return false;
-
-  *output_val = *val;
-  return true;
-}
-
-bool ParseStringResultFromValue(const base::Value& value,
-                                const std::string& key,
-                                std::string* output_val) {
-  auto* val = value.FindStringKey(key);
-  if (!val)
-    return false;
-
-  *output_val = *val;
-  return true;
-}
-
-bool ParseBoolResultFromValue(const base::Value& value,
-                              const std::string& key,
-                              bool* output_val) {
-  auto val = value.FindBoolKey(key);
-  if (!val)
-    return false;
-
-  *output_val = *val;
-  return true;
+  return *val;
 }
 
 }  // namespace
 
 namespace brave_wallet {
 
-bool ParseSwapResponse(const std::string& json,
-                       bool expect_transaction_data,
-                       mojom::SwapResponsePtr* swap_response) {
-  DCHECK(swap_response);
-  *swap_response = mojom::SwapResponse::New();
-  auto& response = *swap_response;
+mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
+                                         bool expect_transaction_data) {
+  mojom::SwapResponse swap_response;
 
   // {
   //   "price":"1916.27547998814058355",
@@ -106,75 +59,112 @@ bool ParseSwapResponse(const std::string& json,
           json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
                     base::JSONParserOptions::JSON_PARSE_RFC);
   auto& records_v = value_with_error.value;
-  if (!records_v || !records_v->is_dict()) {
+  if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
-    return false;
+    return nullptr;
   }
 
-  const auto& response_dict = records_v->GetDict();
-  if (!ParseResultFromDict(response_dict, "price", &response->price))
-    return false;
+  const base::DictionaryValue* response_dict;
+  if (!records_v->GetAsDictionary(&response_dict)) {
+    return nullptr;
+  }
+
+  auto price = ParseResultFromDict(response_dict, "price");
+  if (!price)
+    return nullptr;
+  swap_response.price = *price;
 
   if (expect_transaction_data) {
-    if (!ParseResultFromDict(response_dict, "guaranteedPrice",
-                             &response->guaranteed_price))
-      return false;
+    auto guaranteed_price =
+        ParseResultFromDict(response_dict, "guaranteedPrice");
+    if (!guaranteed_price)
+      return nullptr;
+    swap_response.guaranteed_price = *guaranteed_price;
 
-    if (!ParseResultFromDict(response_dict, "to", &response->to))
-      return false;
+    auto to = ParseResultFromDict(response_dict, "to");
+    if (!to)
+      return nullptr;
+    swap_response.to = *to;
 
-    if (!ParseResultFromDict(response_dict, "data", &response->data))
-      return false;
+    auto data = ParseResultFromDict(response_dict, "data");
+    if (!data)
+      return nullptr;
+    swap_response.data = *data;
   }
 
-  if (!ParseResultFromDict(response_dict, "value", &response->value))
-    return false;
+  auto value = ParseResultFromDict(response_dict, "value");
+  if (!value)
+    return nullptr;
+  swap_response.value = *value;
 
-  if (!ParseResultFromDict(response_dict, "gas", &response->gas))
-    return false;
+  auto gas = ParseResultFromDict(response_dict, "gas");
+  if (!gas)
+    return nullptr;
+  swap_response.gas = *gas;
 
-  if (!ParseResultFromDict(response_dict, "estimatedGas",
-                           &response->estimated_gas))
-    return false;
+  auto estimated_gas = ParseResultFromDict(response_dict, "estimatedGas");
+  if (!estimated_gas)
+    return nullptr;
+  swap_response.estimated_gas = *estimated_gas;
 
-  if (!ParseResultFromDict(response_dict, "gasPrice", &response->gas_price))
-    return false;
+  auto gas_price = ParseResultFromDict(response_dict, "gasPrice");
+  if (!gas_price)
+    return nullptr;
+  swap_response.gas_price = *gas_price;
 
-  if (!ParseResultFromDict(response_dict, "protocolFee",
-                           &response->protocol_fee))
-    return false;
+  auto protocol_fee = ParseResultFromDict(response_dict, "protocolFee");
+  if (!protocol_fee)
+    return nullptr;
 
-  if (!ParseResultFromDict(response_dict, "minimumProtocolFee",
-                           &response->minimum_protocol_fee))
-    return false;
+  swap_response.protocol_fee = *protocol_fee;
 
-  if (!ParseResultFromDict(response_dict, "buyTokenAddress",
-                           &response->buy_token_address))
-    return false;
+  auto minimum_protocol_fee =
+      ParseResultFromDict(response_dict, "minimumProtocolFee");
+  if (!minimum_protocol_fee)
+    return nullptr;
 
-  if (!ParseResultFromDict(response_dict, "sellTokenAddress",
-                           &response->sell_token_address))
-    return false;
+  swap_response.minimum_protocol_fee = *minimum_protocol_fee;
 
-  if (!ParseResultFromDict(response_dict, "buyAmount", &response->buy_amount))
-    return false;
+  auto buy_token_address =
+      ParseResultFromDict(response_dict, "buyTokenAddress");
+  if (!buy_token_address)
+    return nullptr;
+  swap_response.buy_token_address = *buy_token_address;
 
-  if (!ParseResultFromDict(response_dict, "sellAmount", &response->sell_amount))
-    return false;
+  auto sell_token_address =
+      ParseResultFromDict(response_dict, "sellTokenAddress");
+  if (!sell_token_address)
+    return nullptr;
+  swap_response.sell_token_address = *sell_token_address;
 
-  if (!ParseResultFromDict(response_dict, "allowanceTarget",
-                           &response->allowance_target))
-    return false;
+  auto buy_amount = ParseResultFromDict(response_dict, "buyAmount");
+  if (!buy_amount)
+    return nullptr;
+  swap_response.buy_amount = *buy_amount;
 
-  if (!ParseResultFromDict(response_dict, "sellTokenToEthRate",
-                           &response->sell_token_to_eth_rate))
-    return false;
+  auto sell_amount = ParseResultFromDict(response_dict, "sellAmount");
+  if (!sell_amount)
+    return nullptr;
+  swap_response.sell_amount = *sell_amount;
 
-  if (!ParseResultFromDict(response_dict, "buyTokenToEthRate",
-                           &response->buy_token_to_eth_rate))
-    return false;
+  auto allowance_target = ParseResultFromDict(response_dict, "allowanceTarget");
+  if (!allowance_target)
+    return nullptr;
+  swap_response.allowance_target = *allowance_target;
 
-  return true;
+  auto sell_token_to_eth_rate =
+      ParseResultFromDict(response_dict, "sellTokenToEthRate");
+  if (!sell_token_to_eth_rate)
+    return nullptr;
+  swap_response.sell_token_to_eth_rate = *sell_token_to_eth_rate;
+
+  auto buy_token_to_eth_rate =
+      ParseResultFromDict(response_dict, "buyTokenToEthRate");
+  if (!buy_token_to_eth_rate)
+    return nullptr;
+  swap_response.buy_token_to_eth_rate = *buy_token_to_eth_rate;
+
+  return swap_response.Clone();
 }
 
 mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
@@ -204,30 +194,42 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
   for (const auto& route_value : routes_value->GetList()) {
     mojom::JupiterRoute route;
 
-    if (!ParseUint64ResultFromValue(route_value, "inAmount", &route.in_amount))
+    auto in_amount = route_value.FindIntKey("inAmount");
+    if (!in_amount)
       return nullptr;
+    route.in_amount = *in_amount;
 
-    if (!ParseUint64ResultFromValue(route_value, "outAmount",
-                                    &route.out_amount))
+    auto out_amount = route_value.FindIntKey("outAmount");
+    if (!out_amount)
       return nullptr;
+    route.out_amount = *out_amount;
 
-    if (!ParseUint64ResultFromValue(route_value, "amount", &route.amount))
+    auto amount = route_value.FindIntKey("amount");
+    if (!amount)
       return nullptr;
+    route.amount = *amount;
 
-    if (!ParseUint64ResultFromValue(route_value, "otherAmountThreshold",
-                                    &route.other_amount_threshold))
+    auto other_amount_threshold =
+        route_value.FindIntKey("otherAmountThreshold");
+    if (!other_amount_threshold)
       return nullptr;
+    route.other_amount_threshold = *other_amount_threshold;
 
-    if (!ParseUint64ResultFromValue(route_value, "outAmountWithSlippage",
-                                    &route.out_amount_with_slippage))
+    auto out_amount_with_slippage =
+        route_value.FindIntKey("outAmountWithSlippage");
+    if (!out_amount_with_slippage)
       return nullptr;
+    route.out_amount_with_slippage = *out_amount_with_slippage;
 
-    if (!ParseStringResultFromValue(route_value, "swapMode", &route.swap_mode))
+    auto* swap_mode = route_value.FindStringKey("swapMode");
+    if (!swap_mode)
       return nullptr;
+    route.swap_mode = *swap_mode;
 
-    if (!ParseDoubleResultFromValue(route_value, "priceImpactPct",
-                                    &route.price_impact_pct))
+    auto price_impact_pct = route_value.FindDoubleKey("priceImpactPct");
+    if (!price_impact_pct)
       return nullptr;
+    route.price_impact_pct = *price_impact_pct;
 
     const base::Value* market_infos_value =
         route_value.FindListKey("marketInfos");
@@ -237,50 +239,69 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
     for (const auto& market_info_value : market_infos_value->GetList()) {
       mojom::JupiterMarketInfo market_info;
 
-      if (!ParseStringResultFromValue(market_info_value, "id", &market_info.id))
+      auto* market_info_id = market_info_value.FindStringKey("id");
+      if (!market_info_id)
         return nullptr;
+      market_info.id = *market_info_id;
 
-      if (!ParseStringResultFromValue(market_info_value, "label",
-                                      &market_info.label))
+      auto* market_info_label = market_info_value.FindStringKey("label");
+      if (!market_info_label)
         return nullptr;
+      market_info.label = *market_info_label;
 
-      if (!ParseStringResultFromValue(market_info_value, "inputMint",
-                                      &market_info.input_mint))
+      auto* market_info_input_mint =
+          market_info_value.FindStringKey("inputMint");
+      if (!market_info_input_mint)
         return nullptr;
+      market_info.input_mint = *market_info_input_mint;
 
-      if (!ParseStringResultFromValue(market_info_value, "outputMint",
-                                      &market_info.output_mint))
+      auto* market_info_output_mint =
+          market_info_value.FindStringKey("outputMint");
+      if (!market_info_output_mint)
         return nullptr;
+      market_info.output_mint = *market_info_output_mint;
 
-      if (!ParseBoolResultFromValue(market_info_value, "notEnoughLiquidity",
-                                    &market_info.not_enough_liquidity))
+      auto not_enough_liquidity =
+          market_info_value.FindBoolKey("notEnoughLiquidity");
+      if (!not_enough_liquidity)
         return nullptr;
+      market_info.not_enough_liquidity = *not_enough_liquidity;
 
-      if (!ParseUint64ResultFromValue(market_info_value, "inAmount",
-                                      &market_info.in_amount))
+      auto market_info_in_amount = market_info_value.FindIntKey("inAmount");
+      if (!market_info_in_amount)
         return nullptr;
+      market_info.in_amount = *market_info_in_amount;
 
-      if (!ParseUint64ResultFromValue(market_info_value, "outAmount",
-                                      &market_info.out_amount))
+      auto market_info_out_amount = market_info_value.FindIntKey("outAmount");
+      if (!market_info_out_amount)
         return nullptr;
+      market_info.out_amount = *market_info_out_amount;
 
-      if (!ParseDoubleResultFromValue(market_info_value, "priceImpactPct",
-                                      &market_info.price_impact_pct))
+      auto market_info_price_impact_pct =
+          market_info_value.FindDoubleKey("priceImpactPct");
+      if (!market_info_price_impact_pct)
         return nullptr;
+      market_info.price_impact_pct = *market_info_price_impact_pct;
 
       const base::Value* lp_fee_value = market_info_value.FindDictKey("lpFee");
       if (!lp_fee_value)
         return nullptr;
 
       mojom::JupiterFee lp_fee;
-      if (!ParseUint64ResultFromValue(*lp_fee_value, "amount", &lp_fee.amount))
+      auto lp_fee_amount = lp_fee_value->FindIntKey("amount");
+      if (!lp_fee_amount)
         return nullptr;
+      lp_fee.amount = *lp_fee_amount;
 
-      if (!ParseStringResultFromValue(*lp_fee_value, "mint", &lp_fee.mint))
+      auto* lp_fee_mint = lp_fee_value->FindStringKey("mint");
+      if (!lp_fee_mint)
         return nullptr;
+      lp_fee.mint = *lp_fee_mint;
 
-      if (!ParseDoubleResultFromValue(*lp_fee_value, "pct", &lp_fee.pct))
+      auto lp_fee_pct = lp_fee_value->FindDoubleKey("pct");
+      if (!lp_fee_pct)
         return nullptr;
+      lp_fee.pct = *lp_fee_pct;
 
       market_info.lp_fee = lp_fee.Clone();
 
@@ -290,17 +311,20 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
         return nullptr;
 
       mojom::JupiterFee platform_fee;
-      if (!ParseUint64ResultFromValue(*platform_fee_value, "amount",
-                                      &platform_fee.amount))
+      auto platform_fee_amount = platform_fee_value->FindIntKey("amount");
+      if (!platform_fee_amount)
         return nullptr;
+      platform_fee.amount = *platform_fee_amount;
 
-      if (!ParseStringResultFromValue(*platform_fee_value, "mint",
-                                      &platform_fee.mint))
+      auto* platform_fee_mint = platform_fee_value->FindStringKey("mint");
+      if (!platform_fee_mint)
         return nullptr;
+      platform_fee.mint = *platform_fee_mint;
 
-      if (!ParseDoubleResultFromValue(*platform_fee_value, "pct",
-                                      &platform_fee.pct))
+      auto platform_fee_pct = platform_fee_value->FindDoubleKey("pct");
+      if (!platform_fee_pct)
         return nullptr;
+      platform_fee.pct = *platform_fee_pct;
 
       market_info.platform_fee = platform_fee.Clone();
 
@@ -332,17 +356,24 @@ mojom::JupiterSwapTransactionsPtr ParseJupiterSwapTransactions(
   if (!records_v->GetAsDictionary(&response_dict) || !response_dict)
     return nullptr;
 
-  if (!ParseResultFromDict(response_dict, "setupTransaction",
-                           &swap_transactions.setup_transaction))
-    return nullptr;
+  auto setup_transaction =
+      ParseResultFromDict(response_dict, "setupTransaction");
+  if (!setup_transaction)
+    swap_transactions.setup_transaction = "";
+  else
+    swap_transactions.setup_transaction = *setup_transaction;
 
-  if (!ParseResultFromDict(response_dict, "swapTransaction",
-                           &swap_transactions.swap_transaction))
+  auto swap_transaction = ParseResultFromDict(response_dict, "swapTransaction");
+  if (!swap_transaction)
     return nullptr;
+  swap_transactions.swap_transaction = *swap_transaction;
 
-  if (!ParseResultFromDict(response_dict, "cleanupTransaction",
-                           &swap_transactions.cleanup_transaction))
-    return nullptr;
+  auto cleanup_transaction =
+      ParseResultFromDict(response_dict, "cleanupTransaction");
+  if (!cleanup_transaction)
+    swap_transactions.cleanup_transaction = "";
+  else
+    swap_transactions.cleanup_transaction = *cleanup_transaction;
 
   return swap_transactions.Clone();
 }

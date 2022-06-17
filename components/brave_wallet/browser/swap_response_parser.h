@@ -11,9 +11,8 @@
 
 namespace brave_wallet {
 
-bool ParseSwapResponse(const std::string& json,
-                       bool expect_transaction_data,
-                       mojom::SwapResponsePtr* swap_response);
+mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
+                                         bool expect_transaction_data);
 
 mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json);
 mojom::JupiterSwapTransactionsPtr ParseJupiterSwapTransactions(

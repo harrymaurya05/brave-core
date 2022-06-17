@@ -18,7 +18,6 @@
 namespace brave_wallet {
 
 TEST(SwapResponseParserUnitTest, ParsePriceQuote) {
-  auto swap_response = mojom::SwapResponse::New();
   std::string json(R"(
     {
       "price":"1916.27547998814058355",
@@ -41,8 +40,8 @@ TEST(SwapResponseParserUnitTest, ParsePriceQuote) {
       "buyTokenToEthRate":"1"
     }
   )");
-  std::string price;
-  ASSERT_TRUE(ParseSwapResponse(json, false, &swap_response));
+  mojom::SwapResponsePtr swap_response = ParseSwapResponse(json, false);
+  ASSERT_TRUE(swap_response);
 
   ASSERT_EQ(swap_response->price, "1916.27547998814058355");
   // ASSERT_EQ(swap_response->guaranteed_price, "1935.438234788021989386");
@@ -70,19 +69,18 @@ TEST(SwapResponseParserUnitTest, ParsePriceQuote) {
   ASSERT_EQ(swap_response->buy_token_to_eth_rate, "1");
 
   json = R"({"price": "3"})";
-  ASSERT_FALSE(ParseSwapResponse(json, false, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, false));
   json = R"({"price": 3})";
-  ASSERT_FALSE(ParseSwapResponse(json, false, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, false));
   json = "3";
-  ASSERT_FALSE(ParseSwapResponse(json, false, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, false));
   json = "[3]";
-  ASSERT_FALSE(ParseSwapResponse(json, false, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, false));
   json = "";
-  ASSERT_FALSE(ParseSwapResponse(json, false, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, false));
 }
 
 TEST(SwapResponseParserUnitTest, ParseTransactionPayload) {
-  auto swap_response = mojom::SwapResponse::New();
   std::string json(R"(
     {
       "price":"1916.27547998814058355",
@@ -105,8 +103,8 @@ TEST(SwapResponseParserUnitTest, ParseTransactionPayload) {
       "buyTokenToEthRate":"1"
     }
   )");
-  std::string price;
-  ASSERT_TRUE(ParseSwapResponse(json, true, &swap_response));
+  mojom::SwapResponsePtr swap_response = ParseSwapResponse(json, true);
+  ASSERT_TRUE(swap_response);
 
   ASSERT_EQ(swap_response->price, "1916.27547998814058355");
   ASSERT_EQ(swap_response->guaranteed_price, "1935.438234788021989386");
@@ -131,15 +129,15 @@ TEST(SwapResponseParserUnitTest, ParseTransactionPayload) {
   ASSERT_EQ(swap_response->buy_token_to_eth_rate, "1");
 
   json = R"({"price": "3"})";
-  ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, true));
   json = R"({"price": 3})";
-  ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, true));
   json = "3";
-  ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, true));
   json = "[3]";
-  ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, true));
   json = "";
-  ASSERT_FALSE(ParseSwapResponse(json, true, &swap_response));
+  ASSERT_FALSE(ParseSwapResponse(json, true));
 }
 
 TEST(SwapResponseParserUnitTest, JupiterSwapQuote) {

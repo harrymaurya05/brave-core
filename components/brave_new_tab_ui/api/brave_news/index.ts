@@ -15,11 +15,17 @@ export type Publishers = Record<string, BraveNews.Publisher>
 let braveNewsControllerInstance: BraveNews.BraveNewsControllerRemote
 
 export const isPublisherEnabled = (publisher: BraveNews.Publisher) =>
-    publisher.isEnabled
-        && publisher.userEnabledStatus == BraveNews.UserEnabled.NOT_MODIFIED
-    || publisher.userEnabledStatus == BraveNews.UserEnabled.ENABLED;
+  publisher.isEnabled
+  && publisher.userEnabledStatus == BraveNews.UserEnabled.NOT_MODIFIED
+  || publisher.userEnabledStatus == BraveNews.UserEnabled.ENABLED;
 
-export default function getBraveNewsController () {
+export const togglePublisher = (publisher: BraveNews.Publisher) =>
+  braveNewsControllerInstance.setPublisherPref(publisher.publisherId,
+    isPublisherEnabled(publisher)
+      ? BraveNews.UserEnabled.DISABLED
+      : BraveNews.UserEnabled.ENABLED);
+
+export default function getBraveNewsController() {
   // Make connection on first call (not in module root, so that storybook
   // doesn't try to connect, or pages which use exported types
   // but ultimately don't fetch any data.

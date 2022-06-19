@@ -2,6 +2,8 @@ import Button from "$web-components/button";
 import Toggle from "$web-components/toggle";
 import * as React from "react";
 import styled from "styled-components";
+import { isPublisherEnabled } from "../../api/brave_news";
+import usePublishers from "../../hooks/braveNews";
 import Flex from "../Flex";
 import FeedCard from "./FeedCard";
 import FollowButton from "./FollowButton";
@@ -32,38 +34,40 @@ const FeedCardsContainer = styled('div')`
     display: grid;
     grid-template-columns: repeat(3, auto);
     grid-template-columns: repeat(auto-fill, auto);
+    gap: 40px 16px;
 `
 
 const colors = [
-    'black',
+    'gray',
     'green',
-    'white',
     'salmon'
 ]
 
 export default function BrowseCategory(props: { categoryId: string }) {
-    const feeds = [
-        { title: 'First' },
-        { title: 'Second' },
-        { title: 'Third' },
-        { title: 'Fourth' },
-    ]
-    const categoryName = "Business";
+    const publishers = usePublishers()
+    // TODO: When we have categoryIds, use those instead.
+    publishers.filter(p => p.categoryName == props.categoryId);
+
     return <Container>
         <Header direction="row" align="center">
             <BackButton onClick={console.log}>
                 {BackArrow} Back
             </BackButton>
             <HeaderText>
-                {categoryName}
+                {props.categoryId}
             </HeaderText>
         </Header>
         <Flex direction="row" justify="space-between" align="center">
-            <div><Toggle/> Select All</div>
+            <div><Toggle /> Select All</div>
             <FollowButton following={false} onClick={console.log} />
         </Flex>
         <FeedCardsContainer>
-            {feeds.map((f, i) => <FeedCard key={f.title} backgroundColor={colors[i%colors.length]} name={f.title} following={i%2==0} />)}
+            {publishers.map((p) => <FeedCard
+                key={p.publisherId}
+                publisher={p}
+                backgroundColor={colors[p.publisherName.length % colors.length]}
+                name={p.publisherName}
+                following={isPublisherEnabled(p)} />)}
         </FeedCardsContainer>
     </Container>
 }

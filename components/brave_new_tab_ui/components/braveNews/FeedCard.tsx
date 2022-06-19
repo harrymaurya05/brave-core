@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import { Publisher, togglePublisher } from "../../api/brave_news";
 import Flex from "../Flex";
 import FollowButton from "./FollowButton";
 
@@ -26,6 +27,7 @@ export const Name = styled.span`
 `
 
 export default function FeedCard(props: {
+    publisher: Publisher;
     backgroundColor?: string;
     backgroundImage?: string;
     following: boolean;
@@ -33,7 +35,7 @@ export default function FeedCard(props: {
 }) {
     return <Container direction="column" gap={8}>
         <Card backgroundColor={props.backgroundColor} backgroundImage={props.backgroundImage}>
-            <StyledFollowButton following={props.following} onClick={console.log}/>
+            <StyledFollowButton following={props.following} onClick={() => togglePublisher(props.publisher)}/>
         </Card>
         <Name>
             {props.name}

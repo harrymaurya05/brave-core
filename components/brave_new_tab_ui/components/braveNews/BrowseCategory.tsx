@@ -24,6 +24,7 @@ const Header = styled(Flex)`
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto;
     justify-self: center;
+    margin-bottom: 36px;
 `
 
 const HeaderText = styled(Flex)`
@@ -36,6 +37,7 @@ const FeedCardsContainer = styled('div')`
     grid-template-columns: repeat(3, auto);
     grid-template-columns: repeat(auto-fill, auto);
     gap: 40px 16px;
+    margin-top: 12px;
 `
 
 const colors = [

@@ -9,7 +9,7 @@ import FeedList from "./FeedList";
 import DisabledPlaceholder from "./DisabledPlaceholder";
 import BrowseCategory from "./BrowseCategory";
 import { useNewTabPref } from "../../hooks/usePref";
-import { useBraveNews } from "./Context";
+import { useBraveNews, useCurrentCategory } from "./Context";
 
 const Grid = styled.div`
   width: 100%;
@@ -93,13 +93,14 @@ const Content = styled.div`
 
 export default function Configure() {
   const [enabled, setEnabled] = useNewTabPref('isBraveTodayOptedIn');
-  const { page, setPage } = useBraveNews();
+  const { setPage } = useBraveNews();
+  const categoryId = useCurrentCategory();
 
   let content: JSX.Element;
   if (!enabled) {
     content = <DisabledPlaceholder enableBraveNews={() => setEnabled(true)} />
-  } else if (page && page !== 'news') {
-    content = <BrowseCategory categoryId={page} />;
+  } else if (categoryId) {
+    content = <BrowseCategory categoryId={categoryId} />;
   } else {
     content = <Discover />
   }

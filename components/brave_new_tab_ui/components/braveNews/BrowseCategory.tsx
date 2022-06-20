@@ -47,8 +47,7 @@ const colors = [
 export default function BrowseCategory(props: { categoryId: string }) {
     const { setPage } = useBraveNews()
     const publishers = usePublishers()
-    // TODO: When we have categoryIds, use those instead.
-    publishers.filter(p => p.categoryName == props.categoryId);
+        .filter(p => p.categoryName === props.categoryId)
 
     return <Container>
         <Header direction="row" align="center">

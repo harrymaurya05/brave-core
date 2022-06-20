@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import Flex from '../Flex';
 import { useBraveNews } from './Context';
 
-const Container = styled(Flex) <{ background: string }>`
-    background-image: url("${p => p.background}");
+const Container = styled(Flex) <{ backgroundUrl?: string }>`
+    background-image: url("${p => p.backgroundUrl}");
     color: white;
     border-radius: 8px;
 
@@ -21,13 +21,13 @@ const Text = styled.span`
 interface Props {
     categoryId: string;
     text: string;
-    backgroundUrl: string;
+    backgroundUrl?: string;
 }
 
 export default function CategoryCard(props: Props) {
     const { setPage } = useBraveNews();
 
-    return <Container align='center' justify='center' background={props.backgroundUrl} onClick={() => setPage(`category/${props.categoryId}`)}>
+    return <Container align='center' justify='center' backgroundUrl={props.backgroundUrl} onClick={() => setPage(`category/${props.categoryId}`)}>
         <Text>{props.text}</Text>
     </Container>
 }

@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
 import * as React from "react";
 
+type NewsPage = null
+    | 'news'
+    | `${typeof categoryPrefix}${string}`;
+
 interface BraveNewsContext {
-    page: string | null;
-    setPage: (page: string | null) => void;
+    page: NewsPage;
+    setPage: (page: NewsPage) => void;
 }
 
 export const BraveNewsContext = React.createContext<BraveNewsContext>({
@@ -12,7 +16,7 @@ export const BraveNewsContext = React.createContext<BraveNewsContext>({
 });
 
 export function BraveNewsContextProvider(props: { children: React.ReactNode }) {
-    const [page, setPage] = useState<string | null>(null);
+    const [page, setPage] = useState<NewsPage>(null);
     const context = useMemo(() => ({
         page,
         setPage
@@ -24,4 +28,13 @@ export function BraveNewsContextProvider(props: { children: React.ReactNode }) {
 
 export const useBraveNews = () => {
     return React.useContext(BraveNewsContext);
+}
+
+const categoryPrefix = 'category/';
+export const useCurrentCategory = () => {
+    const { page } = useBraveNews();
+    if (!page?.startsWith(categoryPrefix))
+        return null;
+
+    return page.substring(categoryPrefix.length);
 }

@@ -33,6 +33,11 @@ TEST_F(BatAdsDiagnosticManagerTest, DiagnosticManager) {
 
   AdsClientHelper::GetInstance()->SetBooleanPref(prefs::kEnabled, true);
 
+  mojom::SysInfo sys_info;
+  sys_info.device_id =
+      "21b4677de1a9b4a197ab671a1481d3fcb24f826a4358a05aafbaee5a9a51b57e";
+  SetSysInfo(sys_info);
+
   MockLocaleHelper(locale_helper_mock_, "en-KY");
 
   SetCatalogId("da5dd0e8-71e9-4607-a45b-13e28b607a81");

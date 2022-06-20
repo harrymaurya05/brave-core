@@ -6,7 +6,6 @@ import Button from '$web-components/button'
 import CategoryCard from './CategoryCard'
 import DiscoverSection from './DiscoverSection'
 import { DoubleHeart, Rocket, History } from './Icons'
-import SourceCard from './SourceCard'
 import { useCategories } from '../../hooks/braveNews'
 
 const Header = styled.span`
@@ -35,6 +34,13 @@ const LoadMoreButton = styled(Button)`
     grid-column: 2;
 `
 
+const colors = [
+    'green',
+    'salmon',
+    'lightpink',
+    'lightblue'
+]
+
 // The default number of category cards to show.
 const DEFAULT_NUM_CATEGORIES = 3;
 export default function Discover(props: {}) {
@@ -45,9 +51,9 @@ export default function Discover(props: {}) {
         <Header>Discover</Header>
         <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' />
         <DiscoverSection name='Trending' sectionId='trending' >
-            <SourceCard icon={Rocket} text="Popular" id='popular' background='#353DAB' />
-            <SourceCard icon={History} text="Newly added" id='new' background='#207DC9' />
-            <SourceCard icon={DoubleHeart} text="Suggested" id='suggested' background='#FB542B' />
+            <CategoryCard icon={Rocket} text="Popular" categoryId='popular' backgroundColor='#353DAB' />
+            <CategoryCard icon={History} text="Newly added" categoryId='new' backgroundColor='#207DC9' />
+            <CategoryCard icon={DoubleHeart} text="Suggested" categoryId='suggested' backgroundColor='#FB542B' />
         </DiscoverSection>
         <DiscoverSection name='Browse by category' sectionId='categories'>
             {categories
@@ -56,7 +62,7 @@ export default function Discover(props: {}) {
                 .slice(0, showingAllCategories
                         ? undefined
                         : DEFAULT_NUM_CATEGORIES)
-                .map(c => <CategoryCard key={c} categoryId={c} text={c} />)}
+                .map((c, i) => <CategoryCard key={c} categoryId={c} text={c} backgroundColor={colors[i%colors.length]} />)}
             {!showingAllCategories
                 && <LoadMoreButton onClick={() => setShowingAllCategories(true)}>
                 Load more

@@ -34,7 +34,6 @@ const ItemsContainer = styled.div`
     margin: 8px 0;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 208px));
-    grid-template-rows: repeat(auto-fit, 102px);
     gap: 16px;
 `
 

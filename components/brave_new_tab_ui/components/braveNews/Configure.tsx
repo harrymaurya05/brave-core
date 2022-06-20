@@ -6,10 +6,10 @@ import { BackArrow, Cross } from "./Icons";
 import Button from "$web-components/button";
 import Toggle from '$web-components/toggle';
 import FeedList from "./FeedList";
-import { useState } from "react";
 import DisabledPlaceholder from "./DisabledPlaceholder";
 import BrowseCategory from "./BrowseCategory";
 import { useNewTabPref } from "../../hooks/usePref";
+import { useBraveNews } from "./Context";
 
 const Grid = styled.div`
   width: 100%;
@@ -93,21 +93,21 @@ const Content = styled.div`
 
 export default function Configure() {
   const [enabled, setEnabled] = useNewTabPref('isBraveTodayOptedIn');
-  const [browsingCategoryId, setBrowsingCategoryId] = useState<string>();
+  const { page, setPage } = useBraveNews();
 
   let content: JSX.Element;
   if (!enabled) {
     content = <DisabledPlaceholder enableBraveNews={() => setEnabled(true)} />
-  } else if (browsingCategoryId) {
-    content = <BrowseCategory categoryId={browsingCategoryId} />;
+  } else if (page && page !== 'news') {
+    content = <BrowseCategory categoryId={page} />;
   } else {
-    content = <Discover setBrowsingCategory={setBrowsingCategoryId} />
+    content = <Discover setBrowsingCategory={setPage} />
   }
 
   return (
     <Grid>
       <BackButtonContainer>
-        <BackButton onClick={() => setBrowsingCategoryId('business')}>
+        <BackButton onClick={() => setPage(null)}>
           {BackArrow}
           <BackButtonText>
             Back to <b>Dashboard</b>
@@ -115,7 +115,7 @@ export default function Configure() {
         </BackButton>
       </BackButtonContainer>
       <Header direction="row-reverse" gap={12} align="center" justify="space-between">
-        <CloseButton onClick={console.log}>{Cross}</CloseButton>
+        <CloseButton onClick={() => setPage(null)}>{Cross}</CloseButton>
         {enabled && <Flex direction="row" align="center" gap={8}>
           <HeaderText>Brave News</HeaderText>
           <Toggle isOn={enabled} onChange={setEnabled} />

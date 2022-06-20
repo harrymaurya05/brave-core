@@ -16,7 +16,19 @@ const Dialog = styled.dialog`
 
 export default function BraveNewsModal() {
     const { page } = useBraveNews();
-    return <Dialog open={!!page}>
+    const dialogRef = React.useRef<HTMLDialogElement>();
+
+    // Note: There's no attribute for open modal, so we need
+    // to do this instead.
+    React.useEffect(() => {
+        // TODO(jharris): Update ReactDOM types, so I don't need the 
+        // [] for property access.
+        if (dialogRef.current?.['open'] && !page)
+            dialogRef.current?.['close']?.();
+        if (!dialogRef.current?.['open'] && page)
+            dialogRef.current?.['showModal']?.();
+    })
+    return <Dialog ref={dialogRef as any}>
         <Configure />
     </Dialog>
 }

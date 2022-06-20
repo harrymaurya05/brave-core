@@ -1125,7 +1125,6 @@ class NewTabPage extends React.Component<Props, State> {
             showTopSites={showTopSites}
             showBrandedWallpaper={isShowingBrandedWallpaper}
           >
-            <BraveNewsModal />
             {newTabData.showStats &&
               <Page.GridItemStats>
                 <Stats
@@ -1286,6 +1285,7 @@ class NewTabPage extends React.Component<Props, State> {
             cardsHidden={this.allWidgetsHidden()}
             toggleCards={this.props.saveSetAllStackWidgets}
           />
+          <BraveNewsModal />
           {
             showEditTopSite
               ? <EditTopSite

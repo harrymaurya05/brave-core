@@ -101,7 +101,7 @@ export default function Configure() {
   } else if (page && page !== 'news') {
     content = <BrowseCategory categoryId={page} />;
   } else {
-    content = <Discover setBrowsingCategory={setPage} />
+    content = <Discover />
   }
 
   return (

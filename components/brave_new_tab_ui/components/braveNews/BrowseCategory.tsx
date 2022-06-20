@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { isPublisherEnabled } from "../../api/brave_news";
 import usePublishers from "../../hooks/braveNews";
 import Flex from "../Flex";
+import { useBraveNews } from "./Context";
 import FeedCard from "./FeedCard";
 import FollowButton from "./FollowButton";
 import { BackArrow } from "./Icons";
@@ -44,13 +45,14 @@ const colors = [
 ]
 
 export default function BrowseCategory(props: { categoryId: string }) {
+    const { setPage } = useBraveNews()
     const publishers = usePublishers()
     // TODO: When we have categoryIds, use those instead.
     publishers.filter(p => p.categoryName == props.categoryId);
 
     return <Container>
         <Header direction="row" align="center">
-            <BackButton onClick={console.log}>
+            <BackButton onClick={() => setPage('news')}>
                 {BackArrow} Back
             </BackButton>
             <HeaderText>

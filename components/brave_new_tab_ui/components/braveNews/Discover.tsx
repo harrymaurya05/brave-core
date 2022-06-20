@@ -34,7 +34,7 @@ const LoadMoreButton = styled(Button)`
     grid-column: 2;
 `
 
-export default function Discover(props: { setBrowsingCategory: (categoryId: string) => void }) {
+export default function Discover(props: {}) {
     return <Flex direction='column'>
         <Header>Discover</Header>
         <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' />

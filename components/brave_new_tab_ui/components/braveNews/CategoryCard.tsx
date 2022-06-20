@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import Flex from '../Flex';
+import { useBraveNews } from './Context';
 
 const Container = styled(Flex) <{ background: string }>`
     background-image: url("${p => p.background}");
@@ -24,7 +25,9 @@ interface Props {
 }
 
 export default function CategoryCard(props: Props) {
-    return <Container align='center' justify='center' background={props.backgroundUrl}>
+    const { setPage } = useBraveNews();
+
+    return <Container align='center' justify='center' background={props.backgroundUrl} onClick={() => setPage(`category/${props.categoryId}`)}>
         <Text>{props.text}</Text>
     </Container>
 }

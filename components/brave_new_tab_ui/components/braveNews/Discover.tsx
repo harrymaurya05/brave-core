@@ -35,8 +35,11 @@ const LoadMoreButton = styled(Button)`
     grid-column: 2;
 `
 
+// The default number of category cards to show.
+const DEFAULT_NUM_CATEGORIES = 3;
 export default function Discover(props: {}) {
     const categories = useCategories();
+    const [showingAllCategories, setShowingAllCategories] = React.useState(false);
 
     return <Flex direction='column'>
         <Header>Discover</Header>
@@ -47,10 +50,17 @@ export default function Discover(props: {}) {
             <SourceCard icon={DoubleHeart} text="Suggested" id='suggested' background='#FB542B' />
         </DiscoverSection>
         <DiscoverSection name='Browse by category' sectionId='categories'>
-            {categories.map(c => <CategoryCard key={c} categoryId={c} text={c} />)}
-            <LoadMoreButton onClick={console.log}>
+            {categories
+                // If we're showing all categories, there's no end to the slice.
+                // Otherwise, just show the default number.
+                .slice(0, showingAllCategories
+                        ? undefined
+                        : DEFAULT_NUM_CATEGORIES)
+                .map(c => <CategoryCard key={c} categoryId={c} text={c} />)}
+            {!showingAllCategories
+                && <LoadMoreButton onClick={() => setShowingAllCategories(true)}>
                 Load more
-            </LoadMoreButton>
+                </LoadMoreButton>}
         </DiscoverSection>
         <DiscoverSection name='Suggested' sectionId='suggested' subtitle={SuggestedSubtitle} />
         <DiscoverSection name='Newly added' sectionId='new' />

@@ -6,7 +6,8 @@ import Button from '$web-components/button'
 import CategoryCard from './CategoryCard'
 import DiscoverSection from './DiscoverSection'
 import { DoubleHeart, Rocket, History } from './Icons'
-import { useCategories } from '../../hooks/braveNews'
+import usePublishers, { useCategories } from '../../hooks/braveNews'
+import FeedListEntry from './FeedListEntry'
 
 const Header = styled.span`
     font-size: 24px;
@@ -43,32 +44,43 @@ const colors = [
 
 // The default number of category cards to show.
 const DEFAULT_NUM_CATEGORIES = 3;
+
+// Some hard coded categories, which are shown in the UI.
+const POPULAR_CATEGORY = 'popular';
+const NEW_CATEGORY = 'new';
+const SUGGESTED_CATEGORY = 'suggested';
+
 export default function Discover(props: {}) {
     const categories = useCategories();
     const [showingAllCategories, setShowingAllCategories] = React.useState(false);
-
+    const suggestedSources = usePublishers(SUGGESTED_CATEGORY);
+    const newSources = usePublishers(NEW_CATEGORY);
     return <Flex direction='column'>
         <Header>Discover</Header>
         <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' />
         <DiscoverSection name='Trending' sectionId='trending' >
-            <CategoryCard icon={Rocket} text="Popular" categoryId='popular' backgroundColor='#353DAB' />
-            <CategoryCard icon={History} text="Newly added" categoryId='new' backgroundColor='#207DC9' />
-            <CategoryCard icon={DoubleHeart} text="Suggested" categoryId='suggested' backgroundColor='#FB542B' />
+            <CategoryCard icon={Rocket} text="Popular" categoryId={POPULAR_CATEGORY} backgroundColor='#353DAB' />
+            <CategoryCard icon={History} text="Newly added" categoryId={NEW_CATEGORY} backgroundColor='#207DC9' />
+            <CategoryCard icon={DoubleHeart} text="Suggested" categoryId={SUGGESTED_CATEGORY} backgroundColor='#FB542B' />
         </DiscoverSection>
         <DiscoverSection name='Browse by category' sectionId='categories'>
             {categories
                 // If we're showing all categories, there's no end to the slice.
                 // Otherwise, just show the default number.
                 .slice(0, showingAllCategories
-                        ? undefined
-                        : DEFAULT_NUM_CATEGORIES)
-                .map((c, i) => <CategoryCard key={c} categoryId={c} text={c} backgroundColor={colors[i%colors.length]} />)}
+                    ? undefined
+                    : DEFAULT_NUM_CATEGORIES)
+                .map((c, i) => <CategoryCard key={c} categoryId={c} text={c} backgroundColor={colors[i % colors.length]} />)}
             {!showingAllCategories
                 && <LoadMoreButton onClick={() => setShowingAllCategories(true)}>
-                Load more
+                    Load more
                 </LoadMoreButton>}
         </DiscoverSection>
-        <DiscoverSection name='Suggested' sectionId='suggested' subtitle={SuggestedSubtitle} />
-        <DiscoverSection name='Newly added' sectionId='new' />
+        {!!suggestedSources.length && <DiscoverSection name='Suggested' sectionId='suggested' subtitle={SuggestedSubtitle}>
+            {suggestedSources.map(p => <FeedListEntry key={p.publisherId} publisher={p} />)}
+        </DiscoverSection>}
+        {!!newSources.length && <DiscoverSection name='Newly added' sectionId='new'>
+            {newSources.map(p => <FeedListEntry key={p.publisherName} publisher={p} />)}
+        </DiscoverSection>}
     </Flex>
 }

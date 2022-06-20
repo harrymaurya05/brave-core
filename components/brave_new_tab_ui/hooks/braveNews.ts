@@ -4,9 +4,12 @@ import { useResult } from "./promise";
 
 const controller = getBraveNewsController();
 
-export default function usePublishers() {
+export default function usePublishers(categoryId?: string) {
     const { result: publishers } = useResult(async () => controller?.getPublishers(), []);
-    return useMemo(() => Object.values(publishers?.publishers ?? {}) as Publisher[], [publishers?.publishers]);
+    return useMemo(() => (Object
+        .values(publishers?.publishers ?? {}) as Publisher[])
+        .filter(p => !categoryId || p.categoryName === categoryId),
+        [publishers?.publishers, categoryId]);
 }
 
 export function useCategories() {

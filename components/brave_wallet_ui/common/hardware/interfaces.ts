@@ -44,5 +44,4 @@ export abstract class LedgerFilecoinKeyring extends HardwareKeyring {
 export abstract class LedgerSolanaKeyring extends HardwareKeyring {
   abstract getAccounts (from: number, to: number): Promise<GetAccountsHardwareOperationResult>
   abstract signTransaction (path: string, rawTxBytes: Buffer): Promise<SignHardwareTransactionOperationResult>
-  abstract makeApp (): Promise<void>
 }

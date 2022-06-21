@@ -38,7 +38,7 @@ const Pulse = keyframes`
     100% { opacity: 0; }
 `
 
-const HeartOverlay = styled(Flex) <{ toggled: boolean }>`
+const HeartOverlay = styled(Flex)`
     transition: visibility 0.1s 2s;
     
     pointer-events: none;
@@ -50,7 +50,7 @@ const HeartOverlay = styled(Flex) <{ toggled: boolean }>`
     left: 0;
     right: 0;
     opacity: 0;
-    ${p => p.toggled && css`animation: ${Pulse} 2s ease-in-out;`}
+    animation: ${Pulse} 2s ease-in-out;
 `
 
 const HeartContainer = styled.div`
@@ -78,13 +78,13 @@ export default function FeedCard(props: {
     }
     return <Container direction="column" gap={8}>
         <Card backgroundColor={props.backgroundColor} backgroundImage={props.backgroundImage}>
-            <StyledFollowButton following={props.following} onClick={toggle} />
+            <StyledFollowButton following={following} onClick={toggle} />
 
-            <HeartOverlay toggled={toggled} key={following + ''} align="center" justify="center">
+            {toggled && <HeartOverlay key={following + ''} align="center" justify="center">
                 <HeartContainer>
                     {following ? Heart : HeartOutline}
                 </HeartContainer>
-            </HeartOverlay>
+            </HeartOverlay>}
         </Card>
         <Name>
             {props.name}

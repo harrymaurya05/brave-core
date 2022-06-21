@@ -19,11 +19,12 @@ export const isPublisherEnabled = (publisher: BraveNews.Publisher) =>
   && publisher.userEnabledStatus == BraveNews.UserEnabled.NOT_MODIFIED
   || publisher.userEnabledStatus == BraveNews.UserEnabled.ENABLED;
 
+export const setPublisherEnabled = (publisher: BraveNews.Publisher, enabled: boolean) =>
+  braveNewsControllerInstance.setPublisherPref(publisher.publisherId, enabled ? BraveNews.UserEnabled.ENABLED : BraveNews.UserEnabled.DISABLED);
+
 export const togglePublisher = (publisher: BraveNews.Publisher) =>
-  braveNewsControllerInstance.setPublisherPref(publisher.publisherId,
-    isPublisherEnabled(publisher)
-      ? BraveNews.UserEnabled.DISABLED
-      : BraveNews.UserEnabled.ENABLED);
+  setPublisherEnabled(publisher, !isPublisherEnabled(publisher));
+
 
 export default function getBraveNewsController() {
   // Make connection on first call (not in module root, so that storybook

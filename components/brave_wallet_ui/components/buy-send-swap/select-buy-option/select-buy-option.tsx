@@ -20,22 +20,26 @@ import {
 interface Props {
   buyOptions: BuyOption[]
   onSelect: (optionId: BraveWallet.OnRampProvider) => void
-  onBack: () => void
+  onBack?: () => void
+  layoutType?: 'tight' | 'loose'
 }
 
-export const SelectBuyOption = ({ buyOptions, onSelect, onBack }: Props) => {
+export const SelectBuyOption = ({ buyOptions, onSelect, onBack, layoutType }: Props) => {
   return (
-    <StyledWrapper>
-      <BackButton onSubmit={onBack} />
+    <StyledWrapper layoutType={layoutType}>
+      {onBack && <BackButton onSubmit={onBack} />}
       {buyOptions.map((option, index) => (
-        <div
-          key={`${option.name}-${option.id}`}
-        >
+        <div key={`${option.name}-${option.id}`}>
           <BuyOptionItem
+            key={`${option.name}-${option.id}`}
+            layoutType={layoutType}
             option={option}
             onSelect={onSelect}
           />
-          {index !== buyOptions.length - 1 && <SubDivider/>}
+
+          {layoutType !== 'loose' && index !== buyOptions.length - 1 &&
+            <SubDivider />
+          }
         </div>
       ))}
 

@@ -123,7 +123,7 @@ class BraveNewsApi {
     }
 }
 
-const api = new BraveNewsApi();
+export const api = new BraveNewsApi();
 window['api'] = api;
 
 export const useCategories = () => {

@@ -8,6 +8,7 @@ import DiscoverSection from './DiscoverSection'
 import { DoubleHeart, Rocket, History } from './Icons'
 import { usePublishers, useCategories } from '../../api/brave_news/news'
 import FeedListEntry from './FeedListEntry'
+import { useState } from 'react'
 
 const Header = styled.span`
     font-size: 24px;
@@ -53,11 +54,13 @@ const SUGGESTED_CATEGORY = 'suggested';
 export default function Discover(props: {}) {
     const categories = useCategories();
     const [showingAllCategories, setShowingAllCategories] = React.useState(false);
+    const [query, setQuery] = useState('');
     const suggestedSources = usePublishers({ categoryId: SUGGESTED_CATEGORY });
     const newSources = usePublishers({ categoryId: NEW_CATEGORY });
+
     return <Flex direction='column'>
         <Header>Discover</Header>
-        <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' />
+        <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' value={query} onInput={e => setQuery(e.currentTarget.value)}/>
         <DiscoverSection name='Trending' sectionId='trending' >
             <CategoryCard icon={Rocket} text="Popular" categoryId={POPULAR_CATEGORY} backgroundColor='#353DAB' />
             <CategoryCard icon={History} text="Newly added" categoryId={NEW_CATEGORY} backgroundColor='#207DC9' />

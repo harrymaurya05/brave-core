@@ -84,7 +84,7 @@ const SidebarOverlay = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
+  background: var(--background1);
   opacity: 0.7;
 `
 

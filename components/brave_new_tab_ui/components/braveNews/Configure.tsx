@@ -64,6 +64,9 @@ const Hr = styled.hr`
   grid-area: separator;
   width: 100%;
   align-self: center;
+  background: var(--divider1);
+  height: 2px;
+  border-width: 0;
 `;
 
 const Sidebar = styled.div`

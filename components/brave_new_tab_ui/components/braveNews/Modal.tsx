@@ -12,6 +12,8 @@ const Dialog = styled.dialog`
     background: white;
     overflow: hidden;
     padding: 0;
+    background-color: ${p => p.theme.color.contextMenuBackground};
+    color:  ${p => p.theme.color.contextMenuForeground};
 `
 
 export default function BraveNewsModal() {

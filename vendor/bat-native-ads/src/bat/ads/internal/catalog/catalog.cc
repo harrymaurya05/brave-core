@@ -127,13 +127,13 @@ void Catalog::OnFetch(const mojom::UrlResponse& url_response) {
     return;
   }
 
-  SetCatalogLastUpdated(base::Time::Now());
-
   if (!HasCatalogChanged(catalog.id)) {
     BLOG(1, "Catalog id " << catalog.id << " is up to date");
     FetchAfterDelay();
     return;
   }
+
+  SetCatalogLastUpdated(base::Time::Now());
 
   SaveCatalog(catalog);
   NotifyDidUpdateCatalog(catalog);

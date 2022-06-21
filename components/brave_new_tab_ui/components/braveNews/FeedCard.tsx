@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { isPublisherEnabled, Publisher, setPublisherEnabled } from "../../api/brave_news";
 import Flex from "../Flex";
 import FollowButton from "./FollowButton";
@@ -38,9 +38,7 @@ const Pulse = keyframes`
     100% { opacity: 0; }
 `
 
-const HeartOverlay = styled(Flex)`
-    transition: visibility 0.1s 2s;
-    
+const HeartOverlay = styled(Flex)`  
     pointer-events: none;
     background: white;
     color: #aeb1c2;
@@ -80,6 +78,14 @@ export default function FeedCard(props: {
         <Card backgroundColor={props.backgroundColor} backgroundImage={props.backgroundImage}>
             <StyledFollowButton following={following} onClick={toggle} />
 
+            {/*
+                Use whether or not we're following this element as the key, so
+                React remounts the component when we toggle following and plays
+                the animation.
+                
+                We don't display the overlay unless we've toggled this publisher
+                so we don't play the pulse animation on first load.
+            */}
             {toggled && <HeartOverlay key={following + ''} align="center" justify="center">
                 <HeartContainer>
                     {following ? Heart : HeartOutline}

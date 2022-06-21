@@ -1,9 +1,9 @@
 
 import * as React from "react";
 import styled from "styled-components";
-import { isPublisherEnabled } from "../../api/brave_news";
-import usePublishers from "../../hooks/braveNews";
+import { usePublishers } from "../../api/brave_news/news";
 import Flex from "../Flex";
+
 import FeedListEntry from "./FeedListEntry";
 
 const Title = styled.span`
@@ -19,8 +19,7 @@ const Subtitle = styled.span`
 `;
 
 export default function FeedList() {
-    const publishers = usePublishers()
-        .filter(isPublisherEnabled);
+    const publishers = usePublishers({ enabled: true });
 
     return <div>
         <Flex direction="row" justify="space-between" align="center">
@@ -29,7 +28,7 @@ export default function FeedList() {
         </Flex>
         <Flex direction="column">
             {publishers.map((p) => (
-                <FeedListEntry key={p.publisherId} publisher={p} />
+                <FeedListEntry key={p.publisherId} publisherId={p.publisherId} />
             ))}
         </Flex>
     </div>

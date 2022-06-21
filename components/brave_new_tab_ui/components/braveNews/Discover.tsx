@@ -6,7 +6,7 @@ import Button from '$web-components/button'
 import CategoryCard from './CategoryCard'
 import DiscoverSection from './DiscoverSection'
 import { DoubleHeart, Rocket, History } from './Icons'
-import usePublishers, { useCategories } from '../../hooks/braveNews'
+import { usePublishers, useCategories } from '../../api/brave_news/news'
 import FeedListEntry from './FeedListEntry'
 
 const Header = styled.span`
@@ -53,8 +53,8 @@ const SUGGESTED_CATEGORY = 'suggested';
 export default function Discover(props: {}) {
     const categories = useCategories();
     const [showingAllCategories, setShowingAllCategories] = React.useState(false);
-    const suggestedSources = usePublishers(SUGGESTED_CATEGORY);
-    const newSources = usePublishers(NEW_CATEGORY);
+    const suggestedSources = usePublishers({ categoryId: SUGGESTED_CATEGORY });
+    const newSources = usePublishers({ categoryId: NEW_CATEGORY });
     return <Flex direction='column'>
         <Header>Discover</Header>
         <SearchInput type="search" placeholder='Search for news, site, topic or RSS feed' />
@@ -77,10 +77,10 @@ export default function Discover(props: {}) {
                 </LoadMoreButton>}
         </DiscoverSection>
         {!!suggestedSources.length && <DiscoverSection name='Suggested' sectionId='suggested' subtitle={SuggestedSubtitle}>
-            {suggestedSources.map(p => <FeedListEntry key={p.publisherId} publisher={p} />)}
+            {suggestedSources.map(p => <FeedListEntry key={p.publisherId} publisherId={p.publisherId} />)}
         </DiscoverSection>}
         {!!newSources.length && <DiscoverSection name='Newly added' sectionId='new'>
-            {newSources.map(p => <FeedListEntry key={p.publisherName} publisher={p} />)}
+            {newSources.map(p => <FeedListEntry key={p.publisherName} publisherId={p.publisherId} />)}
         </DiscoverSection>}
     </Flex>
 }

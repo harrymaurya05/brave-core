@@ -2,8 +2,7 @@ import Button from "$web-components/button";
 import Toggle from "$web-components/toggle";
 import * as React from "react";
 import styled from "styled-components";
-import { isPublisherEnabled } from "../../api/brave_news";
-import usePublishers from "../../hooks/braveNews";
+import { usePublishers } from "../../api/brave_news/news";
 import Flex from "../Flex";
 import { useBraveNews } from "./Context";
 import FeedCard from "./FeedCard";
@@ -48,8 +47,7 @@ const colors = [
 
 export default function BrowseCategory(props: { categoryId: string }) {
     const { setPage } = useBraveNews()
-    const publishers = usePublishers()
-        .filter(p => p.categoryName === props.categoryId)
+    const publishers = usePublishers({ categoryId: props.categoryId })
 
     return <Container>
         <Header direction="row" align="center">
@@ -67,10 +65,8 @@ export default function BrowseCategory(props: { categoryId: string }) {
         <FeedCardsContainer>
             {publishers.map((p) => <FeedCard
                 key={p.publisherId}
-                publisher={p}
-                backgroundColor={colors[p.publisherName.length % colors.length]}
-                name={p.publisherName}
-                following={isPublisherEnabled(p)} />)}
+                publisherId={p.publisherId}
+                backgroundColor={colors[p.publisherName.length % colors.length]} />)}
         </FeedCardsContainer>
     </Container>
 }

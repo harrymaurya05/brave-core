@@ -1,11 +1,10 @@
 import { useState } from "react";
 import * as React from "react";
 import styled, { keyframes } from "styled-components";
-import { isPublisherEnabled, Publisher, setPublisherEnabled } from "../../api/brave_news";
 import Flex from "../Flex";
 import FollowButton from "./FollowButton";
 import { Heart, HeartOutline } from "./Icons";
-import { useCachedValue } from "../../hooks/useCachedValue";
+import { usePublisher } from "../../api/brave_news/news";
 
 const Container = styled(Flex)`
 `;
@@ -32,13 +31,22 @@ const Name = styled.span`
 `
 
 const Pulse = keyframes`
-    0% { opacity: 0; }
+    0% {
+        pointer-events: auto;
+        opacity: 0;
+    }
     5% { opacity: 1; }
     80% { opacity: 1; }
-    100% { opacity: 0; }
+    99% {
+        pointer-events: auto;
+    }
+    100% { 
+        pointer-events: none;
+        opacity: 0;
+    }
 `
 
-const HeartOverlay = styled(Flex)`  
+const HeartOverlay = styled(Flex)`
     pointer-events: none;
     background: white;
     color: #aeb1c2;
@@ -62,21 +70,19 @@ const HeartContainer = styled.div`
 `
 
 export default function FeedCard(props: {
-    publisher: Publisher;
+    publisherId: string;
     backgroundColor?: string;
     backgroundImage?: string;
-    following: boolean;
-    name: string;
 }) {
-    const [following, setFollowing] = useCachedValue(isPublisherEnabled(props.publisher), newValue => setPublisherEnabled(props.publisher, newValue));
+    const { publisher, enabled, setEnabled } = usePublisher(props.publisherId);
     const [toggled, setToggled] = useState(false);
     const toggle = () => {
         setToggled(true);
-        setFollowing(!following);
+        setEnabled(!enabled);
     }
     return <Container direction="column" gap={8}>
         <Card backgroundColor={props.backgroundColor} backgroundImage={props.backgroundImage}>
-            <StyledFollowButton following={following} onClick={toggle} />
+            <StyledFollowButton following={enabled} onClick={toggle} />
 
             {/*
                 Use whether or not we're following this element as the key, so
@@ -86,14 +92,14 @@ export default function FeedCard(props: {
                 We don't display the overlay unless we've toggled this publisher
                 so we don't play the pulse animation on first load.
             */}
-            {toggled && <HeartOverlay key={following + ''} align="center" justify="center">
+            {toggled && <HeartOverlay key={enabled + ''} align="center" justify="center">
                 <HeartContainer>
-                    {following ? Heart : HeartOutline}
+                    {enabled ? Heart : HeartOutline}
                 </HeartContainer>
             </HeartOverlay>}
         </Card>
         <Name>
-            {props.name}
+            {publisher.publisherName}
         </Name>
     </Container>
 }

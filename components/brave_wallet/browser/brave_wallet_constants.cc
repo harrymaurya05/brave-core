@@ -96,6 +96,8 @@ const std::vector<mojom::BlockchainToken>& GetRampBuyTokens() {
         mojom::kMainnetChainId, mojom::CoinType::ETH},
        {"", "Avalanche", "", false, false, "AVAX", 18, true, "", "",
         mojom::kAvalancheMainnetChainId, mojom::CoinType::ETH},
+       {"", "Binance Smart Chain", "", false, false, "BNB", 18, true, "", "",
+        mojom::kBinanceSmartChainMainnetChainId, mojom::CoinType::ETH},
        {"", "Celo", "", false, false, "CELO", 18, true, "", "",
         mojom::kCeloMainnetChainId, mojom::CoinType::ETH},
        {"0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73", "Celo Euro", "ceur.png",

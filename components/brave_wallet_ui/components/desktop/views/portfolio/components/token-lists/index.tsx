@@ -10,7 +10,6 @@ import { useHistory } from 'react-router'
 import {
   BraveWallet,
   UserAssetInfoType,
-  DefaultCurrencies,
   WalletRoutes
 } from '../../../../../../constants/types'
 
@@ -20,7 +19,6 @@ import { getLocale } from '../../../../../../../common/locale'
 // Components
 import { SearchBar } from '../../../../../shared'
 import {
-  PortfolioAssetItem,
   AddButton,
   NetworkFilterSelector
 } from '../../../../'
@@ -36,39 +34,33 @@ import {
 
 export interface Props {
   filteredAssetList: UserAssetInfoType[]
-  tokenPrices: BraveWallet.AssetPrice[]
-  defaultCurrencies: DefaultCurrencies
   userAssetList: UserAssetInfoType[]
-  hideBalances: boolean
   networks: BraveWallet.NetworkInfo[]
   onSetFilteredAssetList: (filteredList: UserAssetInfoType[]) => void
-  onSelectAsset: (asset: BraveWallet.BlockchainToken | undefined) => () => void
+  renderToken: (item: UserAssetInfoType) => JSX.Element
+  hideAddButton?: boolean
 }
 
-const TokenLists = (props: Props) => {
-  const {
-    filteredAssetList,
-    tokenPrices,
-    defaultCurrencies,
-    userAssetList,
-    hideBalances,
-    networks,
-    onSelectAsset,
-    onSetFilteredAssetList
-  } = props
-
+const TokenLists = ({
+  filteredAssetList,
+  userAssetList,
+  networks,
+  renderToken,
+  onSetFilteredAssetList,
+  hideAddButton
+}: Props) => {
   // routing
   const history = useHistory()
 
   // memos
   const nonFungibleTokenList = React.useMemo(
-    () => filteredAssetList.filter(({ asset }) => asset.isErc721),
-    [filteredAssetList]
+    () => filteredAssetList.filter(({ asset }) => asset.isErc721).map(renderToken),
+    [filteredAssetList, renderToken]
   )
 
   const fungibleTokenList = React.useMemo(
-    () => filteredAssetList.filter(({ asset }) => !asset.isErc721),
-    [filteredAssetList]
+    () => filteredAssetList.filter(({ asset }) => !asset.isErc721).map(renderToken),
+    [filteredAssetList, renderToken]
   )
 
   // methods
@@ -101,44 +93,25 @@ const TokenLists = (props: Props) => {
         <SearchBar placeholder={getLocale('braveWalletSearchText')} action={onFilterAssets} />
         <NetworkFilterSelector networkListSubset={networks} />
       </FilterTokenRow>
-      {fungibleTokenList.map((item) =>
-        <PortfolioAssetItem
-          spotPrices={tokenPrices}
-          defaultCurrencies={defaultCurrencies}
-          action={onSelectAsset(item.asset)}
-          key={`${item.asset.contractAddress}-${item.asset.symbol}-${item.asset.chainId}`}
-          assetBalance={item.assetBalance}
-          token={item.asset}
-          hideBalances={hideBalances}
-          networks={networks}
-        />
-      )}
+
+      {fungibleTokenList}
+
       {nonFungibleTokenList.length !== 0 &&
         <>
           <Spacer />
           <DividerText>{getLocale('braveWalletTopNavNFTS')}</DividerText>
           <SubDivider />
-          {nonFungibleTokenList.map((item) =>
-            <PortfolioAssetItem
-              spotPrices={tokenPrices}
-              defaultCurrencies={defaultCurrencies}
-              action={onSelectAsset(item.asset)}
-              key={`${item.asset.contractAddress}-${item.asset.tokenId}-${item.asset.chainId}`}
-              assetBalance={item.assetBalance}
-              token={item.asset}
-              hideBalances={hideBalances}
-              networks={networks}
-            />
-          )}
+          {nonFungibleTokenList}
         </>
       }
-      <ButtonRow>
+
+      {!hideAddButton && <ButtonRow>
         <AddButton
           buttonType='secondary'
           onSubmit={showAddAssetsModal}
           text={getLocale('braveWalletAccountsEditVisibleAssets')}
         />
-      </ButtonRow>
+      </ButtonRow>}
     </>
   )
 }

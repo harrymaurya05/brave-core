@@ -1,3 +1,8 @@
+// Copyright (c) 2022 The Brave Authors. All rights reserved.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this file,
+// you can obtain one at http://mozilla.org/MPL/2.0/.
+
 import * as React from 'react'
 
 // Options
@@ -16,8 +21,6 @@ import {
   FiatBalanceText,
   NameAndIcon,
   AssetIcon,
-  IconsWrapper,
-  NetworkIconWrapper,
   NameColumn,
   Spacer,
   NetworkDescriptionText
@@ -30,6 +33,7 @@ import { getTokensNetwork } from '../../../utils/network-utils'
 // Hooks
 import { usePricing } from '../../../common/hooks'
 import { unbiasedRandom } from '../../../utils/random-utils'
+import { IconsWrapper, NetworkIconWrapper } from '../../shared/style'
 
 interface Props {
   spotPrices: BraveWallet.AssetPrice[]
@@ -41,6 +45,8 @@ interface Props {
   networks: BraveWallet.NetworkInfo[]
   isPanel?: boolean
 }
+
+const AssetIconWithPlaceholder = withPlaceholderIcon(AssetIcon, { size: 'big', marginLeft: 0, marginRight: 8 })
 
 const PortfolioAssetItem = (props: Props) => {
   const {
@@ -55,10 +61,6 @@ const PortfolioAssetItem = (props: Props) => {
   } = props
   const [assetNameSkeletonWidth, setAssetNameSkeletonWidth] = React.useState(0)
   const [assetNetworkSkeletonWidth, setAssetNetworkSkeletonWidth] = React.useState(0)
-
-  const AssetIconWithPlaceholder = React.useMemo(() => {
-    return withPlaceholderIcon(AssetIcon, { size: 'big', marginLeft: 0, marginRight: 8 })
-  }, [])
 
   const formattedAssetBalance = token.isErc721
     ? new Amount(assetBalance)

@@ -15,7 +15,7 @@ import { makeNetworkAsset } from '../../../options/asset-options'
 
 interface Props {
   network: BraveWallet.NetworkInfo
-  marginRight: number
+  marginRight?: number
   size?: 'big' | 'small'
 }
 

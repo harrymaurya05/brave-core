@@ -33,6 +33,7 @@ import { LoadingSkeleton } from '../../../shared'
 import {
   ChartControlBar,
   LineChart,
+  PortfolioAssetItem,
   WithHideBalancePlaceholder
 } from '../../'
 
@@ -238,14 +239,26 @@ export const PortfolioOverview = () => {
       />
 
       <TokenLists
-        defaultCurrencies={defaultCurrencies}
         userAssetList={userAssetList}
         filteredAssetList={filteredAssetList}
-        tokenPrices={transactionSpotPrices}
         networks={networkList}
         onSetFilteredAssetList={setfilteredAssetList}
-        onSelectAsset={onSelectAsset}
-        hideBalances={hideBalances}
+        renderToken={(item) =>
+          <PortfolioAssetItem
+            spotPrices={transactionSpotPrices}
+            defaultCurrencies={defaultCurrencies}
+            action={onSelectAsset(item.asset)}
+            key={
+              item.asset.isErc721
+                ? `${item.asset.contractAddress}-${item.asset.symbol}-${item.asset.chainId}`
+                : `${item.asset.contractAddress}-${item.asset.tokenId}-${item.asset.chainId}`
+            }
+            assetBalance={item.assetBalance}
+            token={item.asset}
+            hideBalances={hideBalances}
+            networks={networkList}
+          />
+        }
       />
     </StyledWrapper>
   )

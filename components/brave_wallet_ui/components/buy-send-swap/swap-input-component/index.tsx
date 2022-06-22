@@ -322,7 +322,7 @@ function SwapInputComponent (props: Props) {
                     }
                   </AssetTicker>
                 </ButtonLeftSide>
-                <CaratDownIcon />
+                {onShowSelection && <CaratDownIcon />}
               </AssetButton>
             }
           </Row>

@@ -537,6 +537,7 @@ export function refreshNetworkInfo () {
 
     // Get current selected networks info
     const chainId = await jsonRpcService.getChainId(selectedCoin)
+
     const currentNetwork = getNetworkInfo(chainId.chainId, selectedCoin, networkList)
     dispatch(WalletActions.setNetwork(currentNetwork))
     return currentNetwork
@@ -546,9 +547,9 @@ export function refreshNetworkInfo () {
 export function refreshKeyringInfo () {
   return async (dispatch: Dispatch, getState: () => State) => {
     const { wallet: { selectedCoin } } = getState()
-    const apiProxy = getAPIProxy()
-    const { keyringService, walletHandler } = apiProxy
 
+    const apiProxy = getAPIProxy()
+    const { keyringService, walletHandler, jsonRpcService } = apiProxy
     const walletInfoBase = await walletHandler.getWalletInfo()
     const walletInfo = { ...walletInfoBase, visibleTokens: [], selectedAccount: '' }
 
@@ -566,9 +567,12 @@ export function refreshKeyringInfo () {
     }))
     const filteredDefaultAccounts = defaultAccounts.filter((account) => Object.keys(account).length !== 0)
     dispatch(WalletActions.setDefaultAccounts(filteredDefaultAccounts))
+    const coinsChainId = await jsonRpcService.getChainId(selectedCoin)
 
     // Get selectedAccountAddress
-    const getSelectedAccount = await keyringService.getSelectedAccount(selectedCoin)
+    const getSelectedAccount = selectedCoin === BraveWallet.CoinType.FIL
+        ? await keyringService.getFilecoinSelectedAccount(coinsChainId.chainId)
+        : await keyringService.getSelectedAccount(selectedCoin)
     const selectedAddress = getSelectedAccount.address
 
     // Fallback account address if selectedAccount returns null

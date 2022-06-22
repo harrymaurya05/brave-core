@@ -99,6 +99,7 @@ provideStrings({
   braveWalletButtonCopied: 'Copied',
   braveWalletButtonVerify: 'Verify',
   braveWalletButtonClose: 'Close',
+  braveWalletButtonMore: 'More',
 
   // Wallet Onboarding Welcome
   braveWalletWelcomeTitle: 'Welcome to the new Brave Wallet',
@@ -363,10 +364,15 @@ provideStrings({
   braveWalletBuyWyreButton: 'Continue to Wyre',
   braveWalletBuyFaucetButton: 'Get Ether',
   braveWalletBuyContinueButton: 'Select purchase method',
+  braveWalletBuySelectAsset: 'Select an asset',
   braveWalletBuyRampNetworkName: 'Ramp.Network',
   braveWalletBuyWyreName: 'Wyre',
   braveWalletBuyRampDescription: 'Buy with CC/Debit or ACH. Competitive Rates.',
   braveWalletBuyWyreDescription: 'Buy with CC/Debit or ACH. Competitive Rates.',
+
+  // Fund Wallet Screen
+  braveWalletFundWalletTitle: 'Complete your $1 purchase through one of our partners',
+  braveWalletFundWalletDescription: 'On completion, your funds will be transfered to your Brave Wallet',
 
   // Sign Transaction Panel
   braveWalletSignTransactionTitle: 'Your signature is being requested',

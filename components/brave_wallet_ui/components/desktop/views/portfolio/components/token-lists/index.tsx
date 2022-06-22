@@ -24,6 +24,7 @@ import {
 } from '../../../../'
 
 // Styled Components
+import { ScrollableColumn } from '../../../../../shared/style'
 import {
   ButtonRow,
   DividerText,
@@ -39,6 +40,8 @@ export interface Props {
   onSetFilteredAssetList: (filteredList: UserAssetInfoType[]) => void
   renderToken: (item: UserAssetInfoType) => JSX.Element
   hideAddButton?: boolean
+  enableScroll?: boolean
+  maxListHeight?: string
 }
 
 const TokenLists = ({
@@ -47,7 +50,9 @@ const TokenLists = ({
   networks,
   renderToken,
   onSetFilteredAssetList,
-  hideAddButton
+  hideAddButton,
+  enableScroll,
+  maxListHeight
 }: Props) => {
   // routing
   const history = useHistory()
@@ -94,16 +99,18 @@ const TokenLists = ({
         <NetworkFilterSelector networkListSubset={networks} />
       </FilterTokenRow>
 
-      {fungibleTokenList}
+      <ScrollableColumn scrollDisabled={!enableScroll} maxHeight={maxListHeight}>
+        {fungibleTokenList}
 
-      {nonFungibleTokenList.length !== 0 &&
-        <>
-          <Spacer />
-          <DividerText>{getLocale('braveWalletTopNavNFTS')}</DividerText>
-          <SubDivider />
-          {nonFungibleTokenList}
-        </>
-      }
+        {nonFungibleTokenList.length !== 0 &&
+          <>
+            <Spacer />
+            <DividerText>{getLocale('braveWalletTopNavNFTS')}</DividerText>
+            <SubDivider />
+            {nonFungibleTokenList}
+          </>
+        }
+      </ScrollableColumn>
 
       {!hideAddButton && <ButtonRow>
         <AddButton

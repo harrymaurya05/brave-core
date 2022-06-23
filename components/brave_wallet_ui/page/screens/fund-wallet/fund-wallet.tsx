@@ -17,7 +17,6 @@ import { getTokensNetwork } from '../../../utils/network-utils'
 // types
 import {
   BraveWallet,
-  UserAssetInfoType,
   WalletAccountType,
   WalletRoutes,
   WalletState
@@ -85,9 +84,6 @@ export const FundWalletScreen = () => {
   } = useMultiChainBuyAssets()
 
   // state
-  const [filteredList, setFilteredList] = React.useState<UserAssetInfoType[]>(
-    allBuyAssetOptions.map(asset => ({ asset, assetBalance: '1' }))
-  )
   const [showBuyOptions, setShowBuyOptions] = React.useState<boolean>(false)
   const [showAccountSearch, setShowAccountSearch] = React.useState<boolean>(false)
   const [accountSearchText, setAccountSearchText] = React.useState<string>('')
@@ -177,12 +173,6 @@ export const FundWalletScreen = () => {
   }, [assetsForFilteredNetwork.length])
 
   React.useEffect(() => {
-    if (assetsForFilteredNetwork) {
-      setFilteredList(assetsForFilteredNetwork) // (re)init filtered list on chain switch
-    }
-  }, [assetsForFilteredNetwork])
-
-  React.useEffect(() => {
     // unselect asset on chain filter changed
     if (selectedNetworkFilter) {
       setSelectedAsset(undefined)
@@ -240,9 +230,7 @@ export const FundWalletScreen = () => {
                     enableScroll
                     maxListHeight='38vh'
                     userAssetList={assetsForFilteredNetwork}
-                    filteredAssetList={filteredList}
                     networks={networksFilterOptions}
-                    onSetFilteredAssetList={setFilteredList}
                     hideAddButton
                     renderToken={({ asset }) => {
                       return <BuyAssetOptionItem

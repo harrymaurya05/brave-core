@@ -161,7 +161,6 @@ export const PortfolioOverview = () => {
   }, [portfolioPriceHistory, isZeroBalance])
 
   // state
-  const [filteredAssetList, setfilteredAssetList] = React.useState<UserAssetInfoType[]>(userAssetList)
   const [hoverBalance, setHoverBalance] = React.useState<string>()
   const [hideBalances, setHideBalances] = React.useState<boolean>(false)
 
@@ -189,10 +188,6 @@ export const PortfolioOverview = () => {
   }, [hideBalances])
 
   // effects
-  React.useEffect(() => {
-    setfilteredAssetList(userAssetList)
-  }, [userAssetList])
-
   React.useEffect(() => {
     dispatch(WalletPageActions.selectAsset({ asset: undefined, timeFrame: selectedTimeline }))
   }, [selectedTimeline])
@@ -240,9 +235,7 @@ export const PortfolioOverview = () => {
 
       <TokenLists
         userAssetList={userAssetList}
-        filteredAssetList={filteredAssetList}
         networks={networkList}
-        onSetFilteredAssetList={setfilteredAssetList}
         renderToken={(item) =>
           <PortfolioAssetItem
             spotPrices={transactionSpotPrices}

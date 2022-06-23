@@ -34,10 +34,8 @@ import {
 } from '../../style'
 
 export interface Props {
-  filteredAssetList: UserAssetInfoType[]
   userAssetList: UserAssetInfoType[]
   networks: BraveWallet.NetworkInfo[]
-  onSetFilteredAssetList: (filteredList: UserAssetInfoType[]) => void
   renderToken: (item: UserAssetInfoType) => JSX.Element
   hideAddButton?: boolean
   enableScroll?: boolean
@@ -45,11 +43,9 @@ export interface Props {
 }
 
 const TokenLists = ({
-  filteredAssetList,
   userAssetList,
   networks,
   renderToken,
-  onSetFilteredAssetList,
   hideAddButton,
   enableScroll,
   maxListHeight
@@ -57,7 +53,24 @@ const TokenLists = ({
   // routing
   const history = useHistory()
 
+  // state
+  const [searchText, setSearchText] = React.useState<string>('')
+
   // memos
+  const filteredAssetList = React.useMemo(() => {
+    if (searchText === '') {
+      return userAssetList
+    }
+    return userAssetList.filter((item) => {
+      return (
+        item.asset.name.toLowerCase() === searchText.toLowerCase() ||
+        item.asset.name.toLowerCase().startsWith(searchText.toLowerCase()) ||
+        item.asset.symbol.toLocaleLowerCase() === searchText.toLowerCase() ||
+        item.asset.symbol.toLowerCase().startsWith(searchText.toLowerCase())
+      )
+    })
+  }, [searchText, userAssetList])
+
   const nonFungibleTokenList = React.useMemo(
     () => filteredAssetList.filter(({ asset }) => asset.isErc721).map(renderToken),
     [filteredAssetList, renderToken]
@@ -69,33 +82,30 @@ const TokenLists = ({
   )
 
   // methods
-  // This filters a list of assets when the user types in search bar
-  const onFilterAssets = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const search = event.target.value
-    if (search === '') {
-      onSetFilteredAssetList(userAssetList)
-    } else {
-      const filteredList = userAssetList.filter((item) => {
-        return (
-          item.asset.name.toLowerCase() === search.toLowerCase() ||
-          item.asset.name.toLowerCase().startsWith(search.toLowerCase()) ||
-          item.asset.symbol.toLocaleLowerCase() === search.toLowerCase() ||
-          item.asset.symbol.toLowerCase().startsWith(search.toLowerCase())
-        )
-      })
-      onSetFilteredAssetList(filteredList)
-    }
-  }, [onSetFilteredAssetList, userAssetList])
+  const onSearchText = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(event.target.value)
+  }, [])
 
   const showAddAssetsModal = React.useCallback(() => {
     history.push(WalletRoutes.AddAssetModal)
   }, [])
 
+  // effects
+  React.useEffect(() => {
+    if (userAssetList) {
+      setSearchText('')
+    }
+  }, [userAssetList])
+
   // render
   return (
     <>
       <FilterTokenRow>
-        <SearchBar placeholder={getLocale('braveWalletSearchText')} action={onFilterAssets} />
+        <SearchBar
+          placeholder={getLocale('braveWalletSearchText')}
+          action={onSearchText}
+          value={searchText}
+        />
         <NetworkFilterSelector networkListSubset={networks} />
       </FilterTokenRow>
 

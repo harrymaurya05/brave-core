@@ -1,5 +1,23 @@
+// Copyright (c) 2022 The Brave Authors. All rights reserved.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this file,
+// you can obtain one at http://mozilla.org/MPL/2.0/.
+
 import * as React from 'react'
-import * as qr from 'qr-image'
+
+// utils
+import { getLocale, getLocaleWithTag } from '../../../../../common/locale'
+import { generateQRCode } from '../../../../utils/qr-code-utils'
+import { reduceAddress } from '../../../../utils/reduce-address'
+import { copyToClipboard } from '../../../../utils/copy-to-clipboard'
+
+// options
+import {
+  AccountSettingsNavOptions,
+  HardwareAccountSettingsNavOptions
+} from '../../../../options/account-settings-nav-options'
+
+// types
 import {
   AccountSettingsNavTypes,
   BraveWallet,
@@ -7,20 +25,18 @@ import {
   UpdateAccountNamePayloadType,
   TopTabNavObjectType
 } from '../../../../constants/types'
+
+// hooks
+import { useIsMounted } from '../../../../common/hooks/useIsMounted'
+
+// components
 import {
   PopupModal,
   TopTabNav
 } from '../..'
-import {
-  AccountSettingsNavOptions,
-  HardwareAccountSettingsNavOptions
-} from '../../../../options/account-settings-nav-options'
 import { FILECOIN_FORMAT_DESCRIPTION_URL } from '../../../../common/constants/urls'
-import { reduceAddress } from '../../../../utils/reduce-address'
-import { copyToClipboard } from '../../../../utils/copy-to-clipboard'
 import { NavButton } from '../../../extension'
 import { Tooltip } from '../../../shared'
-import { getLocale, getLocaleWithTag } from '../../../../../common/locale'
 
 // Styled Components
 import {
@@ -70,11 +86,17 @@ const AddAccountModal = (props: Props) => {
     onViewPrivateKey,
     onDoneViewingPrivateKey
   } = props
+
+  // custom hooks
+  const isMounted = useIsMounted()
+
+  // state
   const [accountName, setAccountName] = React.useState<string>(account.name)
   const [showPrivateKey, setShowPrivateKey] = React.useState<boolean>(false)
   const [updateError, setUpdateError] = React.useState<boolean>(false)
   const [qrCode, setQRCode] = React.useState<string>('')
 
+  // methods
   const handleAccountNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAccountName(event.target.value)
     setUpdateError(false)
@@ -90,15 +112,13 @@ const AddAccountModal = (props: Props) => {
     onUpdateAccountName(payload).success ? onClose() : setUpdateError(true)
   }
 
-  const generateQRData = () => {
-    const image = qr.image(account.address)
-    let chunks: Uint8Array[] = []
-    image
-      .on('data', (chunk: Uint8Array) => chunks.push(chunk))
-      .on('end', () => {
-        setQRCode(`data:image/png;base64,${Buffer.concat(chunks).toString('base64')}`)
-      })
-  }
+  const generateQRData = React.useCallback(() => {
+    generateQRCode(account.address).then(qr => {
+      if (isMounted) {
+        setQRCode(qr)
+      }
+    })
+  }, [account, isMounted])
 
   React.useEffect(() => {
     generateQRData()

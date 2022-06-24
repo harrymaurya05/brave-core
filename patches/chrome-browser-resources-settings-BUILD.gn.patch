@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/resources/settings/BUILD.gn b/chrome/browser/resources/settings/BUILD.gn
-index e60915c029835a697e0eda2042ba237300d532c3..91372072493c40ce50011b93aca583d32b6b3dbb 100644
+index e60915c029835a697e0eda2042ba237300d532c3..d1d6005a77a5fd5ee68efd4d1c937c093c82f1f0 100644
 --- a/chrome/browser/resources/settings/BUILD.gn
 +++ b/chrome/browser/resources/settings/BUILD.gn
 @@ -145,6 +145,7 @@ generate_grd("build_grd") {
@@ -10,7 +10,38 @@ index e60915c029835a697e0eda2042ba237300d532c3..91372072493c40ce50011b93aca583d3
  }
  
  preprocess_if_expr("preprocess") {
-@@ -308,4 +309,6 @@ ts_library("build_ts") {
+@@ -239,14 +240,6 @@ if (is_chromeos_ash) {
+     extra_deps = [ ":build_ts" ]
+   }
+ 
+-  js_library("router") {
+-    deps = [
+-      "//ui/webui/resources/js:assert.m",
+-      "//ui/webui/resources/js:load_time_data.m",
+-    ]
+-    externs_list = [ "$externs_path/metrics_private.js" ]
+-  }
+-
+   js_library("setting_id_param_util") {
+     sources = [ "$root_gen_dir/chrome/browser/resources/settings/tsc/setting_id_param_util.js" ]
+     deps = [
+@@ -257,6 +250,15 @@ if (is_chromeos_ash) {
+   }
+ }
+ 
++js_library("router") {
++  deps = [
++    "//ui/webui/resources/js:assert.m",
++    "//ui/webui/resources/js:load_time_data.m",
++  ]
++  externs_list = [ "$externs_path/metrics_private.js" ]
++}
++
++
+ html_to_js("css_wrapper_files_old") {
+   js_files = css_wrapper_files_old
+ }
+@@ -308,4 +310,6 @@ ts_library("build_ts") {
      ":preprocess",
      ":preprocess_generated",
    ]

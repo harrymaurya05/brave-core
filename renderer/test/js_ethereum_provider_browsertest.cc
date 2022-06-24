@@ -77,8 +77,8 @@ class JSEthereumProviderBrowserTest : public InProcessBrowserTest {
     return browser()->tab_strip_model()->GetActiveWebContents();
   }
 
-  content::RenderFrameHost* main_frame() {
-    return web_contents()->GetMainFrame();
+  content::RenderFrameHost* primary_main_frame() {
+    return web_contents()->GetPrimaryMainFrame();
   }
 
   void NavigateToURLAndWaitForLoadStop(const GURL& url) {
@@ -104,7 +104,7 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, AttachOnReload) {
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
 
   std::string command = "window.ethereum.isMetaMask";
-  EXPECT_TRUE(content::EvalJs(main_frame(), command)
+  EXPECT_TRUE(content::EvalJs(primary_main_frame(), command)
                   .error.find("Cannot read properties of undefined") !=
               std::string::npos);
   EXPECT_EQ(browser()->tab_strip_model()->GetTabCount(), 1);
@@ -112,20 +112,21 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, AttachOnReload) {
       browser()->profile()->GetPrefs(),
       brave_wallet::mojom::DefaultWallet::BraveWallet);
   ReloadAndWaitForLoadStop();
-  auto result = content::EvalJs(main_frame(), command);
+  auto result = content::EvalJs(primary_main_frame(), command);
   EXPECT_EQ(result.error, "");
   ASSERT_TRUE(result.ExtractBool());
   EXPECT_EQ(browser()->tab_strip_model()->GetTabCount(), 1);
   // unable to overwrite
   std::string overwrite = "window.ethereum = ['test'];window.ethereum[0]";
-  EXPECT_EQ(content::EvalJs(main_frame(), overwrite).error, "");
-  ASSERT_TRUE(content::EvalJs(main_frame(), command).ExtractBool());
+  EXPECT_EQ(content::EvalJs(primary_main_frame(), overwrite).error, "");
+  ASSERT_TRUE(content::EvalJs(primary_main_frame(), command).ExtractBool());
   brave_wallet::SetDefaultWallet(
       browser()->profile()->GetPrefs(),
       brave_wallet::mojom::DefaultWallet::BraveWalletPreferExtension);
   ReloadAndWaitForLoadStop();
   // overwrite successfully
-  EXPECT_EQ(content::EvalJs(main_frame(), overwrite).ExtractString(), "test");
+  EXPECT_EQ(content::EvalJs(primary_main_frame(), overwrite).ExtractString(),
+            "test");
 }
 
 IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest,
@@ -136,7 +137,7 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest,
       ui_test_utils::NavigateToURL(browser(), GURL("chrome://newtab/")));
 
   std::string command = "window.ethereum.isMetaMask";
-  EXPECT_TRUE(content::EvalJs(main_frame(), command,
+  EXPECT_TRUE(content::EvalJs(primary_main_frame(), command,
                               content::EXECUTE_SCRIPT_DEFAULT_OPTIONS,
                               ISOLATED_WORLD_ID_TRANSLATE)
                   .error.find("Cannot read properties of undefined") !=
@@ -146,7 +147,7 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest,
       browser()->profile()->GetPrefs(),
       brave_wallet::mojom::DefaultWallet::BraveWallet);
   ReloadAndWaitForLoadStop();
-  EXPECT_TRUE(content::EvalJs(main_frame(), command,
+  EXPECT_TRUE(content::EvalJs(primary_main_frame(), command,
                               content::EXECUTE_SCRIPT_DEFAULT_OPTIONS,
                               ISOLATED_WORLD_ID_TRANSLATE)
                   .error.find("Cannot read properties of undefined") !=
@@ -190,7 +191,7 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, IsMetaMaskWritable) {
   std::string overwrite =
       "window.ethereum.isMetaMask = false;"
       "window.ethereum.isMetaMask";
-  EXPECT_FALSE(content::EvalJs(main_frame(), overwrite).ExtractBool());
+  EXPECT_FALSE(content::EvalJs(primary_main_frame(), overwrite).ExtractBool());
 }
 
 IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, NonConfigurable) {
@@ -208,7 +209,7 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, NonConfigurable) {
        window.ethereum = 42;
        typeof window.ethereum === 'object'
     )";
-  EXPECT_TRUE(content::EvalJs(main_frame(), overwrite).ExtractBool());
+  EXPECT_TRUE(content::EvalJs(primary_main_frame(), overwrite).ExtractBool());
 }
 
 IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, Iframe3P) {
@@ -331,19 +332,19 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, Iframe3P) {
   for (auto& c : ethereum_undefined_cases) {
     SCOPED_TRACE(testing::Message() << c.script << c.top_url << c.iframe_url);
     ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), c.top_url));
-    EXPECT_TRUE(content::EvalJs(main_frame(), c.script).ExtractBool());
+    EXPECT_TRUE(content::EvalJs(primary_main_frame(), c.script).ExtractBool());
     EXPECT_TRUE(NavigateIframeToURL(web_contents(), "test", c.iframe_url));
     EXPECT_TRUE(
-        content::EvalJs(ChildFrameAt(main_frame(), 0), kEvalEthereumUndefined)
+        content::EvalJs(ChildFrameAt(primary_main_frame(), 0), kEvalEthereumUndefined)
             .ExtractBool());
   }
   for (auto& c : ethereum_defined_cases) {
     SCOPED_TRACE(testing::Message() << c.script << c.top_url << c.iframe_url);
     ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), c.top_url));
-    EXPECT_TRUE(content::EvalJs(main_frame(), c.script).ExtractBool());
+    EXPECT_TRUE(content::EvalJs(primary_main_frame(), c.script).ExtractBool());
     EXPECT_TRUE(NavigateIframeToURL(web_contents(), "test", c.iframe_url));
     EXPECT_FALSE(
-        content::EvalJs(ChildFrameAt(main_frame(), 0), kEvalEthereumUndefined)
+        content::EvalJs(ChildFrameAt(primary_main_frame(), 0), kEvalEthereumUndefined)
             .ExtractBool());
   }
 }
@@ -353,20 +354,24 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, SecureContextOnly) {
   GURL url = https_server_.GetURL("a.com", "/simple.html");
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
   constexpr char kEvalEthereum[] = "typeof window.ethereum !== 'undefined'";
-  EXPECT_TRUE(content::EvalJs(main_frame(), kEvalEthereum).ExtractBool());
+  EXPECT_TRUE(
+      content::EvalJs(primary_main_frame(), kEvalEthereum).ExtractBool());
 
   // Insecure context
   url = embedded_test_server()->GetURL("a.com", "/empty.html");
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
-  EXPECT_FALSE(content::EvalJs(main_frame(), kEvalEthereum).ExtractBool());
+  EXPECT_FALSE(
+      content::EvalJs(primary_main_frame(), kEvalEthereum).ExtractBool());
 
   // Secure context localhost HTTP
   url = embedded_test_server()->GetURL("localhost", "/empty.html");
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
-  EXPECT_TRUE(content::EvalJs(main_frame(), kEvalEthereum).ExtractBool());
+  EXPECT_TRUE(
+      content::EvalJs(primary_main_frame(), kEvalEthereum).ExtractBool());
 
   // Secure context 127.0.0.1 HTTP
   url = embedded_test_server()->GetURL("localhost", "/empty.html");
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
-  EXPECT_TRUE(content::EvalJs(main_frame(), kEvalEthereum).ExtractBool());
+  EXPECT_TRUE(
+      content::EvalJs(primary_main_frame(), kEvalEthereum).ExtractBool());
 }

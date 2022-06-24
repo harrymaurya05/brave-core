@@ -833,7 +833,7 @@ IN_PROC_BROWSER_TEST_F(IpfsServiceBrowserTest, CannotLoadIframeFromHTTP) {
   content::WebContents* contents =
       browser()->tab_strip_model()->GetActiveWebContents();
 
-  auto* child_frame = ChildFrameAt(contents->GetMainFrame(), 0);
+  auto* child_frame = ChildFrameAt(contents->GetPrimaryMainFrame(), 0);
   auto location =
       EvalJs(child_frame,
              "const timer = setInterval(function () {"
@@ -886,10 +886,11 @@ IN_PROC_BROWSER_TEST_F(IpfsServiceBrowserTest, CanLoadIFrameFromIPFS) {
       contents->GetLastCommittedURL(),
       ipfs::GetIPFSGatewayURL("Qmc2JTQo4iXf24g98otZmGFQq176eQ2Cdbb88qA5ToMEvC",
                               "simple_content", GetDefaultIPFSGateway(prefs)));
-  EXPECT_EQ(ChildFrameAt(contents->GetMainFrame(), 0)->GetLastCommittedURL(),
-            ipfs::GetIPFSGatewayURL(
-                "Qmc2JTQo4iXf24g98otZmGFQq176eQ2Cdbb88qA5ToMEvC",
-                "simple_content_2", GetDefaultIPFSGateway(prefs)));
+  EXPECT_EQ(
+      ChildFrameAt(contents->GetPrimaryMainFrame(), 0)->GetLastCommittedURL(),
+      ipfs::GetIPFSGatewayURL("Qmc2JTQo4iXf24g98otZmGFQq176eQ2Cdbb88qA5ToMEvC",
+                              "simple_content_2",
+                              GetDefaultIPFSGateway(prefs)));
 }
 
 // Make sure an <img src="ipfs://..."> can load within another ipfs:// scheme

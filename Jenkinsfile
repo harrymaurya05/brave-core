@@ -75,7 +75,7 @@ pipeline {
                                                 github('brave/devops', 'https')
                                             }
                                             // branch('${params.DEVOPS_BRANCH}')
-                                            branch('wknapik-no-started-messages-in-channels-or-from-bots')
+                                            branch('wknapik-more-signal-less-noise')
                                         }
                                     }
                                     scriptPath("jenkins/jobs/browser/pr-brave-browser-${PLATFORM}.Jenkinsfile")

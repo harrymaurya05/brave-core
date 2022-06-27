@@ -59,3 +59,4 @@ export const setImportWalletsCheckComplete = createAction<boolean>('setImportWal
 export const importFromCryptoWallets = createAction<ImportFromExternalWalletPayloadType>('importFromCryptoWallets')
 export const importFromMetaMask = createAction<ImportFromExternalWalletPayloadType>('importFromMetaMask')
 export const openWalletSettings = createAction('openWalletSettings')
+export const agreeToWalletTerms = createAction('agreeToWalletTerms')

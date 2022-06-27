@@ -39,20 +39,6 @@ import { FundWalletScreen } from './screens/fund-wallet/fund-wallet'
 import { OnboardingSuccess } from './screens/onboarding/onboarding-success/onboarding-success'
 import DepositFundsScreen from './screens/fund-wallet/deposit-funds'
 
-const POST_ONBOARDING_ROUTES = [
-  <Route path={WalletRoutes.OnboardingComplete} exact>
-    <OnboardingSuccess />
-  </Route>,
-
-  <Route path={WalletRoutes.FundWalletPage} exact>
-    <FundWalletScreen />
-  </Route>,
-
-  <Route path={WalletRoutes.DepositFundsPage} exact>
-    <DepositFundsScreen />
-  </Route>
-]
-
 export const Container = () => {
   // routing
   let history = useHistory()
@@ -60,17 +46,13 @@ export const Container = () => {
 
   // redux
   const dispatch = useDispatch()
-
-  const {
-    isWalletCreated,
-    isWalletLocked,
-    isWalletBackedUp,
-    hasIncorrectPassword,
-    hasInitialized,
-    defaultWallet,
-    isMetaMaskInstalled
-  } = useSelector(({ wallet }: { wallet: WalletState }) => wallet)
-
+  const isWalletCreated = useSelector(({ wallet }: { wallet: WalletState }) => wallet.isWalletCreated)
+  const isWalletLocked = useSelector(({ wallet }: { wallet: WalletState }) => wallet.isWalletLocked)
+  const isWalletBackedUp = useSelector(({ wallet }: { wallet: WalletState }) => wallet.isWalletBackedUp)
+  const hasIncorrectPassword = useSelector(({ wallet }: { wallet: WalletState }) => wallet.hasIncorrectPassword)
+  const hasInitialized = useSelector(({ wallet }: { wallet: WalletState }) => wallet.hasInitialized)
+  const defaultWallet = useSelector(({ wallet }: { wallet: WalletState }) => wallet.defaultWallet)
+  const isMetaMaskInstalled = useSelector(({ wallet }: { wallet: WalletState }) => wallet.isMetaMaskInstalled)
   const setupStillInProgress = useSelector(({ page }: { page: PageState }) => page.setupStillInProgress)
 
   // state
@@ -162,8 +144,10 @@ export const Container = () => {
     // store the last url before wallet lock
     // so that we can return to that page after unlock
     if (
-      walletLocation.includes(WalletRoutes.Backup) ||
       walletLocation.includes(WalletRoutes.Accounts) ||
+      walletLocation.includes(WalletRoutes.Backup) ||
+      walletLocation.includes(WalletRoutes.DepositFundsPage) ||
+      walletLocation.includes(WalletRoutes.FundWalletPage) ||
       walletLocation.includes(WalletRoutes.Portfolio)
     ) {
       setSessionRoute(walletLocation)
@@ -185,13 +169,27 @@ export const Container = () => {
             ? <OnboardingRoutes />
 
             // Post-onboarding flows
-            : <>
+            : <Switch>
 
-              {isWalletLocked &&
-                <Switch>
+                <Route path={WalletRoutes.OnboardingComplete} exact>
+                  <OnboardingSuccess />
+                </Route>
 
-                  {...[POST_ONBOARDING_ROUTES]}
+                <Route path={WalletRoutes.FundWalletPage} exact>
+                  <FundWalletScreen />
+                </Route>
 
+                <Route path={WalletRoutes.DepositFundsPage} exact>
+                  <DepositFundsScreen />
+                </Route>
+
+                <Route path={WalletRoutes.Restore} exact={true}>
+                  <OnboardingWrapper>
+                    <OnboardingRestore />
+                  </OnboardingWrapper>
+                </Route>
+
+                {isWalletLocked &&
                   <Route path={WalletRoutes.Unlock} exact={true}>
                     <OnboardingWrapper>
                       <LockScreen
@@ -204,22 +202,9 @@ export const Container = () => {
                       />
                     </OnboardingWrapper>
                   </Route>
+                }
 
-                  <Route path={WalletRoutes.Restore} exact={true}>
-                    <OnboardingWrapper>
-                      <OnboardingRestore />
-                    </OnboardingWrapper>
-                  </Route>
-
-                  <Redirect to={WalletRoutes.Unlock} />
-                </Switch>
-              }
-
-              {!isWalletLocked &&
-                <Switch>
-
-                  {...[POST_ONBOARDING_ROUTES]}
-
+                {!isWalletLocked &&
                   <Route path={WalletRoutes.Backup} exact={true}>
                     <OnboardingWrapper>
                       <BackupWallet
@@ -228,13 +213,9 @@ export const Container = () => {
                       />
                     </OnboardingWrapper>
                   </Route>
+                }
 
-                  <Route path={WalletRoutes.Restore} exact={true}>
-                    <OnboardingWrapper>
-                      <OnboardingRestore />
-                    </OnboardingWrapper>
-                  </Route>
-
+                {!isWalletLocked &&
                   <Route path={WalletRoutes.CryptoPage}>
                     <CryptoView
                       needsBackup={!isWalletBackedUp}
@@ -247,11 +228,12 @@ export const Container = () => {
                       sessionRoute={sessionRoute}
                     />
                   </Route>
+                }
 
-                </Switch>
-              }
+                {isWalletLocked && <Redirect to={WalletRoutes.Unlock} />}
+                {!isWalletLocked && <Redirect to={WalletRoutes.Portfolio} />}
 
-            </>
+              </Switch>
           }
         </Switch>
       </WalletSubViewLayout>

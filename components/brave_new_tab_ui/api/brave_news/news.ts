@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import getBraveNewsController, { Publishers } from ".";
-import { BraveNewsControllerRemote, Publisher, UserEnabled } from "../../../../../out/Component/gen/brave/components/brave_today/common/brave_news.mojom.m";
+import { BraveNewsControllerRemote, FeedSearchResultItem, Publisher, UserEnabled } from "../../../../../out/Component/gen/brave/components/brave_today/common/brave_news.mojom.m";
 
 type PublisherListener = (newValue: Publisher, oldValue: Publisher) => void;
 type UpdatedListener = (publishers: Publishers, oldValue: Publishers) => void;
@@ -178,5 +178,42 @@ export const usePublisher = (publisherId: string) => {
         publisher,
         enabled,
         setEnabled
+    }
+}
+
+export const useSearchResults = (query: string) => {
+    // We're not interested in casing.
+    query = query.toLocaleLowerCase();
+
+    const publishers = usePublishers();
+    const feedResults = useMemo(() => publishers.filter(p => {
+        if (p.publisherName.toLocaleLowerCase().includes(query))
+            return true;
+        if (p.categoryName.toLocaleLowerCase().includes(query))
+            return true;
+        if (p.feedSource?.url?.toLocaleLowerCase().includes(query))
+            return true;
+        return false;
+    }).sort((a, b) => a.publisherName.localeCompare(b.publisherName)), [query]);
+
+    const [directResults, setDirectResults] = useState<FeedSearchResultItem[]>([]);
+    useEffect(() => {
+        let cancelled = false;
+        let url: URL | undefined;
+        try { url = new URL(query) } catch { }
+        if (!url) return;
+
+        api.controller.findFeeds({ url: url.toString() }).then(({ results }) => {
+            if (cancelled) return;
+            setDirectResults(results);
+        });
+        return () => {
+            cancelled = true;
+        }
+    }, [query]);
+
+    return {
+        feedResults,
+        directResults
     }
 }

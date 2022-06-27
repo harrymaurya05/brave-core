@@ -103,3 +103,17 @@ export default function FeedCard(props: {
         </Name>
     </Container>
 }
+
+export function DirectFeedCard(props: {
+    feedUrl: string;
+    title: string;
+}) {
+    return <Container direction="column" gap={8}>
+        <Card>
+            <StyledFollowButton following={false} onClick={console.log}/>
+        </Card>
+        <Name>
+            {props.title}
+        </Name>
+    </Container>
+}

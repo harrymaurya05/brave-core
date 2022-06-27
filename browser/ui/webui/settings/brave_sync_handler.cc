@@ -265,6 +265,13 @@ void BraveSyncHandler::OnAccountPermanentlyDeleted(
     const syncer::SyncProtocolError& sync_protocol_error) {
   if (sync_protocol_error.error_description.empty()) {
     ResolveJavascriptCallback(callback_id, base::Value(true));
+    // If request succeded, trigger GetUpdates refresh to get
+    // ClientToServerMessage_CLEAR_SERVER_DATA, clear data and leave the chain
+    // TODO(alexeybarabash): move to BraveSyncServiceImpl?
+    auto* sync_service = GetSyncService();
+    if (sync_service) {
+      sync_service->TriggerRefresh(syncer::ModelTypeSet::All());
+    }
   } else {
     RejectJavascriptCallback(
         callback_id, base::Value(sync_protocol_error.error_description));

@@ -145,9 +145,9 @@
 </section>
 
 <section class="cancel">
-  <cr-button class="action-button"
+  <cr-button
     on-click="onPermanentlyDeleteSyncAccount_">
-    $i18n{braveSyncPermanentlyDeleteAccountButton}
+    $i18n{braveSyncDeleteAccountButton}
   </cr-button>
 </section>
 
@@ -157,4 +157,11 @@
     code-type="{{syncCodeDialogType_}}"
     on-done="onSyncCodeDialogDone_">
   </settings-brave-sync-code-dialog>
+</template>
+
+<template is="dom-if" if="[[syncDoingDeleteAccount_]]" restamp>
+  <settings-brave-sync-delete-account-dialog
+    doing-delete-account="{{syncDoingDeleteAccount_}}"
+  >
+  </settings-brave-sync-delete-account-dialog>
 </template>

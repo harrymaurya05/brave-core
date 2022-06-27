@@ -39,7 +39,7 @@ class BraveRewardsActionView
       public views::WidgetObserver,
       public TabStripModelObserver,
       public brave_rewards::RewardsTabHelper::Observer,
-      public brave_rewards::RewardsPanelCoordinator::Delegate,
+      public brave_rewards::RewardsPanelCoordinator::Observer,
       public brave_rewards::RewardsServiceObserver,
       public brave_rewards::RewardsNotificationServiceObserver {
  public:
@@ -73,8 +73,8 @@ class BraveRewardsActionView
   // brave_rewards::RewardsTabHelper::Observer:
   void OnPublisherForTabUpdated(const std::string& publisher_id) override;
 
-  // brave_rewards::RewardsPanelCoordinator::Delegate:
-  bool OpenRewardsPanel(
+  // brave_rewards::RewardsPanelCoordinator::Observer:
+  void OnRewardsPanelRequested(
       const brave_rewards::mojom::RewardsPanelArgs& args) override;
 
   // brave_rewards::RewardsServiceObserver:
@@ -127,6 +127,7 @@ class BraveRewardsActionView
   PrefChangeRegistrar pref_change_registrar_;
   std::pair<std::string, bool> publisher_registered_;
   brave_rewards::RewardsTabHelper::Observation tab_helper_observation_{this};
+  brave_rewards::RewardsPanelCoordinator::Observation panel_observation_{this};
   WidgetObservation bubble_observation_{this};
   RewardsObservation rewards_service_observation_{this};
   NotificationServiceObservation notification_service_observation_{this};

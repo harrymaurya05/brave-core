@@ -8,21 +8,23 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "brave/browser/brave_rewards/rewards_panel_coordinator.h"
 #include "brave/components/brave_rewards/common/brave_rewards_panel.mojom.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/pending_remote.h"
 #include "mojo/public/cpp/bindings/receiver.h"
+#include "mojo/public/cpp/bindings/remote.h"
 #include "ui/webui/mojo_bubble_web_ui_controller.h"
 
 class Browser;
 class Profile;
 
-namespace brave_rewards {
-class RewardsPanelCoordinator;
-}
-
-class RewardsPanelHandler : public brave_rewards::mojom::PanelHandler {
+class RewardsPanelHandler
+    : public brave_rewards::mojom::PanelHandler,
+      public brave_rewards::RewardsPanelCoordinator::Observer {
  public:
   RewardsPanelHandler(
+      mojo::PendingRemote<brave_rewards::mojom::Panel> panel,
       mojo::PendingReceiver<brave_rewards::mojom::PanelHandler> receiver,
       base::WeakPtr<ui::MojoBubbleWebUIController::Embedder> embedder,
       Profile* profile,
@@ -39,11 +41,17 @@ class RewardsPanelHandler : public brave_rewards::mojom::PanelHandler {
   void StartRewards(StartRewardsCallback callback) override;
   void GetRewardsPanelArgs(GetRewardsPanelArgsCallback callback) override;
 
+  // brave_rewards::RewardsPanelCoordinator::Observer:
+  void OnRewardsPanelRequested(
+      const brave_rewards::mojom::RewardsPanelArgs& args) override;
+
  private:
   mojo::Receiver<brave_rewards::mojom::PanelHandler> receiver_;
+  mojo::Remote<brave_rewards::mojom::Panel> panel_;
   base::WeakPtr<ui::MojoBubbleWebUIController::Embedder> embedder_;
   raw_ptr<Profile> profile_ = nullptr;
   raw_ptr<brave_rewards::RewardsPanelCoordinator> panel_coordinator_ = nullptr;
+  brave_rewards::RewardsPanelCoordinator::Observation panel_observation_{this};
 };
 
 #endif  // BRAVE_BROWSER_UI_WEBUI_BRAVE_REWARDS_REWARDS_PANEL_HANDLER_H_

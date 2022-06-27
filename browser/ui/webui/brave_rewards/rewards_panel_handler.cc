@@ -7,7 +7,6 @@
 
 #include <utility>
 
-#include "brave/browser/brave_rewards/rewards_panel_coordinator.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/components/brave_rewards/browser/rewards_service.h"
 #include "chrome/browser/profiles/profile.h"
@@ -15,16 +14,21 @@
 #include "chrome/browser/ui/browser_finder.h"
 
 RewardsPanelHandler::RewardsPanelHandler(
+    mojo::PendingRemote<brave_rewards::mojom::Panel> panel,
     mojo::PendingReceiver<brave_rewards::mojom::PanelHandler> receiver,
     base::WeakPtr<ui::MojoBubbleWebUIController::Embedder> embedder,
     Profile* profile,
     brave_rewards::RewardsPanelCoordinator* panel_coordinator)
     : receiver_(this, std::move(receiver)),
+      panel_(std::move(panel)),
       embedder_(embedder),
       profile_(profile),
       panel_coordinator_(panel_coordinator) {
   DCHECK(embedder_);
   DCHECK(profile_);
+  if (panel_coordinator_) {
+    panel_observation_.Observe(panel_coordinator_);
+  }
 }
 
 RewardsPanelHandler::~RewardsPanelHandler() = default;
@@ -58,4 +62,9 @@ void RewardsPanelHandler::GetRewardsPanelArgs(
   std::move(callback).Run(panel_coordinator_
                               ? panel_coordinator_->panel_args().Clone()
                               : brave_rewards::mojom::RewardsPanelArgs::New());
+}
+
+void RewardsPanelHandler::OnRewardsPanelRequested(
+    const brave_rewards::mojom::RewardsPanelArgs& args) {
+  panel_->OnRewardsPanelRequested(args.Clone());
 }

@@ -257,8 +257,10 @@ void RewardsPanelUI::BindInterface(
 }
 
 void RewardsPanelUI::CreatePanelHandler(
+    mojo::PendingRemote<brave_rewards::mojom::Panel> panel,
     mojo::PendingReceiver<brave_rewards::mojom::PanelHandler> receiver) {
+  DCHECK(panel);
   panel_handler_ = std::make_unique<RewardsPanelHandler>(
-      std::move(receiver), embedder(), Profile::FromWebUI(web_ui()),
-      panel_coordinator_);
+      std::move(panel), std::move(receiver), embedder(),
+      Profile::FromWebUI(web_ui()), panel_coordinator_);
 }

@@ -10,12 +10,10 @@
 
 #include "base/strings/strcat.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
+#include "brave/browser/extensions/api/brave_action_api.h"
 #include "brave/browser/extensions/brave_component_loader.h"
-#include "brave/browser/ui/views/brave_actions/brave_actions_container.h"
 #include "chrome/browser/extensions/extension_service.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/browser_finder.h"
-#include "chrome/browser/ui/browser_window.h"
 #include "extensions/browser/extension_system.h"
 
 namespace brave_rewards {
@@ -54,7 +52,7 @@ bool RewardsPanelExtensionHandler::IsRewardsExtensionPanelURL(const GURL& url) {
           url.path() == kAdsEnableRelativeUrl);
 }
 
-bool RewardsPanelExtensionHandler::OpenRewardsPanel(
+void RewardsPanelExtensionHandler::OnRewardsPanelRequested(
     const mojom::RewardsPanelArgs& args) {
   DCHECK(browser_);
   auto* profile = browser_->profile();
@@ -62,7 +60,7 @@ bool RewardsPanelExtensionHandler::OpenRewardsPanel(
   // Start the rewards ledger process if it is not already started
   auto* rewards_service = RewardsServiceFactory::GetForProfile(profile);
   if (!rewards_service) {
-    return false;
+    return;
   }
 
   rewards_service->StartProcess(base::DoNothing());
@@ -71,7 +69,7 @@ bool RewardsPanelExtensionHandler::OpenRewardsPanel(
   auto* extension_service =
       extensions::ExtensionSystem::Get(profile)->extension_service();
   if (!extension_service) {
-    return false;
+    return;
   }
 
   static_cast<extensions::BraveComponentLoader*>(
@@ -82,13 +80,6 @@ bool RewardsPanelExtensionHandler::OpenRewardsPanel(
   extensions::BraveActionAPI::ShowActionUI(
       browser_, brave_rewards_extension_id,
       std::make_unique<std::string>(GetExtensionPath(args)), &error);
-
-  return true;
-}
-
-base::WeakPtr<RewardsPanelExtensionHandler>
-RewardsPanelExtensionHandler::GetWeakPtr() {
-  return weak_factory_.GetWeakPtr();
 }
 
 }  // namespace brave_rewards

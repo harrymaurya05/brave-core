@@ -6,7 +6,7 @@
 #ifndef BRAVE_BROWSER_BRAVE_REWARDS_REWARDS_PANEL_EXTENSION_HANDLER_H_
 #define BRAVE_BROWSER_BRAVE_REWARDS_REWARDS_PANEL_EXTENSION_HANDLER_H_
 
-#include "base/memory/weak_ptr.h"
+#include "base/memory/raw_ptr.h"
 #include "brave/browser/brave_rewards/rewards_panel_coordinator.h"
 #include "url/gurl.h"
 
@@ -14,7 +14,7 @@ namespace brave_rewards {
 
 // Loads the Rewards extension if required and dispatches panel requests to the
 // extension.
-class RewardsPanelExtensionHandler : public RewardsPanelCoordinator::Delegate {
+class RewardsPanelExtensionHandler : public RewardsPanelCoordinator::Observer {
  public:
   explicit RewardsPanelExtensionHandler(Browser* browser);
   ~RewardsPanelExtensionHandler() override;
@@ -25,13 +25,10 @@ class RewardsPanelExtensionHandler : public RewardsPanelCoordinator::Delegate {
 
   static bool IsRewardsExtensionPanelURL(const GURL& url);
 
-  bool OpenRewardsPanel(const mojom::RewardsPanelArgs& args) override;
-
-  base::WeakPtr<RewardsPanelExtensionHandler> GetWeakPtr();
+  void OnRewardsPanelRequested(const mojom::RewardsPanelArgs& args) override;
 
  private:
   raw_ptr<Browser> browser_ = nullptr;
-  base::WeakPtrFactory<RewardsPanelExtensionHandler> weak_factory_{this};
 };
 
 }  // namespace brave_rewards

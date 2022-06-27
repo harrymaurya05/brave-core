@@ -7,18 +7,25 @@ import * as mojom from 'gen/brave/components/brave_rewards/common/brave_rewards_
 let instance: RewardsPanelProxy|null = null
 
 export class RewardsPanelProxy {
+  callbackRouter: mojom.PanelCallbackRouter
   handler: mojom.PanelHandlerRemote
 
-  constructor (handler: mojom.PanelHandlerRemote) {
+  constructor (
+    callbackRouter: mojom.PanelCallbackRouter,
+    handler: mojom.PanelHandlerRemote)
+  {
+    this.callbackRouter = callbackRouter
     this.handler = handler
   }
 
   static getInstance (): RewardsPanelProxy {
     if (!instance) {
+      const callbackRouter = new mojom.PanelCallbackRouter()
       const handler = new mojom.PanelHandlerRemote()
       mojom.PanelHandlerFactory.getRemote().createPanelHandler(
+        callbackRouter.$.bindNewPipeAndPassRemote(),
         handler.$.bindNewPipeAndPassReceiver())
-      instance = new RewardsPanelProxy(handler)
+      instance = new RewardsPanelProxy(callbackRouter, handler)
     }
     return instance
   }

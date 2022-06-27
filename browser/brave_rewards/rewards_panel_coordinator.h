@@ -9,7 +9,8 @@
 #include <memory>
 #include <string>
 
-#include "base/memory/weak_ptr.h"
+#include "base/observer_list.h"
+#include "base/scoped_observation.h"
 #include "brave/components/brave_rewards/common/brave_rewards_panel.mojom.h"
 #include "chrome/browser/ui/browser_user_data.h"
 #include "url/gurl.h"
@@ -48,18 +49,17 @@ class RewardsPanelCoordinator
   // Opens the Rewards panel in order to display the Brave Talk Rewards opt-in.
   bool ShowBraveTalkOptIn();
 
-  class Delegate {
+  class Observer : public base::CheckedObserver {
    public:
-    virtual ~Delegate();
-
     // Called when an application component requests that the Rewards panel be
     // opened.
-    virtual bool OpenRewardsPanel(const mojom::RewardsPanelArgs& args) = 0;
+    virtual void OnRewardsPanelRequested(const mojom::RewardsPanelArgs& args) {}
   };
 
-  // Sets the `Delegate` that will take responsibility for showing the Rewards
-  // panel when requested.
-  void SetDelegate(base::WeakPtr<Delegate> delegate) { delegate_ = delegate; }
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+  using Observation =
+      base::ScopedObservation<RewardsPanelCoordinator, Observer>;
 
   // Retrieves the `mojom::RewardsPanelArgs` associated with the most recent
   // Rewards panel request.
@@ -72,8 +72,8 @@ class RewardsPanelCoordinator
   bool OpenWithArgs(mojom::RewardsPanelArgs&& args);
 
   mojom::RewardsPanelArgs panel_args_;
-  base::WeakPtr<Delegate> delegate_;
-  std::unique_ptr<Delegate> extension_handler_;
+  base::ObserverList<Observer> observers_;
+  std::unique_ptr<Observer> extension_handler_;
 
   BROWSER_USER_DATA_KEY_DECL();
 };

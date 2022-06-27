@@ -281,6 +281,19 @@ export function createHost (): Host {
   }
 
   function addListeners () {
+    // If a Rewards panel request occurs when we are still open or cached,
+    // reload data and re-render the app.
+    proxy.callbackRouter.onRewardsPanelRequested.addListener(
+      (panelArgs: mojom.RewardsPanelArgs) => {
+        loadPanelData().then(() => {
+          stateManager.update({
+            openTime: Date.now(),
+            requestedView: null
+          })
+          handleRewardsPanelArgs(panelArgs)
+        }).catch(console.error)
+      })
+
     apiAdapter.onPublisherDataUpdated(() => {
       updatePublisherInfo().catch(console.error)
     })

@@ -18,8 +18,6 @@
 
 namespace brave_rewards {
 
-RewardsPanelCoordinator::Delegate::~Delegate() = default;
-
 RewardsPanelCoordinator::RewardsPanelCoordinator(Browser* browser)
     : BrowserUserData<RewardsPanelCoordinator>(*browser) {
   // If we are using the Rewards extension to display the Rewards panel, then
@@ -28,7 +26,7 @@ RewardsPanelCoordinator::RewardsPanelCoordinator(Browser* browser)
   if (!base::FeatureList::IsEnabled(features::kWebUIPanelFeature)) {
     auto handler =
         std::make_unique<RewardsPanelExtensionHandler>(&GetBrowser());
-    SetDelegate(handler->GetWeakPtr());
+    AddObserver(handler.get());
     extension_handler_ = std::move(handler);
   }
 }
@@ -77,12 +75,26 @@ bool RewardsPanelCoordinator::ShowBraveTalkOptIn() {
       mojom::RewardsPanelArgs(mojom::RewardsPanelView::kBraveTalkOptIn, ""));
 }
 
+void RewardsPanelCoordinator::AddObserver(Observer* observer) {
+  observers_.AddObserver(observer);
+}
+
+void RewardsPanelCoordinator::RemoveObserver(Observer* observer) {
+  observers_.RemoveObserver(observer);
+}
+
 bool RewardsPanelCoordinator::OpenWithArgs(mojom::RewardsPanelArgs&& args) {
   if (GetBrowser().window()->IsMinimized()) {
     GetBrowser().window()->Restore();
   }
+
   panel_args_ = std::move(args);
-  return delegate_ ? delegate_->OpenRewardsPanel(panel_args_) : false;
+
+  for (auto& observer : observers_) {
+    observer.OnRewardsPanelRequested(panel_args_);
+  }
+
+  return !observers_.empty();
 }
 
 BROWSER_USER_DATA_KEY_IMPL(RewardsPanelCoordinator);

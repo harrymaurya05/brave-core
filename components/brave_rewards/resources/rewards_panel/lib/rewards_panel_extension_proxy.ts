@@ -50,9 +50,11 @@ export class ExtensionPanelHandlerRemote extends mojom.PanelHandlerRemote {
 let instance: RewardsPanelExtensionProxy|null = null
 
 export class RewardsPanelExtensionProxy {
+  callbackRouter: mojom.PanelCallbackRouter
   handler: mojom.PanelHandlerRemote
 
   constructor () {
+    this.callbackRouter = new mojom.PanelCallbackRouter()
     this.handler = new ExtensionPanelHandlerRemote()
   }
 

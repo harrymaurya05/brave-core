@@ -21,7 +21,14 @@ struct RewardsPanelArgs {
 // Used by the WebUI page to bootstrap bidirectional communication.
 interface PanelHandlerFactory {
   // The WebUI calls this method when the page is first initialized.
-  CreatePanelHandler(pending_receiver<PanelHandler> receiver);
+  CreatePanelHandler(pending_remote<Panel> panel,
+                     pending_receiver<PanelHandler> receiver);
+};
+
+interface Panel {
+  // Called when the Rewards panel has been requested while the panel is still
+  // running.
+  OnRewardsPanelRequested(RewardsPanelArgs args);
 };
 
 // Browser-side handler for requests from WebUI page.
@@ -38,4 +45,3 @@ interface PanelHandler {
   // Returns the `RewardsPanelArgs` for the most recent panel request.
   GetRewardsPanelArgs() => (RewardsPanelArgs args);
 };
-

@@ -11,6 +11,7 @@
 #include "base/memory/raw_ptr.h"
 #include "brave/components/brave_rewards/common/brave_rewards_panel.mojom.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/pending_remote.h"
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "ui/webui/mojo_bubble_web_ui_controller.h"
 
@@ -34,6 +35,7 @@ class RewardsPanelUI : public ui::MojoBubbleWebUIController,
  private:
   // brave_rewards::mojom::PanelHandlerFactory:
   void CreatePanelHandler(
+      mojo::PendingRemote<brave_rewards::mojom::Panel> panel,
       mojo::PendingReceiver<brave_rewards::mojom::PanelHandler> receiver)
       override;
 

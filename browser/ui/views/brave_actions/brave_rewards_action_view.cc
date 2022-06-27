@@ -124,7 +124,12 @@ BraveRewardsActionView::BraveRewardsActionView(Browser* browser)
               browser->profile()->GetPrefs()),
           nullptr,
           false),
-      browser_(browser) {
+      browser_(browser),
+      bubble_manager_(std::make_unique<WebUIBubbleManagerT<RewardsPanelUI>>(
+          this,
+          browser_->profile(),
+          GURL(kBraveRewardsPanelURL),
+          IDS_BRAVE_UI_BRAVE_REWARDS)) {
   DCHECK(browser_);
 
   SetButtonController(std::make_unique<views::MenuButtonController>(
@@ -166,7 +171,7 @@ BraveRewardsActionView::BraveRewardsActionView(Browser* browser)
 
   panel_coordinator_ = RewardsPanelCoordinator::RegisterForBrowser(browser_);
   if (panel_coordinator_) {
-    panel_coordinator_->SetDelegate(weak_factory_.GetWeakPtr());
+    panel_observation_.Observe(panel_coordinator_);
   }
 
   UpdateTabHelper(GetActiveWebContents());
@@ -241,12 +246,11 @@ void BraveRewardsActionView::OnPublisherForTabUpdated(
   }
 }
 
-bool BraveRewardsActionView::OpenRewardsPanel(
+void BraveRewardsActionView::OnRewardsPanelRequested(
     const brave_rewards::mojom::RewardsPanelArgs& args) {
   if (!IsPanelOpen()) {
     ToggleRewardsPanel();
   }
-  return true;
 }
 
 void BraveRewardsActionView::OnPublisherRegistryUpdated() {
@@ -317,15 +321,6 @@ void BraveRewardsActionView::ToggleRewardsPanel() {
   // Clear the default-on-start badge text when the user opens the panel.
   auto* prefs = browser_->profile()->GetPrefs();
   prefs->SetString(brave_rewards::prefs::kBadgeText, "");
-
-  // Create a new instance of the bubble manager. Note that this disables the
-  // `WebContents` caching mechanism of `WebUIBubbleManager`. To support
-  // caching, the front end will need to be able to receive a notification when
-  // the panel is requested and obtain the panel arguments as approprite. The
-  // front-end should not rely on document visibility changes for this purpose.
-  bubble_manager_ = std::make_unique<WebUIBubbleManagerT<RewardsPanelUI>>(
-      this, browser_->profile(), GURL(kBraveRewardsPanelURL),
-      IDS_BRAVE_UI_BRAVE_REWARDS);
 
   bubble_manager_->ShowBubble();
 

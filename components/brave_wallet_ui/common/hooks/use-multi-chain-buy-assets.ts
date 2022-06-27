@@ -24,7 +24,7 @@ import { BuyOptions } from '../../options/buy-with-options'
 
 export function useMultiChainBuyAssets () {
   // redux
-  const { networkList } = useSelector(({ wallet }: { wallet: WalletState }) => wallet)
+  const networkList = useSelector(({ wallet }: { wallet: WalletState }) => wallet.networkList)
 
   // custom hooks
   const isMounted = useIsMounted()
@@ -113,7 +113,9 @@ export function useMultiChainBuyAssets () {
   }, [getBuyAssetUrl, selectedAssetNetwork, buyAmount, selectedAsset])
 
   return {
-    ...options,
+    allAssetOptions: options.allAssetOptions,
+    rampAssetOptions: options.rampAssetOptions,
+    wyreAssetOptions: options.wyreAssetOptions,
     selectedAsset,
     setSelectedAsset,
     selectedAssetNetwork,

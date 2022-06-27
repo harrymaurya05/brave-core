@@ -81,6 +81,21 @@ const TokenLists = ({
     [filteredAssetList, renderToken]
   )
 
+  const listUi = React.useMemo(() => {
+    return <>
+      {fungibleTokenList}
+
+      {nonFungibleTokenList.length !== 0 &&
+        <>
+          <Spacer />
+          <DividerText>{getLocale('braveWalletTopNavNFTS')}</DividerText>
+          <SubDivider />
+          {nonFungibleTokenList}
+        </>
+      }
+    </>
+  }, [fungibleTokenList, nonFungibleTokenList])
+
   // methods
   const onSearchText = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value)
@@ -109,18 +124,12 @@ const TokenLists = ({
         <NetworkFilterSelector networkListSubset={networks} />
       </FilterTokenRow>
 
-      <ScrollableColumn scrollDisabled={!enableScroll} maxHeight={maxListHeight}>
-        {fungibleTokenList}
-
-        {nonFungibleTokenList.length !== 0 &&
-          <>
-            <Spacer />
-            <DividerText>{getLocale('braveWalletTopNavNFTS')}</DividerText>
-            <SubDivider />
-            {nonFungibleTokenList}
-          </>
-        }
-      </ScrollableColumn>
+      {enableScroll
+        ? <ScrollableColumn maxHeight={maxListHeight}>
+            {listUi}
+          </ScrollableColumn>
+        : listUi
+      }
 
       {!hideAddButton && <ButtonRow>
         <AddButton

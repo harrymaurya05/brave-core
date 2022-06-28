@@ -1,0 +1,12 @@
+diff --git a/chrome/browser/ui/views/tabs/tab_strip.cc b/chrome/browser/ui/views/tabs/tab_strip.cc
+index 5e00e54d3ca0d..a5ce5043f3085 100644
+--- a/chrome/browser/ui/views/tabs/tab_strip.cc
++++ b/chrome/browser/ui/views/tabs/tab_strip.cc
+@@ -1466,6 +1466,7 @@ void TabStrip::OnMouseEventInTab(views::View* source,
+ }
+ 
+ void TabStrip::UpdateHoverCard(Tab* tab, HoverCardUpdateType update_type) {
++  BRAVE_UPDATE_HOVER_CARD_
+   tab_container_->UpdateHoverCard(tab, update_type);
+ }
+ 

@@ -65,6 +65,7 @@ export function getEarningsInfo () {
 export function getRewardsParameters () {
   interface Result {
     exchangeInfo: ExchangeInfo
+    payoutStatus: any
     options: Options
   }
 
@@ -77,7 +78,8 @@ export function getRewardsParameters () {
         exchangeInfo: {
           currency: 'USD',
           rate: parameters.rate
-        }
+        },
+        payoutStatus: parameters.payoutStatus
       })
     })
   })

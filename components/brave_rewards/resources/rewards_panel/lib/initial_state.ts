@@ -27,6 +27,7 @@ export function getInitialState (): HostState {
       earningsThisMonth: 0,
       earningsLastMonth: 0
     },
+    payoutStatus: {},
     publisherInfo: null,
     publisherRefreshing: false,
     externalWalletProviders: [],

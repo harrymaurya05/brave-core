@@ -281,6 +281,7 @@ declare namespace NewTab {
   export interface RewardsParameters {
     rate: number
     monthlyTipChoices: number[]
+    payoutStatus: any
   }
 
   export interface DefaultSuperReferralTopSite {

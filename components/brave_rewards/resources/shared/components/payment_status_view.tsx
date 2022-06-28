@@ -1,10 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this file,
-* You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as React from 'react'
 
 import { LocaleContext, formatMessage } from '../lib/locale_context'
+import { ProviderPayoutStatus } from '../lib/provider_payout_status'
 
 import { NewTabLink } from './new_tab_link'
 import { TokenAmount } from './token_amount'
@@ -95,6 +96,7 @@ interface Props {
   earningsLastMonth: number
   earningsReceived: boolean
   nextPaymentDate: number
+  providerPayoutStatus: ProviderPayoutStatus
 }
 
 export function PaymentStatusView (props: Props) {
@@ -126,7 +128,7 @@ export function PaymentStatusView (props: Props) {
     return null
   }
 
-  if (props.earningsReceived) {
+  if (props.earningsReceived && props.providerPayoutStatus === 'complete') {
     return (
       <div className='rewards-payment-completed'>
         <div><PaymentCompleteIcon /></div>
@@ -141,23 +143,27 @@ export function PaymentStatusView (props: Props) {
     )
   }
 
-  return (
-    <div className='rewards-payment-processing'>
-      <div>
-        {
-          formatMessage(getString('rewardsPaymentProcessing'), [
-            <RewardAmount key='amount' amount={props.earningsLastMonth} />,
-            getPaymentMonth()
-          ])
-        }&nbsp;
-        <span className='rewards-payment-check-status'>
-          <NewTabLink key='status' href={urls.payoutStatusURL}>
-            {getString('rewardsPaymentCheckStatus')}
-          </NewTabLink>
-        </span>
+  if (props.providerPayoutStatus === 'processing') {
+    return (
+      <div className='rewards-payment-processing'>
+        <div>
+          {
+            formatMessage(getString('rewardsPaymentProcessing'), [
+              <RewardAmount key='amount' amount={props.earningsLastMonth} />,
+              getPaymentMonth()
+            ])
+          }&nbsp;
+          <span className='rewards-payment-check-status'>
+            <NewTabLink key='status' href={urls.payoutStatusURL}>
+              {getString('rewardsPaymentCheckStatus')}
+            </NewTabLink>
+          </span>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  return null
 }
 
 export function shouldRenderPendingRewards (

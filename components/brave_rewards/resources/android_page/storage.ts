@@ -77,7 +77,8 @@ export const defaultState: Rewards.State = {
   parameters: {
     autoContributeChoice: 0,
     autoContributeChoices: [],
-    rate: 0
+    rate: 0,
+    payoutStatus: {}
   },
   initializing: true,
   paymentId: '',

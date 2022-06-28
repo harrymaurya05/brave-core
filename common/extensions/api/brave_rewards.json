@@ -629,7 +629,7 @@
       {
         "name": "getRewardsParameters",
         "type": "function",
-        "description": "Get default values that we get from the server",
+        "description": "Get default Rewards parameters",
         "parameters": [
           {
             "type": "function",
@@ -658,6 +658,10 @@
                       "type": "number",
                       "minimum": 0
                     }
+                  },
+                  "payoutStatus": {
+                    "type": "any",
+                    "description": "Payout status"
                   }
                 }
               }

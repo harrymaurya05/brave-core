@@ -73,6 +73,7 @@ export interface HostState {
   grantCaptchaInfo: GrantCaptchaInfo | null
   exchangeInfo: ExchangeInfo
   earningsInfo: EarningsInfo
+  payoutStatus: any
   publisherInfo: PublisherInfo | null
   publisherRefreshing: boolean
   externalWalletProviders: ExternalWalletProvider[]

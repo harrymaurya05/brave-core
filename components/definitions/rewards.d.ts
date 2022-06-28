@@ -99,6 +99,7 @@ declare namespace Rewards {
     rate: number
     autoContributeChoice: number
     autoContributeChoices: number[]
+    payoutStatus: any
   }
 
   export interface ComponentProps {

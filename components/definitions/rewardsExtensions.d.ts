@@ -123,6 +123,7 @@ declare namespace RewardsExtension {
     rate: number
     monthlyTipChoices: number[]
     autoContributeChoices: number[]
+    payoutStatus: any
   }
 
   export interface BalanceReport {

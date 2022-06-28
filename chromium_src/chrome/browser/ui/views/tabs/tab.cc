@@ -4,6 +4,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "chrome/browser/ui/views/tabs/tab.h"
+#include "chrome/browser/profiles/profile.h"
+#include "components/prefs/pref_service.h"
 
 // Set alert indicator's pos to start of the title and
 // move title after the alert indicator.
@@ -16,6 +18,13 @@
   title_left = alert_indicator_button_->x() +                      \
                alert_indicator_button_->width() + after_title_padding;
 
+#define BRAVE_GET_TAB_TOOLTIP_TEXT                                   \
+  if (!controller_->GetBrowser()->profile()->GetPrefs()->GetBoolean( \
+          brave_tabs::kTabHoverTooltipsEnabled)) {                   \
+    return GetTooltipText(data_.title,                               \
+                          GetAlertStateToShow(data_.alert_state));   \
+  }
+
 #define BRAVE_UI_VIEWS_TABS_TAB_UPDATE_ICON_VISIBILITY \
   showing_close_button_ &= mouse_hovered();
 
@@ -24,6 +33,7 @@
 #include "src/chrome/browser/ui/views/tabs/tab.cc"
 #undef GetWidthOfLargestSelectableRegion
 #undef BRAVE_UI_VIEWS_TABS_TAB_UPDATE_ICON_VISIBILITY
+#undef BRAVE_GET_TAB_TOOLTIP_TEXT
 #undef BRAVE_UI_VIEWS_TABS_TAB_ALERT_INDICATOR_POSITION
 
 // Re-defined because we moved alert button to left side in the tab whereas

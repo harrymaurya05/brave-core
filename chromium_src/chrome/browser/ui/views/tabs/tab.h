@@ -6,6 +6,8 @@
 #ifndef BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_H_
 #define BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_H_
 
+#include "chrome/browser/ui/views/tabs/tab_slot_view.h"
+
 #define kMinimumContentsWidthForCloseButtons \
   kMinimumContentsWidthForCloseButtons = 55; \
   static constexpr int kMinimumContentsWidthForCloseButtons_UnUsed

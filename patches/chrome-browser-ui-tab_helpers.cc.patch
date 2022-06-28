@@ -1,8 +1,16 @@
 diff --git a/chrome/browser/ui/tab_helpers.cc b/chrome/browser/ui/tab_helpers.cc
-index 04f4b69b72f7d0c29f546c7d0ac8d7d2ccc8823d..b40385cfb1b922876bd782889d930eee5a192ac2 100644
+index 04f4b69b72f7d..8f576339052e9 100644
 --- a/chrome/browser/ui/tab_helpers.cc
 +++ b/chrome/browser/ui/tab_helpers.cc
-@@ -641,4 +641,5 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+@@ -498,6 +498,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+   SyncEncryptionKeysTabHelper::CreateForWebContents(web_contents);
+   TabDialogs::CreateForWebContents(web_contents);
+   if (base::FeatureList::IsEnabled(features::kTabHoverCardImages) ||
++      BRAVE_TAB_HOVER_CARD_PREVIEWS
+       base::FeatureList::IsEnabled(features::kWebUITabStrip)) {
+     ThumbnailTabHelper::CreateForWebContents(web_contents);
+   }
+@@ -641,4 +642,5 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
  
    // This is common code for all of us. PLEASE DO YOUR PART to keep it tidy and
    // organized.

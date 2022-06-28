@@ -19,7 +19,7 @@
   title_left = alert_indicator_button_->x() +                      \
                alert_indicator_button_->width() + after_title_padding;
 
-#define BRAVE_GET_TAB_TOOLTIP_TEXT                                   \
+#define BRAVE_TAB_HOVER_CARD_TOOLTIP                                   \
   if (!controller_->GetBrowser()->profile()->GetPrefs()->GetBoolean( \
           brave_tabs::kTabHoverCardTooltipsEnabled)) {                   \
     return GetTooltipText(data_.title,                               \
@@ -34,7 +34,7 @@
 #include "src/chrome/browser/ui/views/tabs/tab.cc"
 #undef GetWidthOfLargestSelectableRegion
 #undef BRAVE_UI_VIEWS_TABS_TAB_UPDATE_ICON_VISIBILITY
-#undef BRAVE_GET_TAB_TOOLTIP_TEXT
+#undef BRAVE_TAB_HOVER_CARD_TOOLTIP
 #undef BRAVE_UI_VIEWS_TABS_TAB_ALERT_INDICATOR_POSITION
 
 // Re-defined because we moved alert button to left side in the tab whereas

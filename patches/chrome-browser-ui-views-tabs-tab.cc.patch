@@ -14,7 +14,7 @@ index 7b46705972486..416577d2c5d6e 100644
  }
  
  std::u16string Tab::GetTooltipText(const gfx::Point& p) const {
-+  BRAVE_GET_TAB_TOOLTIP_TEXT
++  BRAVE_TAB_HOVER_CARD_TOOLTIP
    // Tab hover cards replace tooltips for tabs.
    return std::u16string();
  }

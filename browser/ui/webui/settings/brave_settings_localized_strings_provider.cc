@@ -101,6 +101,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
      IDS_SETTINGS_APPEARANCE_SETTINGS_GET_MORE_THEMES},
     {"appearanceBraveDefaultImagesOptionLabel",
      IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_DEFAULT_IMAGES_OPTION_LABEL},
+    {"appearanceSettingsShowTabHoverTooltip",
+     IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_SHOW_TAB_HOVER_TOOLTIP},
 #if BUILDFLAG(ENABLE_SIDEBAR)
     {"appearanceSettingsShowOptionTitle",
      IDS_SETTINGS_SIDEBAR_SHOW_OPTION_TITLE},

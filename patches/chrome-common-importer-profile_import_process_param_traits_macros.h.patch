@@ -1,0 +1,18 @@
+diff --git a/chrome/common/importer/profile_import_process_param_traits_macros.h b/chrome/common/importer/profile_import_process_param_traits_macros.h
+index 81d070e74f0a095801dde6a96967011eb2131c41..fbfccb5b098eca5e4d83a84f4fc57b681ea7097e 100644
+--- a/chrome/common/importer/profile_import_process_param_traits_macros.h
++++ b/chrome/common/importer/profile_import_process_param_traits_macros.h
+@@ -20,11 +20,11 @@
+ #if BUILDFLAG(IS_WIN)
+ IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImporterType,
+                               importer::TYPE_UNKNOWN,
+-                              importer::TYPE_EDGE)
++                              importer::TYPE_VIVALDI)
+ #else
+ IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImporterType,
+                               importer::TYPE_UNKNOWN,
+-                              importer::TYPE_BOOKMARKS_FILE)
++                              importer::TYPE_VIVALDI)
+ #endif
+ 
+ IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImportItem,

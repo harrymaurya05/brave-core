@@ -26,6 +26,8 @@ base::FilePath GetChromiumUserDataFolder();
 #if BUILDFLAG(IS_WIN)
 base::FilePath GetEdgeUserDataFolder();
 #endif
+base::FilePath GetVivaldiUserDataFolder();
+
 base::ListValue* GetChromeSourceProfiles(
   const base::FilePath& user_data_folder);
 

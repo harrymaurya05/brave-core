@@ -20,6 +20,7 @@ enum class ImporterSource {
   kSafari,
   kIE,
   kEdge,
+  kVivaldi,
   kSize
 };
 }  // namespace
@@ -51,6 +52,9 @@ void RecordImporterP3A(importer::ImporterType type) {
     break;
   case importer::TYPE_CHROME:
     metric = ImporterSource::kChrome;
+    break;
+  case importer::TYPE_VIVALDI:
+    metric = ImporterSource::kVivaldi;
     break;
   }
 

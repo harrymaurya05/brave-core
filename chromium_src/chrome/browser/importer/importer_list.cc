@@ -64,6 +64,9 @@ void DetectChromeProfiles(std::vector<importer::SourceProfile>* profiles) {
                       GetChromeSourceProfiles(GetEdgeUserDataFolder()),
                       GetEdgeUserDataFolder(), "Edge ", importer::TYPE_EDGE);
 #endif
+  AddChromeToProfiles(
+      profiles, GetChromeSourceProfiles(GetVivaldiUserDataFolder()),
+      GetVivaldiUserDataFolder(), "Vivaldi ", importer::TYPE_VIVALDI);
 }
 
 }  // namespace

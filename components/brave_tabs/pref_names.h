@@ -9,7 +9,7 @@
 class PrefRegistrySimple;
 
 namespace brave_tabs {
-extern const char kTabHoverTooltipsEnabled[];
+extern const char kTabHoverCardTooltipsEnabled[];
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry);
 }

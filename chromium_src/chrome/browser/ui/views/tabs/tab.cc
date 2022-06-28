@@ -20,7 +20,7 @@
 
 #define BRAVE_GET_TAB_TOOLTIP_TEXT                                   \
   if (!controller_->GetBrowser()->profile()->GetPrefs()->GetBoolean( \
-          brave_tabs::kTabHoverTooltipsEnabled)) {                   \
+          brave_tabs::kTabHoverCardTooltipsEnabled)) {                   \
     return GetTooltipText(data_.title,                               \
                           GetAlertStateToShow(data_.alert_state));   \
   }

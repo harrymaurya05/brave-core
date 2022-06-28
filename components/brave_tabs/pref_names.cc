@@ -4,13 +4,19 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "brave/components/brave_tabs/pref_names.h"
+#include <cstddef>
 
+#include "base/feature_list.h"
 #include "components/prefs/pref_registry_simple.h"
 
 namespace brave_tabs {
-const char kTabHoverTooltipsEnabled[] = "brave.tabs.hover_tooltips_enabled";
+const char kTabHoverCardTooltipsEnabled[] =
+    "brave.tabs.hover_card_tooltips_enabled";
+const char kTabHoverCardPreviewEnabled[] =
+    "brave.tabs.hover_card_preview_enabled";
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
-  registry->RegisterBooleanPref(kTabHoverTooltipsEnabled, true);
+  registry->RegisterBooleanPref(kTabHoverCardTooltipsEnabled, true);
+  registry->RegisterBooleanPref(kTabHoverCardPreviewEnabled, false);
 }
-}  // namespace brave::prefs
+}  // namespace brave_tabs

@@ -10,7 +10,7 @@
 
 #define BRAVE_UPDATE_HOVER_CARD_                         \
   if (!controller_->GetProfile()->GetPrefs()->GetBoolean( \
-          brave_tabs::kTabHoverTooltipsEnabled))         \
+          brave_tabs::kTabHoverCardTooltipsEnabled))         \
     return;
 
 #include "src/chrome/browser/ui/views/tabs/tab_strip.cc"

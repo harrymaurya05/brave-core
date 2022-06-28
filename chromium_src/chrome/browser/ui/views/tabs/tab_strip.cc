@@ -4,8 +4,14 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "chrome/browser/ui/views/tabs/tab_strip.h"
+#include "brave/components/brave_tabs/pref_names.h"
+#include "chrome/browser/profiles/profile.h"
+#include "components/prefs/pref_service.h"
 
-#define BRAVE_UPDATE_HOVER_CARD_ if (false) return;
+#define BRAVE_UPDATE_HOVER_CARD_                         \
+  if (!controller_->GetProfile()->GetPrefs()->GetBoolean( \
+          brave_tabs::kTabHoverTooltipsEnabled))         \
+    return;
 
 #include "src/chrome/browser/ui/views/tabs/tab_strip.cc"
 

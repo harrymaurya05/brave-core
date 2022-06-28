@@ -27,7 +27,7 @@
 #include "brave/components/brave_shields/browser/brave_shields_p3a.h"
 #include "brave/components/brave_shields/common/pref_names.h"
 #include "brave/components/brave_sync/brave_sync_prefs.h"
-#include "brave/components/brave_tabs/pref_names.h"
+#include "brave/components/brave_tabs/brave_tab_prefs.h"
 #include "brave/components/brave_today/browser/brave_news_controller.h"
 #include "brave/components/brave_today/common/features.h"
 #include "brave/components/brave_vpn/buildflags/buildflags.h"

@@ -3,11 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/brave_tabs/pref_names.h"
-#include <cstddef>
+#include "brave/components/brave_tabs/brave_tab_prefs.h"
 
-#include "base/feature_list.h"
+#include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_registry_simple.h"
+#include "components/prefs/pref_service.h"
 
 namespace brave_tabs {
 const char kTabHoverCardTooltipsEnabled[] =
@@ -19,4 +19,10 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kTabHoverCardTooltipsEnabled, true);
   registry->RegisterBooleanPref(kTabHoverCardPreviewEnabled, false);
 }
+
+bool ArePreviewsEnabled(Profile* profile) {
+  return profile->GetPrefs()->GetBoolean(kTabHoverCardTooltipsEnabled) &&
+         profile->GetPrefs()->GetBoolean(kTabHoverCardPreviewEnabled);
+}
+
 }  // namespace brave_tabs

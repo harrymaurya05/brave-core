@@ -5,8 +5,8 @@
 
 source_set("brave_tabs") {
   sources = [
-    "pref_names.cc",
-    "pref_names.h",
+    "brave_tab_prefs.cc",
+    "brave_tab_prefs.h",
   ]
 
   deps = [ "//base" ]

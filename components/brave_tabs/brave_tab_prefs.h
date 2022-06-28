@@ -7,11 +7,14 @@
 #define BRAVE_COMPONENTS_BRAVE_TABS_PREF_NAMES_H_
 
 class PrefRegistrySimple;
+class Profile;
 
 namespace brave_tabs {
 extern const char kTabHoverCardTooltipsEnabled[];
+extern const char kTabHoverCardPreviewEnabled[];
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry);
+bool ArePreviewsEnabled(Profile* profile);
 }
 
 #endif  // BRAVE_COMPONENTS_BRAVE_TABS_PREF_NAMES_H_

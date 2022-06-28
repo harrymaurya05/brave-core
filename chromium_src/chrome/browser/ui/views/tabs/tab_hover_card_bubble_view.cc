@@ -8,14 +8,21 @@
 #include "base/strings/strcat.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "brave/components/brave_tabs/brave_tab_prefs.h"
+#include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/tabs/tab.h"
 #include "chrome/browser/ui/views/tabs/tab_hover_card_bubble_view.h"
+#include "chrome/browser/ui/views/tabs/tab_slot_controller.h"
 #include "content/public/common/url_constants.h"
 #include "ui/views/controls/label.h"
 
+#define BRAVE_TAB_HOVER_CARD_PREVIEWS \
+  || brave_tabs::ArePreviewsEnabled(tab->controller()->GetBrowser()->profile())
 #define TabHoverCardBubbleView TabHoverCardBubbleView_ChromiumImpl
 #include "src/chrome/browser/ui/views/tabs/tab_hover_card_bubble_view.cc"
 #undef TabHoverCardBubbleView
+#undef BRAVE_TAB_HOVER_CARD_PREVIEWS
 
 void TabHoverCardBubbleView_ChromiumImpl::BraveUpdateCardContent(
     const Tab* tab) {

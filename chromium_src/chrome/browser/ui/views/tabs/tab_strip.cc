@@ -4,7 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "chrome/browser/ui/views/tabs/tab_strip.h"
-#include "brave/components/brave_tabs/pref_names.h"
+#include "brave/components/brave_tabs/brave_tab_prefs.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_service.h"
 

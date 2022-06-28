@@ -45,3 +45,8 @@ void TabHoverCardBubbleView_ChromiumImpl::BraveUpdateCardContent(
 void TabHoverCardBubbleView::UpdateCardContent(const Tab* tab) {
   BraveUpdateCardContent(tab);
 }
+
+void TabHoverCardBubbleView::SetTargetTabImage(gfx::ImageSkia preview_image) {
+  if (!has_thumbnail_view()) return;
+  TabHoverCardBubbleView_ChromiumImpl::SetTargetTabImage(preview_image);
+}

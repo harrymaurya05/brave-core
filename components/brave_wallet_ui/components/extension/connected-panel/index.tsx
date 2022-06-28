@@ -9,7 +9,6 @@ import { create, background } from 'ethereum-blockies'
 // Utils
 import { getLocale } from '../../../../common/locale'
 import { reduceAddress } from '../../../utils/reduce-address'
-import { copyToClipboard } from '../../../utils/copy-to-clipboard'
 import { reduceAccountDisplayName } from '../../../utils/reduce-account-name'
 import Amount from '../../../utils/amount'
 
@@ -31,6 +30,7 @@ import {
   ConnectedHeader
 } from '../'
 import { Tooltip, SelectNetworkButton, LoadingSkeleton } from '../../shared'
+import { CopyTooltip } from '../../shared/copy-tooltip/copy-tooltip'
 
 // Styled Components
 import {
@@ -107,10 +107,6 @@ export const ConnectedPanel = (props: Props) => {
     }
   }, [showMore])
 
-  const onCopyToClipboard = React.useCallback(async () => {
-    await copyToClipboard(selectedAccount.address)
-  }, [selectedAccount.address])
-
   // memos
   const bg = React.useMemo(() => {
     return background({ seed: selectedAccount.address.toLowerCase() })
@@ -169,9 +165,9 @@ export const ConnectedPanel = (props: Props) => {
             <SwitchIcon />
           </AccountCircle>
           <AccountNameText>{reduceAccountDisplayName(selectedAccount.name, 14)}</AccountNameText>
-          <Tooltip text={getLocale('braveWalletToolTipCopyToClipboard')}>
-            <AccountAddressText onClick={onCopyToClipboard}>{reduceAddress(selectedAccount.address)}</AccountAddressText>
-          </Tooltip>
+          <CopyTooltip text={selectedAccount.address}>
+            <AccountAddressText>{reduceAddress(selectedAccount.address)}</AccountAddressText>
+          </CopyTooltip>
         </BalanceColumn>
         <BalanceColumn>
           {formattedAssetBalance ? (

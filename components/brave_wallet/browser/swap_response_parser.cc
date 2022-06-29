@@ -9,8 +9,12 @@
 #include <vector>
 
 #include "base/json/json_reader.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/stringprintf.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
 #include "brave/components/brave_wallet/browser/json_rpc_requests_helper.h"
+#include "brave/components/brave_wallet/browser/json_rpc_response_parser.h"
+#include "brave/components/json/rs/src/lib.rs.h"
 
 namespace {
 
@@ -23,6 +27,64 @@ absl::optional<std::string> ParseResultFromDict(
   }
 
   return *val;
+}
+
+absl::optional<uint64_t> ParseUint64ResultFromStringDictValue(
+    const base::Value& dict_value,
+    const std::string& key) {
+  auto* value = dict_value.FindStringKey(key);
+  if (!value)
+    return absl::nullopt;
+
+  uint64_t ret;
+  if (base::StringToUint64(*value, &ret))
+    return ret;
+
+  return absl::nullopt;
+}
+
+// Parses uint64_t value from a JSON integer field.
+//
+// Returns empty result for values that are either negative or beyond maximum
+// safe integer in Javascript (ES6 section 20.1.2.6 Number.MAX_SAFE_INTEGER).
+//
+// For larger values, use ParseUint64ResultFromStringDictValue after converting
+// them to strings.
+absl::optional<uint64_t> ParseUint64ResultFromIntegerDictValue(
+    const base::Value& dict_value,
+    const std::string& key) {
+  auto value = dict_value.FindDoubleKey(key);
+  if (!value)
+    return absl::nullopt;
+
+  if (*value < 0 ||
+      *value > static_cast<double>(brave_wallet::kMaxSafeIntegerUint64))
+    return absl::nullopt;
+
+  return static_cast<uint64_t>(*value);
+}
+
+absl::optional<const base::Value::List> GetRoutesFromJupiterSwapQuote(
+    const std::string& json) {
+  base::JSONReader::ValueWithError value_with_error =
+      base::JSONReader::ReadAndReturnValueWithError(
+          json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
+                    base::JSONParserOptions::JSON_PARSE_RFC);
+  auto& records_v = value_with_error.value;
+  if (!records_v) {
+    LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
+    return absl::nullopt;
+  }
+
+  const base::DictionaryValue* response_dict;
+  if (!records_v->GetAsDictionary(&response_dict))
+    return absl::nullopt;
+
+  const base::Value* routes_value = response_dict->FindListKey("data");
+  if (!routes_value)
+    return absl::nullopt;
+
+  return routes_value->GetList().Clone();
 }
 
 }  // namespace
@@ -65,9 +127,8 @@ mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
   }
 
   const base::DictionaryValue* response_dict;
-  if (!records_v->GetAsDictionary(&response_dict)) {
+  if (!records_v->GetAsDictionary(&response_dict))
     return nullptr;
-  }
 
   auto price = ParseResultFromDict(response_dict, "price");
   if (!price)
@@ -168,58 +229,99 @@ mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
 }
 
 mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
-  mojom::JupiterSwapQuote swap_quote;
+  //  {
+  //    "data": [
+  //      {
+  //        "inAmount": 10000,
+  //        "outAmount": 261273,
+  //        "amount": 10000,
+  //        "otherAmountThreshold": 258660,
+  //        "outAmountWithSlippage": 258660,
+  //        "swapMode": "ExactIn",
+  //        "priceImpactPct": 0.008955716118219659,
+  //        "marketInfos": [
+  //          {
+  //            "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
+  //            "label": "Orca",
+  //            "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  //            "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+  //            "notEnoughLiquidity": false,
+  //            "inAmount": 10000,
+  //            "outAmount": 117001203,
+  //            "priceImpactPct": 1.196568750220778e-7,
+  //            "lpFee": {
+  //              "amount": 30,
+  //              "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  //              "pct": 0.003
+  //            },
+  //            "platformFee": {
+  //              "amount": 0,
+  //              "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+  //              "pct": 0
+  //            }
+  //          }
+  //        ]
+  //      }
+  //    ],
+  //    "timeTaken": 0.044471802000089156
+  //  }
 
-  base::JSONReader::ValueWithError value_with_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                    base::JSONParserOptions::JSON_PARSE_RFC);
-
-  auto& records_v = value_with_error.value;
-  if (!records_v) {
-    LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
+  // STEP 1: convert JSON integer fields in routes to string values.
+  auto converted_json = ConvertMultiUint64InObjectArrayToString(
+      "/data", {"inAmount", "outAmount", "amount", "otherAmountThreshold"},
+      json);
+  if (!converted_json) {
+    LOG(ERROR) << "Failed to parse integer fields, JSON is: " << json;
     return nullptr;
   }
 
-  const base::DictionaryValue* response_dict = nullptr;
-  if (!records_v->GetAsDictionary(&response_dict) || !response_dict)
+  // STEP 2: Obtain number of routes in swap quote.
+  auto routes_value_1 = GetRoutesFromJupiterSwapQuote(*converted_json);
+  if (!routes_value_1)
     return nullptr;
 
-  const base::Value* routes_value = response_dict->FindListKey("data");
+  // STEP 3: Loop over the routes and convert JSON integer fields in
+  // marketInfos to string values.
+  for (int i = 0; i < static_cast<int>(routes_value_1->size()); i++) {
+    converted_json = ConvertMultiUint64InObjectArrayToString(
+        base::StringPrintf("/data/%d/marketInfos", i),
+        {"inAmount", "outAmount"}, *converted_json);
+  }
+
+  // STEP 4: Parse the final converted JSON again to obtain the routes.
+  auto routes_value = GetRoutesFromJupiterSwapQuote(*converted_json);
   if (!routes_value)
     return nullptr;
 
+  mojom::JupiterSwapQuote swap_quote;
   std::vector<mojom::JupiterRoutePtr> routes;
 
-  for (const auto& route_value : routes_value->GetList()) {
+  // STEP 5: Parse individual fields to populate mojom::JupiterSwapQuote
+  for (const auto& route_value : *routes_value) {
     mojom::JupiterRoute route;
 
-    auto in_amount = route_value.FindIntKey("inAmount");
+    auto in_amount =
+        ParseUint64ResultFromStringDictValue(route_value, "inAmount");
     if (!in_amount)
       return nullptr;
     route.in_amount = *in_amount;
 
-    auto out_amount = route_value.FindIntKey("outAmount");
+    auto out_amount =
+        ParseUint64ResultFromStringDictValue(route_value, "outAmount");
     if (!out_amount)
       return nullptr;
     route.out_amount = *out_amount;
 
-    auto amount = route_value.FindIntKey("amount");
+    auto amount = ParseUint64ResultFromStringDictValue(route_value, "amount");
     if (!amount)
       return nullptr;
     route.amount = *amount;
 
-    auto other_amount_threshold =
-        route_value.FindIntKey("otherAmountThreshold");
+    auto other_amount_threshold = ParseUint64ResultFromStringDictValue(
+        route_value, "otherAmountThreshold");
     if (!other_amount_threshold)
       return nullptr;
     route.other_amount_threshold = *other_amount_threshold;
-
-    auto out_amount_with_slippage =
-        route_value.FindIntKey("outAmountWithSlippage");
-    if (!out_amount_with_slippage)
-      return nullptr;
-    route.out_amount_with_slippage = *out_amount_with_slippage;
 
     auto* swap_mode = route_value.FindStringKey("swapMode");
     if (!swap_mode)
@@ -267,12 +369,14 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
         return nullptr;
       market_info.not_enough_liquidity = *not_enough_liquidity;
 
-      auto market_info_in_amount = market_info_value.FindIntKey("inAmount");
+      auto market_info_in_amount =
+          ParseUint64ResultFromStringDictValue(market_info_value, "inAmount");
       if (!market_info_in_amount)
         return nullptr;
       market_info.in_amount = *market_info_in_amount;
 
-      auto market_info_out_amount = market_info_value.FindIntKey("outAmount");
+      auto market_info_out_amount =
+          ParseUint64ResultFromStringDictValue(market_info_value, "outAmount");
       if (!market_info_out_amount)
         return nullptr;
       market_info.out_amount = *market_info_out_amount;
@@ -287,8 +391,12 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
       if (!lp_fee_value)
         return nullptr;
 
+      // Parse lpFee->amount field as a JSON integer field, since the
+      // values are typically very small, and intermediate conversion to string
+      // is expensive due to its deep nesting.
       mojom::JupiterFee lp_fee;
-      auto lp_fee_amount = lp_fee_value->FindIntKey("amount");
+      auto lp_fee_amount =
+          ParseUint64ResultFromIntegerDictValue(*lp_fee_value, "amount");
       if (!lp_fee_amount)
         return nullptr;
       lp_fee.amount = *lp_fee_amount;
@@ -310,8 +418,12 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
       if (!platform_fee_value)
         return nullptr;
 
+      // Parse platformFee->amount field as a JSON integer field, since the
+      // values are typically very small, and intermediate conversion to string
+      // is expensive due to its deep nesting.
       mojom::JupiterFee platform_fee;
-      auto platform_fee_amount = platform_fee_value->FindIntKey("amount");
+      auto platform_fee_amount =
+          ParseUint64ResultFromIntegerDictValue(*platform_fee_value, "amount");
       if (!platform_fee_amount)
         return nullptr;
       platform_fee.amount = *platform_fee_amount;
@@ -385,13 +497,14 @@ std::string EncodeJupiterTransactionParams(
   tx_params.SetStringKey("userPublicKey", params->user_public_key);
 
   base::Value route(base::Value::Type::DICTIONARY);
-  route.SetIntKey("inAmount", params->route->in_amount);
-  route.SetIntKey("outAmount", params->route->out_amount);
-  route.SetIntKey("amount", params->route->amount);
-  route.SetIntKey("otherAmountThreshold",
-                  params->route->other_amount_threshold);
-  route.SetIntKey("outAmountWithSlippage",
-                  params->route->out_amount_with_slippage);
+  route.SetStringKey("inAmount",
+                     base::NumberToString(params->route->in_amount));
+  route.SetStringKey("outAmount",
+                     base::NumberToString(params->route->out_amount));
+  route.SetStringKey("amount", base::NumberToString(params->route->amount));
+  route.SetStringKey(
+      "otherAmountThreshold",
+      base::NumberToString(params->route->other_amount_threshold));
   route.SetStringKey("swapMode", params->route->swap_mode);
   route.SetDoubleKey("priceImpactPct", params->route->price_impact_pct);
 
@@ -404,19 +517,24 @@ std::string EncodeJupiterTransactionParams(
     market_info_value.SetStringKey("outputMint", market_info->output_mint);
     market_info_value.SetBoolKey("notEnoughLiquidity",
                                  market_info->not_enough_liquidity);
-    market_info_value.SetIntKey("inAmount", market_info->in_amount);
-    market_info_value.SetIntKey("outAmount", market_info->out_amount);
+    market_info_value.SetStringKey(
+        "inAmount", base::NumberToString(market_info->in_amount));
+    market_info_value.SetStringKey(
+        "outAmount", base::NumberToString(market_info->out_amount));
     market_info_value.SetDoubleKey("priceImpactPct",
                                    market_info->price_impact_pct);
 
     base::Value lp_fee_value(base::Value::Type::DICTIONARY);
-    lp_fee_value.SetIntKey("amount", market_info->lp_fee->amount);
+    lp_fee_value.SetStringKey(
+        "amount", base::NumberToString(market_info->lp_fee->amount));
     lp_fee_value.SetStringKey("mint", market_info->lp_fee->mint);
     lp_fee_value.SetDoubleKey("pct", market_info->lp_fee->pct);
+
     market_info_value.SetKey("lpFee", std::move(lp_fee_value));
 
     base::Value platform_fee_value(base::Value::Type::DICTIONARY);
-    platform_fee_value.SetIntKey("amount", market_info->platform_fee->amount);
+    platform_fee_value.SetStringKey(
+        "amount", base::NumberToString(market_info->platform_fee->amount));
     platform_fee_value.SetStringKey("mint", market_info->platform_fee->mint);
     platform_fee_value.SetDoubleKey("pct", market_info->platform_fee->pct);
     market_info_value.SetKey("platformFee", std::move(platform_fee_value));
@@ -427,7 +545,33 @@ std::string EncodeJupiterTransactionParams(
   route.SetKey("marketInfos", std::move(market_infos_value));
   tx_params.SetKey("route", std::move(route));
 
-  return GetJSON(tx_params);
+  std::string result = GetJSON(tx_params);
+  result = std::string(
+      json::convert_string_value_to_uint64("/route/inAmount", result, false));
+  result = std::string(
+      json::convert_string_value_to_uint64("/route/outAmount", result, false));
+  result = std::string(
+      json::convert_string_value_to_uint64("/route/amount", result, false));
+  result = std::string(json::convert_string_value_to_uint64(
+      "/route/otherAmountThreshold", result, false));
+
+  for (int i = 0; i < static_cast<int>(params->route->market_infos.size());
+       i++) {
+    result = std::string(json::convert_string_value_to_uint64(
+        base::StringPrintf("/route/marketInfos/%d/inAmount", i), result,
+        false));
+    result = std::string(json::convert_string_value_to_uint64(
+        base::StringPrintf("/route/marketInfos/%d/outAmount", i), result,
+        false));
+    result = std::string(json::convert_string_value_to_uint64(
+        base::StringPrintf("/route/marketInfos/%d/lpFee/amount", i), result,
+        false));
+    result = std::string(json::convert_string_value_to_uint64(
+        base::StringPrintf("/route/marketInfos/%d/platformFee/amount", i),
+        result, false));
+  }
+
+  return result;
 }
 
 }  // namespace brave_wallet

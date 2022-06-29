@@ -93,7 +93,7 @@ namespace brave_wallet {
 
 mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
                                          bool expect_transaction_data) {
-  mojom::SwapResponse swap_response;
+  auto swap_response = mojom::SwapResponse::New();
 
   // {
   //   "price":"1916.27547998814058355",
@@ -133,99 +133,99 @@ mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
   auto price = ParseResultFromDict(response_dict, "price");
   if (!price)
     return nullptr;
-  swap_response.price = *price;
+  swap_response->price = *price;
 
   if (expect_transaction_data) {
     auto guaranteed_price =
         ParseResultFromDict(response_dict, "guaranteedPrice");
     if (!guaranteed_price)
       return nullptr;
-    swap_response.guaranteed_price = *guaranteed_price;
+    swap_response->guaranteed_price = *guaranteed_price;
 
     auto to = ParseResultFromDict(response_dict, "to");
     if (!to)
       return nullptr;
-    swap_response.to = *to;
+    swap_response->to = *to;
 
     auto data = ParseResultFromDict(response_dict, "data");
     if (!data)
       return nullptr;
-    swap_response.data = *data;
+    swap_response->data = *data;
   }
 
   auto value = ParseResultFromDict(response_dict, "value");
   if (!value)
     return nullptr;
-  swap_response.value = *value;
+  swap_response->value = *value;
 
   auto gas = ParseResultFromDict(response_dict, "gas");
   if (!gas)
     return nullptr;
-  swap_response.gas = *gas;
+  swap_response->gas = *gas;
 
   auto estimated_gas = ParseResultFromDict(response_dict, "estimatedGas");
   if (!estimated_gas)
     return nullptr;
-  swap_response.estimated_gas = *estimated_gas;
+  swap_response->estimated_gas = *estimated_gas;
 
   auto gas_price = ParseResultFromDict(response_dict, "gasPrice");
   if (!gas_price)
     return nullptr;
-  swap_response.gas_price = *gas_price;
+  swap_response->gas_price = *gas_price;
 
   auto protocol_fee = ParseResultFromDict(response_dict, "protocolFee");
   if (!protocol_fee)
     return nullptr;
 
-  swap_response.protocol_fee = *protocol_fee;
+  swap_response->protocol_fee = *protocol_fee;
 
   auto minimum_protocol_fee =
       ParseResultFromDict(response_dict, "minimumProtocolFee");
   if (!minimum_protocol_fee)
     return nullptr;
 
-  swap_response.minimum_protocol_fee = *minimum_protocol_fee;
+  swap_response->minimum_protocol_fee = *minimum_protocol_fee;
 
   auto buy_token_address =
       ParseResultFromDict(response_dict, "buyTokenAddress");
   if (!buy_token_address)
     return nullptr;
-  swap_response.buy_token_address = *buy_token_address;
+  swap_response->buy_token_address = *buy_token_address;
 
   auto sell_token_address =
       ParseResultFromDict(response_dict, "sellTokenAddress");
   if (!sell_token_address)
     return nullptr;
-  swap_response.sell_token_address = *sell_token_address;
+  swap_response->sell_token_address = *sell_token_address;
 
   auto buy_amount = ParseResultFromDict(response_dict, "buyAmount");
   if (!buy_amount)
     return nullptr;
-  swap_response.buy_amount = *buy_amount;
+  swap_response->buy_amount = *buy_amount;
 
   auto sell_amount = ParseResultFromDict(response_dict, "sellAmount");
   if (!sell_amount)
     return nullptr;
-  swap_response.sell_amount = *sell_amount;
+  swap_response->sell_amount = *sell_amount;
 
   auto allowance_target = ParseResultFromDict(response_dict, "allowanceTarget");
   if (!allowance_target)
     return nullptr;
-  swap_response.allowance_target = *allowance_target;
+  swap_response->allowance_target = *allowance_target;
 
   auto sell_token_to_eth_rate =
       ParseResultFromDict(response_dict, "sellTokenToEthRate");
   if (!sell_token_to_eth_rate)
     return nullptr;
-  swap_response.sell_token_to_eth_rate = *sell_token_to_eth_rate;
+  swap_response->sell_token_to_eth_rate = *sell_token_to_eth_rate;
 
   auto buy_token_to_eth_rate =
       ParseResultFromDict(response_dict, "buyTokenToEthRate");
   if (!buy_token_to_eth_rate)
     return nullptr;
-  swap_response.buy_token_to_eth_rate = *buy_token_to_eth_rate;
+  swap_response->buy_token_to_eth_rate = *buy_token_to_eth_rate;
 
-  return swap_response.Clone();
+  return swap_response;
 }
 
 mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
@@ -293,7 +293,7 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
   if (!routes_value)
     return nullptr;
 
-  mojom::JupiterSwapQuote swap_quote;
+  auto swap_quote = mojom::JupiterSwapQuote::New();
   std::vector<mojom::JupiterRoutePtr> routes;
 
   // STEP 5: Parse individual fields to populate mojom::JupiterSwapQuote
@@ -443,15 +443,15 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
       route.market_infos.push_back(market_info.Clone());
     }
 
-    swap_quote.routes.push_back(route.Clone());
+    swap_quote->routes.push_back(route.Clone());
   }
 
-  return swap_quote.Clone();
+  return swap_quote;
 }
 
 mojom::JupiterSwapTransactionsPtr ParseJupiterSwapTransactions(
     const std::string& json) {
-  mojom::JupiterSwapTransactions swap_transactions;
+  auto swap_transactions = mojom::JupiterSwapTransactions::New();
 
   base::JSONReader::ValueWithError value_with_error =
       base::JSONReader::ReadAndReturnValueWithError(
@@ -471,23 +471,23 @@ mojom::JupiterSwapTransactionsPtr ParseJupiterSwapTransactions(
   auto setup_transaction =
       ParseResultFromDict(response_dict, "setupTransaction");
   if (!setup_transaction)
-    swap_transactions.setup_transaction = "";
+    swap_transactions->setup_transaction = "";
   else
-    swap_transactions.setup_transaction = *setup_transaction;
+    swap_transactions->setup_transaction = *setup_transaction;
 
   auto swap_transaction = ParseResultFromDict(response_dict, "swapTransaction");
   if (!swap_transaction)
     return nullptr;
-  swap_transactions.swap_transaction = *swap_transaction;
+  swap_transactions->swap_transaction = *swap_transaction;
 
   auto cleanup_transaction =
       ParseResultFromDict(response_dict, "cleanupTransaction");
   if (!cleanup_transaction)
-    swap_transactions.cleanup_transaction = "";
+    swap_transactions->cleanup_transaction = "";
   else
-    swap_transactions.cleanup_transaction = *cleanup_transaction;
+    swap_transactions->cleanup_transaction = *cleanup_transaction;
 
-  return swap_transactions.Clone();
+  return swap_transactions;
 }
 
 std::string EncodeJupiterTransactionParams(

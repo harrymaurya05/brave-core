@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/brave_tabs/brave_tab_prefs.h"
 #include "chrome/browser/ui/views/tabs/tab.h"
+#include "brave/components/brave_tabs/brave_tab_prefs.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_service.h"
 
@@ -19,11 +19,10 @@
   title_left = alert_indicator_button_->x() +                      \
                alert_indicator_button_->width() + after_title_padding;
 
-#define BRAVE_TAB_HOVER_CARD_TOOLTIP                                   \
-  if (!controller_->GetBrowser()->profile()->GetPrefs()->GetBoolean( \
-          brave_tabs::kTabHoverCardTooltipsEnabled)) {                   \
-    return GetTooltipText(data_.title,                               \
-                          GetAlertStateToShow(data_.alert_state));   \
+#define BRAVE_TAB_HOVER_CARD_TOOLTIP                                        \
+  if (!brave_tabs::UseCardTooltips(controller_->GetBrowser()->profile())) { \
+    return GetTooltipText(data_.title,                                      \
+                          GetAlertStateToShow(data_.alert_state));          \
   }
 
 #define BRAVE_UI_VIEWS_TABS_TAB_UPDATE_ICON_VISIBILITY \

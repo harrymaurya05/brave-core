@@ -10,19 +10,21 @@
 #include "components/prefs/pref_service.h"
 
 namespace brave_tabs {
-const char kTabHoverCardTooltipsEnabled[] =
-    "brave.tabs.hover_card_tooltips_enabled";
-const char kTabHoverCardPreviewEnabled[] =
-    "brave.tabs.hover_card_preview_enabled";
+
+const char kTabTooltipMode[] = "brave.tabs.tooltip_mode";
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
-  registry->RegisterBooleanPref(kTabHoverCardTooltipsEnabled, true);
-  registry->RegisterBooleanPref(kTabHoverCardPreviewEnabled, false);
+  registry->RegisterIntegerPref(kTabTooltipMode, TooltipMode::CARD);
 }
 
-bool ArePreviewsEnabled(Profile* profile) {
-  return profile->GetPrefs()->GetBoolean(kTabHoverCardTooltipsEnabled) &&
-         profile->GetPrefs()->GetBoolean(kTabHoverCardPreviewEnabled);
+bool UseCardTooltips(Profile* profile) {
+  auto mode = profile->GetPrefs()->GetInteger(kTabTooltipMode);
+  return mode == TooltipMode::CARD || mode == TooltipMode::CARD_WITH_PREVIEW;
+}
+
+bool AreCardPreviewsEnabled(Profile* profile) {
+  return profile->GetPrefs()->GetInteger(kTabTooltipMode) ==
+         TooltipMode::CARD_WITH_PREVIEW;
 }
 
 }  // namespace brave_tabs

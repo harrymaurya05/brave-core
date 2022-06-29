@@ -1,4 +1,4 @@
-<style include="settings-shared">
+<style include="settings-shared iron-flex">
 </style>
 <settings-toggle-button
   class="cr-row"
@@ -70,13 +70,13 @@
   class="cr-row"
   label="$i18n{showSearchTabsBtn}">
 </settings-toggle-button>
-<settings-toggle-button
-  pref="{{prefs.brave.tabs.hover_card_tooltips_enabled}}"
-  class="cr-row"
-  label="$i18n{appearanceSettingsShowTabHoverTooltip}">
-</settings-toggle-button>
-<settings-toggle-button
-  pref="{{prefs.brave.tabs.hover_card_preview_enabled}}"
-  class="cr-row"
-  label="Show tab preview cards">
-</settings-toggle-button>
+<div class="settings-box">
+  <div class="flex">
+    <div class="label">Tab Tooltip Mode</div>
+  </div>
+  <settings-dropdown-menu
+    pref="{{prefs.brave.tabs.tooltip_mode}}"
+    on-settings-control-changed="onTabTooltipModeChanged_"
+    menu-options="[[tabTooltipModes_]]">
+  </settings-dropdown-menu>
+</div>

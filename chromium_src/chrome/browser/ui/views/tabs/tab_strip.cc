@@ -8,9 +8,8 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_service.h"
 
-#define BRAVE_UPDATE_HOVER_CARD_                         \
-  if (!controller_->GetProfile()->GetPrefs()->GetBoolean( \
-          brave_tabs::kTabHoverCardTooltipsEnabled))         \
+#define BRAVE_UPDATE_HOVER_CARD_                               \
+  if (!brave_tabs::UseCardTooltips(controller_->GetProfile())) \
     return;
 
 #include "src/chrome/browser/ui/views/tabs/tab_strip.cc"

@@ -174,10 +174,8 @@ const PrefsUtil::TypedPrefMap& BravePrefsUtil::GetAllowlistedKeys() {
       settings_api::PrefType::PREF_TYPE_NUMBER;
   (*s_brave_allowlist)[kTabsSearchShow] =
       settings_api::PrefType::PREF_TYPE_BOOLEAN;
-  (*s_brave_allowlist)[brave_tabs::kTabHoverCardTooltipsEnabled] =
-      settings_api::PREF_TYPE_BOOLEAN;
-  (*s_brave_allowlist)[brave_tabs::kTabHoverCardPreviewEnabled] =
-      settings_api::PREF_TYPE_BOOLEAN;
+  (*s_brave_allowlist)[brave_tabs::kTabTooltipMode] =
+      settings_api::PREF_TYPE_NUMBER;
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
   (*s_brave_allowlist)[brave_vpn::prefs::kBraveVPNShowButton] =
       settings_api::PrefType::PREF_TYPE_BOOLEAN;

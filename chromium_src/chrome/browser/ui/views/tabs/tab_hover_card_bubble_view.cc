@@ -17,8 +17,9 @@
 #include "content/public/common/url_constants.h"
 #include "ui/views/controls/label.h"
 
-#define BRAVE_TAB_HOVER_CARD_PREVIEWS \
-  || brave_tabs::ArePreviewsEnabled(tab->controller()->GetBrowser()->profile())
+#define BRAVE_TAB_HOVER_CARD_PREVIEWS    \
+  || brave_tabs::AreCardPreviewsEnabled( \
+         tab->controller()->GetBrowser()->profile())
 #define TabHoverCardBubbleView TabHoverCardBubbleView_ChromiumImpl
 #include "src/chrome/browser/ui/views/tabs/tab_hover_card_bubble_view.cc"
 #undef TabHoverCardBubbleView
@@ -47,6 +48,7 @@ void TabHoverCardBubbleView::UpdateCardContent(const Tab* tab) {
 }
 
 void TabHoverCardBubbleView::SetTargetTabImage(gfx::ImageSkia preview_image) {
-  if (!has_thumbnail_view()) return;
+  if (!has_thumbnail_view())
+    return;
   TabHoverCardBubbleView_ChromiumImpl::SetTargetTabImage(preview_image);
 }

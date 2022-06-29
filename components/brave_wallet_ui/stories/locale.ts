@@ -103,7 +103,7 @@ provideStrings({
   braveWalletButtonDone: 'Done',
 
   // Wallet Onboarding Welcome
-  braveWalletWelcomeTitle: 'Welcome to the new Brave Wallet',
+  braveWalletWelcomeTitle: 'Keeping your crypto secure doesn’t have to be hard',
   braveWalletWelcomeDescription: 'Your gateway to a multi-chain Web3 experience for Defi, NFTs, and more. Supports Solana, Ethereum, Binance Smart Chain, Polygon, Avalance, or expand to any EVM chain.',
   braveWalletWelcomeButton: 'Create a new wallet',
   braveWalletWhatIsACryptoWallet: 'What’s a crypto wallet?',
@@ -655,5 +655,10 @@ provideStrings({
   braveWalletHelpCenterText: 'Need help? See',
 
   // Input field labels
-  braveWalletInputLabelPassword: 'Password'
+  braveWalletInputLabelPassword: 'Password',
+
+  // Wallet Welcome Perks
+  braveWalletPerksTokens: 'Buy, send, swap with 200+ tokens',
+  braveWalletPerksNftStorage: 'Store your NFTs',
+  braveWalletMultiChain: 'Trade across multi-chains in seconds'
 })

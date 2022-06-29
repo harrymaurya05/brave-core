@@ -7,22 +7,18 @@
 #define BRAVE_COMPONENTS_BRAVE_TABS_BRAVE_TAB_PREFS_H_
 
 class PrefRegistrySimple;
-class Profile;
+class PrefService;
 
 namespace brave_tabs {
 
-enum TabHoverMode {
-  TOOLTIP = 0,
-  CARD = 1,
-  CARD_WITH_PREVIEW = 2
-};
+enum TabHoverMode { TOOLTIP = 0, CARD = 1, CARD_WITH_PREVIEW = 2 };
 
 extern const char kTabHoverMode[];
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry);
 
-bool AreTooltipsEnabled(Profile* profile);
-bool AreCardPreviewsEnabled(Profile* profile);
-}
+bool AreTooltipsEnabled(PrefService* prefs);
+bool AreCardPreviewsEnabled(PrefService* prefs);
+}  // namespace brave_tabs
 
 #endif  // BRAVE_COMPONENTS_BRAVE_TABS_BRAVE_TAB_PREFS_H_

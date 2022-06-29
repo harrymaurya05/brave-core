@@ -5,7 +5,6 @@
 
 #include "brave/components/brave_tabs/brave_tab_prefs.h"
 
-#include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 
@@ -17,14 +16,12 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterIntegerPref(kTabHoverMode, TabHoverMode::CARD);
 }
 
-bool AreTooltipsEnabled(Profile* profile) {
-  return profile->GetPrefs()->GetInteger(kTabHoverMode) ==
-         TabHoverMode::TOOLTIP;
+bool AreTooltipsEnabled(PrefService* prefs) {
+  return prefs->GetInteger(kTabHoverMode) == TabHoverMode::TOOLTIP;
 }
 
-bool AreCardPreviewsEnabled(Profile* profile) {
-  return profile->GetPrefs()->GetInteger(kTabHoverMode) ==
-         TabHoverMode::CARD_WITH_PREVIEW;
+bool AreCardPreviewsEnabled(PrefService* prefs) {
+  return prefs->GetInteger(kTabHoverMode) == TabHoverMode::CARD_WITH_PREVIEW;
 }
 
 }  // namespace brave_tabs

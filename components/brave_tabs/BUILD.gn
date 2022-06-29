@@ -9,5 +9,8 @@ source_set("brave_tabs") {
     "brave_tab_prefs.h",
   ]
 
-  deps = [ "//base" ]
+  deps = [
+    "//base",
+    "//components/prefs",
+  ]
 }

@@ -6,17 +6,16 @@
 #ifndef BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_H_
 #define BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_H_
 
-#include "chrome/browser/ui/views/tabs/tab_slot_view.h"
-
 class BraveTabTest;
 
 #define kMinimumContentsWidthForCloseButtons \
   kMinimumContentsWidthForCloseButtons = 55; \
   static constexpr int kMinimumContentsWidthForCloseButtons_UnUsed
 
-#define UpdateIconVisibility UpdateIconVisibility_Unused(); \
- friend class ::BraveTabTest; \
- void UpdateIconVisibility
+#define UpdateIconVisibility     \
+  UpdateIconVisibility_Unused(); \
+  friend class ::BraveTabTest;   \
+  void UpdateIconVisibility
 
 #define GetWidthOfLargestSelectableRegion    \
   GetWidthOfLargestSelectableRegion() const; \

@@ -8,9 +8,11 @@
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/tabs/tab_slot_controller.h"
 
-#define BRAVE_TAB_HOVER_CARD_PREVIEWS                             \
-  || (!thumbnail_observer_ && brave_tabs::AreCardPreviewsEnabled( \
-                                  tab->controller()->GetBrowser()->profile()))
+// We also need to set up the observer if the tab hover mode is CARD_PREVIEW.
+#define BRAVE_TAB_HOVER_CARD_PREVIEWS     \
+  || (!thumbnail_observer_ &&             \
+      brave_tabs::AreCardPreviewsEnabled( \
+          tab->controller()->GetBrowser()->profile()->GetPrefs()))
 
 #include "src/chrome/browser/ui/views/tabs/tab_hover_card_controller.cc"
 

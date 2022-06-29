@@ -6,12 +6,11 @@
 #include "chrome/browser/ui/views/tabs/tab_strip.h"
 #include "brave/components/brave_tabs/brave_tab_prefs.h"
 #include "chrome/browser/profiles/profile.h"
-#include "components/prefs/pref_service.h"
 
-#define BRAVE_UPDATE_HOVER_CARD_                               \
-  if (brave_tabs::AreTooltipsEnabled(controller_->GetProfile())) \
+#define BRAVE_TAB_HOVER_TOOLTIPS                                             \
+  if (brave_tabs::AreTooltipsEnabled(controller_->GetProfile()->GetPrefs())) \
     return;
 
 #include "src/chrome/browser/ui/views/tabs/tab_strip.cc"
 
-#undef UpdateHoverCard
+#undef BRAVE_TAB_HOVER_TOOLTIPS

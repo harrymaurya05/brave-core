@@ -11,13 +11,13 @@ class Profile;
 
 namespace brave_tabs {
 
-enum TooltipMode {
+enum TabHoverMode {
   CLASSIC = 0,
   CARD = 1,
   CARD_WITH_PREVIEW = 2
 };
 
-extern const char kTabTooltipMode[];
+extern const char kTabHoverMode[];
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry);
 

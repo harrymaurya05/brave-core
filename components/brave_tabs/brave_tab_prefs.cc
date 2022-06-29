@@ -11,19 +11,19 @@
 
 namespace brave_tabs {
 
-const char kTabTooltipMode[] = "brave.tabs.tooltip_mode";
+const char kTabHoverMode[] = "brave.tabs.hover_mode";
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
-  registry->RegisterIntegerPref(kTabTooltipMode, TooltipMode::CARD);
+  registry->RegisterIntegerPref(kTabHoverMode, TabHoverMode::CARD);
 }
 
 bool AreTooltipsEnabled(Profile* profile) {
-  return profile->GetPrefs()->GetInteger(kTabTooltipMode) == TooltipMode::CLASSIC;
+  return profile->GetPrefs()->GetInteger(kTabHoverMode) == TabHoverMode::CLASSIC;
 }
 
 bool AreCardPreviewsEnabled(Profile* profile) {
-  return profile->GetPrefs()->GetInteger(kTabTooltipMode) ==
-         TooltipMode::CARD_WITH_PREVIEW;
+  return profile->GetPrefs()->GetInteger(kTabHoverMode) ==
+         TabHoverMode::CARD_WITH_PREVIEW;
 }
 
 }  // namespace brave_tabs

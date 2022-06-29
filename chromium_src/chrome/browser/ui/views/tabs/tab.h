@@ -8,9 +8,15 @@
 
 #include "chrome/browser/ui/views/tabs/tab_slot_view.h"
 
+class BraveTabTest;
+
 #define kMinimumContentsWidthForCloseButtons \
   kMinimumContentsWidthForCloseButtons = 55; \
   static constexpr int kMinimumContentsWidthForCloseButtons_UnUsed
+
+#define UpdateIconVisibility UpdateIconVisibility_Unused(); \
+ friend class ::BraveTabTest; \
+ void UpdateIconVisibility
 
 #define GetWidthOfLargestSelectableRegion    \
   GetWidthOfLargestSelectableRegion() const; \
@@ -18,5 +24,6 @@
 #include "src/chrome/browser/ui/views/tabs/tab.h"
 #undef GetWidthOfLargestSelectableRegion
 #undef kMinimumContentsWidthForCloseButtons
+#undef UpdateIconVisibility
 
 #endif  // BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_H_

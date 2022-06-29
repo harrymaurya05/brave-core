@@ -17,9 +17,8 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterIntegerPref(kTabTooltipMode, TooltipMode::CARD);
 }
 
-bool UseCardTooltips(Profile* profile) {
-  auto mode = profile->GetPrefs()->GetInteger(kTabTooltipMode);
-  return mode == TooltipMode::CARD || mode == TooltipMode::CARD_WITH_PREVIEW;
+bool AreTooltipsEnabled(Profile* profile) {
+  return profile->GetPrefs()->GetInteger(kTabTooltipMode) == TooltipMode::CLASSIC;
 }
 
 bool AreCardPreviewsEnabled(Profile* profile) {

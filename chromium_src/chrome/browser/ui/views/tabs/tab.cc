@@ -20,7 +20,7 @@
                alert_indicator_button_->width() + after_title_padding;
 
 #define BRAVE_TAB_HOVER_CARD_TOOLTIP                                        \
-  if (!brave_tabs::UseCardTooltips(controller_->GetBrowser()->profile())) { \
+  if (brave_tabs::AreTooltipsEnabled(controller_->GetBrowser()->profile())) { \
     return GetTooltipText(data_.title,                                      \
                           GetAlertStateToShow(data_.alert_state));          \
   }

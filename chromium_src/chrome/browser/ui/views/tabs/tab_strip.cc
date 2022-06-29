@@ -9,7 +9,7 @@
 #include "components/prefs/pref_service.h"
 
 #define BRAVE_UPDATE_HOVER_CARD_                               \
-  if (!brave_tabs::UseCardTooltips(controller_->GetProfile())) \
+  if (brave_tabs::AreTooltipsEnabled(controller_->GetProfile())) \
     return;
 
 #include "src/chrome/browser/ui/views/tabs/tab_strip.cc"

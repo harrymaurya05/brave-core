@@ -21,7 +21,7 @@ extern const char kTabTooltipMode[];
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry);
 
-bool UseCardTooltips(Profile* profile);
+bool AreTooltipsEnabled(Profile* profile);
 bool AreCardPreviewsEnabled(Profile* profile);
 }
 

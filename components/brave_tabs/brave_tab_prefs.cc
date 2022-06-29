@@ -18,7 +18,8 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
 }
 
 bool AreTooltipsEnabled(Profile* profile) {
-  return profile->GetPrefs()->GetInteger(kTabHoverMode) == TabHoverMode::CLASSIC;
+  return profile->GetPrefs()->GetInteger(kTabHoverMode) ==
+         TabHoverMode::TOOLTIP;
 }
 
 bool AreCardPreviewsEnabled(Profile* profile) {

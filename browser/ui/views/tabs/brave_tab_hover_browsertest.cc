@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #include "brave/components/brave_tabs/brave_tab_prefs.h"
+#include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/tabs/tab_renderer_data.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "chrome/browser/ui/views/tabs/tab.h"
 
@@ -32,6 +34,7 @@
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/testing_profile.h"
 #include "chrome/test/views/chrome_views_test_base.h"
+#include "components/prefs/pref_service.h"
 #include "components/tab_groups/tab_group_id.h"
 #include "components/tab_groups/tab_group_visual_data.h"
 #include "content/public/browser/web_contents.h"
@@ -44,17 +47,18 @@
 #include "ui/gfx/geometry/point.h"
 #include "ui/views/controls/button/image_button.h"
 #include "ui/views/controls/label.h"
+#include "ui/views/controls/tabbed_pane/tabbed_pane.h"
 #include "ui/views/layout/flex_layout.h"
 #include "ui/views/view_class_properties.h"
 #include "ui/views/widget/widget.h"
 
 using views::Widget;
 
-class BraveTabTest : public InProcessBrowserTest {
+class BraveTabHoverTest : public InProcessBrowserTest {
  public:
-  BraveTabTest() {}
-  BraveTabTest(const BraveTabTest&) = delete;
-  BraveTabTest& operator=(const BraveTabTest&) = delete;
+  BraveTabHoverTest() {}
+  BraveTabHoverTest(const BraveTabHoverTest&) = delete;
+  BraveTabHoverTest& operator=(const BraveTabHoverTest&) = delete;
 
   void SetUpOnMainThread() override {}
 
@@ -64,14 +68,31 @@ class BraveTabTest : public InProcessBrowserTest {
     return browser()->tab_strip_model()->GetActiveWebContents();
   }
 
-  Tab* active_tab() {
+  TabStrip* tabstrip() {
     auto* browser_view = static_cast<BrowserView*>(browser()->window());
-    auto* tabstrip = browser_view->tabstrip();
-    return tabstrip->tab_at(tabstrip->GetActiveIndex());
+    return browser_view->tabstrip();
   }
+
+  Tab* active_tab() { return tabstrip()->tab_at(tabstrip()->GetActiveIndex()); }
 };
 
-IN_PROC_BROWSER_TEST_F(BraveTabTest,
+IN_PROC_BROWSER_TEST_F(BraveTabHoverTest,
                        GetTooltipOnlyHasTextWhenHoverModeIsTooltip) {
+  TabRendererData data;
+  data.visible_url = GURL("https://example.com");
+  data.title = u"Hello World";
+  tabstrip()->SetTabData(tabstrip()->GetActiveIndex(), data);
+  EXPECT_EQ(u"Hello World", active_tab()->data().title);
+
+  browser()->profile()->GetPrefs()->SetInteger(brave_tabs::kTabHoverMode,
+                                               brave_tabs::TabHoverMode::CARD);
   EXPECT_EQ(u"", active_tab()->GetTooltipText(gfx::Point()));
+
+  browser()->profile()->GetPrefs()->SetInteger(
+      brave_tabs::kTabHoverMode, brave_tabs::TabHoverMode::CARD_WITH_PREVIEW);
+  EXPECT_EQ(u"", active_tab()->GetTooltipText(gfx::Point()));
+
+  browser()->profile()->GetPrefs()->SetInteger(
+      brave_tabs::kTabHoverMode, brave_tabs::TabHoverMode::TOOLTIP);
+  EXPECT_EQ(u"Hello World", active_tab()->GetTooltipText(gfx::Point()));
 }

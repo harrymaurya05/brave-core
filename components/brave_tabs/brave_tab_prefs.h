@@ -12,7 +12,7 @@ class Profile;
 namespace brave_tabs {
 
 enum TabHoverMode {
-  CLASSIC = 0,
+  TOOLTIP = 0,
   CARD = 1,
   CARD_WITH_PREVIEW = 2
 };

@@ -10,6 +10,7 @@
 
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 #include "base/compiler_specific.h"
@@ -51,6 +52,7 @@ class ChromeImporter : public Importer {
   double chromeTimeToDouble(int64_t time);
 
   base::FilePath source_path_;
+  std::u16string importer_name_;
 
  private:
   // Multiple URLs can share the same favicon; this is a map

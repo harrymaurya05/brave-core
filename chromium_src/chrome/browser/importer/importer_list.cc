@@ -45,6 +45,30 @@ void AddChromeToProfiles(std::vector<importer::SourceProfile>* profiles,
   delete chrome_profiles;
 }
 
+void AddOperaToProfiles(std::vector<importer::SourceProfile>* profiles,
+                        base::ListValue* chrome_profiles,
+                        const base::FilePath& user_data_folder,
+                        importer::ImporterType type) {
+  for (const auto& value : chrome_profiles->GetList()) {
+    const base::DictionaryValue* dict;
+    if (!value.GetAsDictionary(&dict))
+      continue;
+    uint16_t items = importer::NONE;
+    std::string name;
+    dict->GetString("name", &name);
+    if (!ChromeImporterCanImport(user_data_folder, &items))
+      continue;
+    importer::SourceProfile chrome;
+    std::string importer_name(name);
+    chrome.importer_name = base::UTF8ToUTF16(importer_name);
+    chrome.importer_type = type;
+    chrome.services_supported = items;
+    chrome.source_path = user_data_folder;
+    profiles->push_back(chrome);
+  }
+  delete chrome_profiles;
+}
+
 void DetectChromeProfiles(std::vector<importer::SourceProfile>* profiles) {
   base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                 base::BlockingType::WILL_BLOCK);
@@ -67,6 +91,9 @@ void DetectChromeProfiles(std::vector<importer::SourceProfile>* profiles) {
   AddChromeToProfiles(
       profiles, GetChromeSourceProfiles(GetVivaldiUserDataFolder()),
       GetVivaldiUserDataFolder(), "Vivaldi ", importer::TYPE_VIVALDI);
+
+  AddOperaToProfiles(profiles, GetOperaSourceProfiles(GetOperaUserDataFolder()),
+                     GetOperaUserDataFolder(), importer::TYPE_OPERA);
 }
 
 }  // namespace

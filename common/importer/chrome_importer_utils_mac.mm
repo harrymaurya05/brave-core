@@ -29,3 +29,8 @@ base::FilePath GetChromiumUserDataFolder() {
   base::FilePath result = base::mac::GetUserLibraryPath();
  return result.Append("Application Support/Chromium");
 }
+
+base::FilePath GetOperaUserDataFolder() {
+  base::FilePath result = base::mac::GetUserLibraryPath();
+  return result.Append("Application Support/Opera");
+}

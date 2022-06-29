@@ -21,6 +21,7 @@ enum class ImporterSource {
   kIE,
   kEdge,
   kVivaldi,
+  kOpera,
   kSize
 };
 }  // namespace
@@ -55,6 +56,9 @@ void RecordImporterP3A(importer::ImporterType type) {
     break;
   case importer::TYPE_VIVALDI:
     metric = ImporterSource::kVivaldi;
+    break;
+  case importer::TYPE_OPERA:
+    metric = ImporterSource::kOpera;
     break;
   }
 

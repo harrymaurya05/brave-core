@@ -1,5 +1,5 @@
 diff --git a/chrome/common/importer/profile_import_process_param_traits_macros.h b/chrome/common/importer/profile_import_process_param_traits_macros.h
-index 81d070e74f0a095801dde6a96967011eb2131c41..fbfccb5b098eca5e4d83a84f4fc57b681ea7097e 100644
+index 81d070e74f0a095801dde6a96967011eb2131c41..cc2f5db5a222c2c02021fb2d2e8af879209d2552 100644
 --- a/chrome/common/importer/profile_import_process_param_traits_macros.h
 +++ b/chrome/common/importer/profile_import_process_param_traits_macros.h
 @@ -20,11 +20,11 @@
@@ -7,12 +7,12 @@ index 81d070e74f0a095801dde6a96967011eb2131c41..fbfccb5b098eca5e4d83a84f4fc57b68
  IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImporterType,
                                importer::TYPE_UNKNOWN,
 -                              importer::TYPE_EDGE)
-+                              importer::TYPE_VIVALDI)
++                              importer::TYPE_OPERA)
  #else
  IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImporterType,
                                importer::TYPE_UNKNOWN,
 -                              importer::TYPE_BOOKMARKS_FILE)
-+                              importer::TYPE_VIVALDI)
++                              importer::TYPE_OPERA)
  #endif
  
  IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImportItem,

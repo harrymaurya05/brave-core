@@ -70,6 +70,20 @@ bool HasPaymentMethods(const base::FilePath& payments_path) {
 
 }  // namespace
 
+base::ListValue* GetOperaSourceProfiles(
+    const base::FilePath& user_data_folder) {
+  base::ListValue* opera_profiles = new base::ListValue();
+  base::FilePath local_state_path = user_data_folder.Append(
+      base::FilePath::StringType(FILE_PATH_LITERAL("Local State")));
+  if (base::PathExists(local_state_path)) {
+    // Opera doesnt have profiles so we just put default values.
+    base::DictionaryValue* entry = new base::DictionaryValue();
+    entry->SetString("name", "Opera");
+    opera_profiles->Append(std::unique_ptr<base::DictionaryValue>(entry));
+  }
+  return opera_profiles;
+}
+
 base::ListValue* GetChromeSourceProfiles(
   const base::FilePath& user_data_folder) {
   base::ListValue* profiles = new base::ListValue();

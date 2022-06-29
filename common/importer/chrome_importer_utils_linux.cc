@@ -32,6 +32,17 @@ base::FilePath GetVivaldiUserDataFolder() {
   return result;
 }
 
+base::FilePath GetOperaUserDataFolder() {
+  base::FilePath result;
+  if (!base::PathService::Get(base::DIR_HOME, &result))
+    return base::FilePath();
+
+  result = result.Append(".config");
+  result = result.Append("opera");
+
+  return result;
+}
+
 base::FilePath GetChromiumUserDataFolder() {
   base::FilePath result;
   if (!base::PathService::Get(base::DIR_HOME, &result))

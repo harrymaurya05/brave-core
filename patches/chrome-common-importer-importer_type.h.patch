@@ -1,5 +1,5 @@
 diff --git a/chrome/common/importer/importer_type.h b/chrome/common/importer/importer_type.h
-index 783aeeb86b265b9abf6c1d5c8a77c726daea277d..53c9cf95c37e2bbd7266206e362619472c71496f 100644
+index 783aeeb86b265b9abf6c1d5c8a77c726daea277d..ba36d1e48b4b411a09f397e8d5196cf0fdd89eaf 100644
 --- a/chrome/common/importer/importer_type.h
 +++ b/chrome/common/importer/importer_type.h
 @@ -19,6 +19,8 @@ enum ImporterType {
@@ -11,11 +11,12 @@ index 783aeeb86b265b9abf6c1d5c8a77c726daea277d..53c9cf95c37e2bbd7266206e36261947
    TYPE_FIREFOX = 2,
  #if BUILDFLAG(IS_MAC)
    TYPE_SAFARI = 3,
-@@ -28,6 +30,7 @@ enum ImporterType {
+@@ -28,6 +30,8 @@ enum ImporterType {
  #if BUILDFLAG(IS_WIN)
    TYPE_EDGE = 6,
  #endif
-+  TYPE_VIVALDI = 10
++  TYPE_VIVALDI = 10,
++  TYPE_OPERA = 11
  };
  
  }  // namespace importer

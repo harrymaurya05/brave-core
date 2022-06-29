@@ -52,6 +52,8 @@ class Prefs {
 
   bool IsSyncMigrateNoticeDismissed() const;
   void SetDismissSyncMigrateNotice(bool is_dismissed);
+  bool IsSyncAccountDeletedNoticeDismissed() const;
+  void SetDismissSyncAccountDeletedNotice(bool is_dismissed);
 
   void Clear();
 

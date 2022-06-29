@@ -293,6 +293,8 @@ struct AssetPrice {
   string asset_timeframe_change;
 };
 
+// Structs to model 0x (swap) HTTP API interactions
+// Docs: https://docs.0x.org/0x-api-swap
 struct SwapParams {
   string taker_address;
   string sell_amount;
@@ -324,6 +326,10 @@ struct SwapResponse {
   // Note we could also expose "sources" later
 };
 
+// Structs to model Jupiter (swap) HTTP API interactions
+// Swagger spec: https://quote-api.jup.ag/docs/static/index.html
+//
+// [XXX] - amount field is incorrectly modelled as number in spec.
 struct JupiterFee {
   uint64 amount;
   string mint;
@@ -348,7 +354,6 @@ struct JupiterRoute {
   uint64 out_amount;
   uint64 amount;
   uint64 other_amount_threshold;
-  uint64 out_amount_with_slippage;
   string swap_mode;
   double price_impact_pct;
   array<JupiterMarketInfo> market_infos;

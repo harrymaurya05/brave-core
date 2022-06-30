@@ -110,10 +110,7 @@ export const CreateAccountTab = ({
   if (isWalletLocked && showUnlock) {
     return <StyledWrapper>
       <Description style={{ fontSize: 16 }}>
-        {
-          'Unlock needed to create an account'
-          // getLocale('braveWalletCreateAccountDescription')
-        }
+        {getLocale('braveWalletUnlockNeededToCreateAccount')}
       </Description>
       <LockPanel
         hideBackground
@@ -124,7 +121,10 @@ export const CreateAccountTab = ({
 
   return (
     <StyledWrapper>
-      <Description>{getLocale('braveWalletCreateAccountDescription').replace('$1', accountNetwork.symbolName)}</Description>
+      <Description>
+        {getLocale('braveWalletCreateAccountDescription').replace('$1', accountNetwork.symbolName)}
+      </Description>
+
       <ButtonRow>
         <NavButton
           buttonType='secondary'
@@ -132,7 +132,6 @@ export const CreateAccountTab = ({
           text={getLocale('braveWalletCreateAccountNo')}
         />
         <NavButton
-
           buttonType='primary'
           onSubmit={onCreateAccount}
           text={getLocale('braveWalletCreateAccountYes')}

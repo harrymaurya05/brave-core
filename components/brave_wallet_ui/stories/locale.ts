@@ -87,6 +87,7 @@ provideStrings({
   braveWalletDecimalPlacesError: 'Too many decimal places',
 
   // Create Account Tab
+  braveWalletUnlockNeededToCreateAccount: 'Unlock needed to create an account',
   braveWalletCreateAccountDescription: 'You don’t yet have a $1 account. Create one now?',
   braveWalletCreateAccountYes: 'Yes',
   braveWalletCreateAccountNo: 'No',

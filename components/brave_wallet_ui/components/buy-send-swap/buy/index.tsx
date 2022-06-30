@@ -31,7 +31,7 @@ import { useLib } from '../../../common/hooks/useLib'
 import { NavButton } from '../../extension'
 import SwapInputComponent from '../swap-input-component'
 
-// Styles
+// styles
 import {
   StyledWrapper,
   Spacer

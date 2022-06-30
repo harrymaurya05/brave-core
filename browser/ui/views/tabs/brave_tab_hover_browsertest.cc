@@ -23,6 +23,7 @@
 #include "content/public/browser/web_contents_user_data.h"
 #include "content/public/test/browser_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 #include "ui/gfx/animation/animation_test_api.h"
 #include "ui/gfx/geometry/point.h"
 #include "ui/views/test/widget_test.h"

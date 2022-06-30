@@ -2,7 +2,7 @@ diff --git a/ios/chrome/browser/browser_state/chrome_browser_state_impl.mm b/ios
 index 4b346e1888ccf053dc9a764d08e93f5dfa81dc97..6c07ad758efae8ab7c425d7c3b22422c1eed901d 100644
 --- a/ios/chrome/browser/browser_state/chrome_browser_state_impl.mm
 +++ b/ios/chrome/browser/browser_state/chrome_browser_state_impl.mm
-@@ -120,6 +120,7 @@ bool EnsureBrowserStateDirectoriesCreated(const base::FilePath& path,
+@@ -120,6 +120,7 @@ ChromeBrowserStateImpl::ChromeBrowserStateImpl(
    policy_connector_ =
        BuildBrowserStatePolicyConnector(policy_schema_registry_.get(), connector,
                                         user_cloud_policy_manager_.get());

@@ -6,13 +6,13 @@
 #ifndef BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_STRIP_H_
 #define BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_STRIP_H_
 
-#define FrameColorsChanged        \
-  FrameColorsChanged_Unused();    \
+#define UpdateHoverCard        \
+  UpdateHoverCard_Unused();    \
   friend class BraveTabHoverTest; \
-  void FrameColorsChanged
+  virtual void UpdateHoverCard
 
 #include "src/chrome/browser/ui/views/tabs/tab_strip.h"
 
-#undef FrameColorsChanged
+#undef UpdateHoverCard
 
 #endif  // BRAVE_CHROMIUM_SRC_CHROME_BROWSER_UI_VIEWS_TABS_TAB_STRIP_H_

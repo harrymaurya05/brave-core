@@ -398,7 +398,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 #endif
 
   omnibox::RegisterBraveProfilePrefs(registry);
-  brave_tabs::RegisterBraveProfilePrefs(registry);
 
   // Password leak detection should be disabled
   registry->SetDefaultPrefValue(
@@ -451,6 +450,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
                                 base::Value(true));
   registry->RegisterBooleanPref(kEnableWindowClosingConfirm, true);
   RegisterDefaultBraveBrowserPromptPrefs(registry);
+  brave_tabs::RegisterBraveProfilePrefs(registry);
 #endif
 
   brave_search_conversion::RegisterPrefs(registry);

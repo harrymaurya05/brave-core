@@ -317,18 +317,44 @@ void BatLedgerClientMojoBridge::ReconcileStampReset() {
   bat_ledger_client_->ReconcileStampReset();
 }
 
-void OnRunDBTransaction(
-    const ledger::client::RunDBTransactionCallback& callback,
-    ledger::type::DBCommandResponsePtr response) {
-  callback(std::move(response));
+template <typename RunDBTransactionCallback>
+void OnRunDBTransaction(RunDBTransactionCallback callback,
+                        ledger::type::DBCommandResponsePtr response) {
+  if constexpr (std::is_same_v<RunDBTransactionCallback,
+                               ledger::client::RunDBTransactionCallback>) {
+    callback(std::move(response));
+  } else if constexpr (std::is_same_v<  // NOLINT
+                           RunDBTransactionCallback,
+                           ledger::client::RunDBTransactionCallback2>) {
+    std::move(callback).Run(std::move(response));
+  } else {
+    static_assert(dependent_false_v<RunDBTransactionCallback>,
+                  "RunDBTransactionCallback must be either "
+                  "ledger::client::RunDBTransactionCallback, or "
+                  "ledger::client::RunDBTransactionCallback2!");
+  }
+}
+
+template <typename RunDBTransactionCallback>
+void BatLedgerClientMojoBridge::RunDBTransactionImpl(
+    ledger::type::DBTransactionPtr transaction,
+    RunDBTransactionCallback callback) {
+  bat_ledger_client_->RunDBTransaction(
+      std::move(transaction),
+      base::BindOnce(&OnRunDBTransaction<RunDBTransactionCallback>,
+                     std::move(callback)));
 }
 
 void BatLedgerClientMojoBridge::RunDBTransaction(
     ledger::type::DBTransactionPtr transaction,
     ledger::client::RunDBTransactionCallback callback) {
-  bat_ledger_client_->RunDBTransaction(
-      std::move(transaction),
-      base::BindOnce(&OnRunDBTransaction, std::move(callback)));
+  RunDBTransactionImpl(std::move(transaction), std::move(callback));
+}
+
+void BatLedgerClientMojoBridge::RunDBTransaction(
+    ledger::type::DBTransactionPtr transaction,
+    ledger::client::RunDBTransactionCallback2 callback) {
+  RunDBTransactionImpl(std::move(transaction), std::move(callback));
 }
 
 void OnGetCreateScript(

@@ -142,6 +142,9 @@ class TestLedgerClient : public LedgerClient {
   void RunDBTransaction(mojom::DBTransactionPtr transaction,
                         client::RunDBTransactionCallback callback) override;
 
+  void RunDBTransaction(mojom::DBTransactionPtr transaction,
+                        client::RunDBTransactionCallback2 callback) override;
+
   void GetCreateScript(client::GetCreateScriptCallback callback) override;
 
   void PendingContributionSaved(const mojom::Result result) override;
@@ -173,8 +176,13 @@ class TestLedgerClient : public LedgerClient {
   void LoadURLAfterDelay(mojom::UrlRequestPtr request,
                          client::LoadURLCallback callback);
 
+  template <typename RunDBTransactionCallback>
+  void RunDBTransactionImpl(mojom::DBTransactionPtr transaction,
+                            RunDBTransactionCallback callback);
+
+  template <typename RunDBTransactionCallback>
   void RunDBTransactionAfterDelay(mojom::DBTransactionPtr transaction,
-                                  client::RunDBTransactionCallback callback);
+                                  RunDBTransactionCallback callback);
 
   LedgerDatabase ledger_database_;
   base::Value state_store_;

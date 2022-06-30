@@ -263,13 +263,26 @@ void TestLedgerClient::UnblindedTokensReady() {}
 
 void TestLedgerClient::ReconcileStampReset() {}
 
+template <typename RunDBTransactionCallback>
+void TestLedgerClient::RunDBTransactionImpl(mojom::DBTransactionPtr transaction,
+                                            RunDBTransactionCallback callback) {
+  base::SequencedTaskRunnerHandle::Get()->PostTask(
+      FROM_HERE, base::BindOnce(&TestLedgerClient::RunDBTransactionAfterDelay<
+                                    RunDBTransactionCallback>,
+                                weak_factory_.GetWeakPtr(),
+                                std::move(transaction), std::move(callback)));
+}
+
 void TestLedgerClient::RunDBTransaction(
     mojom::DBTransactionPtr transaction,
     client::RunDBTransactionCallback callback) {
-  base::SequencedTaskRunnerHandle::Get()->PostTask(
-      FROM_HERE, base::BindOnce(&TestLedgerClient::RunDBTransactionAfterDelay,
-                                weak_factory_.GetWeakPtr(),
-                                std::move(transaction), callback));
+  RunDBTransactionImpl(std::move(transaction), std::move(callback));
+}
+
+void TestLedgerClient::RunDBTransaction(
+    mojom::DBTransactionPtr transaction,
+    client::RunDBTransactionCallback2 callback) {
+  RunDBTransactionImpl(std::move(transaction), std::move(callback));
 }
 
 void TestLedgerClient::GetCreateScript(
@@ -336,11 +349,24 @@ void TestLedgerClient::LoadURLAfterDelay(mojom::UrlRequestPtr request,
   callback(response);
 }
 
+template <typename RunDBTransactionCallback>
 void TestLedgerClient::RunDBTransactionAfterDelay(
     mojom::DBTransactionPtr transaction,
-    client::RunDBTransactionCallback callback) {
+    RunDBTransactionCallback callback) {
   auto response = ledger_database_.RunTransaction(std::move(transaction));
-  callback(std::move(response));
+  if constexpr (std::is_same_v<RunDBTransactionCallback,
+                               ledger::client::RunDBTransactionCallback>) {
+    callback(std::move(response));
+  } else if constexpr (std::is_same_v<  // NOLINT
+                           RunDBTransactionCallback,
+                           ledger::client::RunDBTransactionCallback2>) {
+    std::move(callback).Run(std::move(response));
+  } else {
+    static_assert(dependent_false_v<RunDBTransactionCallback>,
+                  "RunDBTransactionCallback must be either "
+                  "ledger::client::RunDBTransactionCallback, or "
+                  "ledger::client::RunDBTransactionCallback2!");
+  }
 }
 
 }  // namespace ledger

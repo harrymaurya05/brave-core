@@ -660,9 +660,17 @@ class RewardsServiceImpl : public RewardsService,
 
   void ReconcileStampReset() override;
 
+  template <typename RunDBTransactionCallback>
+  void RunDBTransactionImpl(ledger::type::DBTransactionPtr transaction,
+                            RunDBTransactionCallback callback);
+
   void RunDBTransaction(
       ledger::type::DBTransactionPtr transaction,
       ledger::client::RunDBTransactionCallback callback) override;
+
+  void RunDBTransaction(
+      ledger::type::DBTransactionPtr transaction,
+      ledger::client::RunDBTransactionCallback2 callback) override;
 
   void GetCreateScript(
       ledger::client::GetCreateScriptCallback callback) override;
@@ -735,9 +743,9 @@ class RewardsServiceImpl : public RewardsService,
       const ledger::type::Result result,
       ledger::type::MonthlyReportInfoPtr report);
 
-  void OnRunDBTransaction(
-      ledger::client::RunDBTransactionCallback callback,
-      ledger::type::DBCommandResponsePtr response);
+  template <typename RunDBTransactionCallback>
+  void OnRunDBTransaction(RunDBTransactionCallback callback,
+                          ledger::type::DBCommandResponsePtr response);
 
   void OnGetAllMonthlyReportIds(
       GetAllMonthlyReportIdsCallback callback,

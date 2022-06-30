@@ -3068,21 +3068,48 @@ void RewardsServiceImpl::ReconcileStampReset() {
   }
 }
 
-void RewardsServiceImpl::RunDBTransaction(
+template <typename RunDBTransactionCallback>
+void RewardsServiceImpl::RunDBTransactionImpl(
     ledger::type::DBTransactionPtr transaction,
-    ledger::client::RunDBTransactionCallback callback) {
+    RunDBTransactionCallback callback) {
   DCHECK(ledger_database_);
   ledger_database_.AsyncCall(&ledger::LedgerDatabase::RunTransaction)
       .WithArgs(std::move(transaction))
-      .Then(base::BindOnce(&RewardsServiceImpl::OnRunDBTransaction, AsWeakPtr(),
-                           std::move(callback)));
+      .Then(base::BindOnce(
+          &RewardsServiceImpl::OnRunDBTransaction<RunDBTransactionCallback>,
+          AsWeakPtr(), std::move(callback)));
 }
 
+void RewardsServiceImpl::RunDBTransaction(
+    ledger::type::DBTransactionPtr transaction,
+    ledger::client::RunDBTransactionCallback callback) {
+  RunDBTransactionImpl(std::move(transaction), std::move(callback));
+}
+
+void RewardsServiceImpl::RunDBTransaction(
+    ledger::type::DBTransactionPtr transaction,
+    ledger::client::RunDBTransactionCallback2 callback) {
+  RunDBTransactionImpl(std::move(transaction), std::move(callback));
+}
+
+template <typename RunDBTransactionCallback>
 void RewardsServiceImpl::OnRunDBTransaction(
-    ledger::client::RunDBTransactionCallback callback,
+    RunDBTransactionCallback callback,
     ledger::type::DBCommandResponsePtr response) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  callback(std::move(response));
+  if constexpr (std::is_same_v<RunDBTransactionCallback,
+                               ledger::client::RunDBTransactionCallback>) {
+    callback(std::move(response));
+  } else if constexpr (std::is_same_v<  // NOLINT
+                           RunDBTransactionCallback,
+                           ledger::client::RunDBTransactionCallback2>) {
+    std::move(callback).Run(std::move(response));
+  } else {
+    static_assert(dependent_false_v<RunDBTransactionCallback>,
+                  "RunDBTransactionCallback must be either "
+                  "ledger::client::RunDBTransactionCallback, or "
+                  "ledger::client::RunDBTransactionCallback2!");
+  }
 }
 
 void RewardsServiceImpl::GetCreateScript(

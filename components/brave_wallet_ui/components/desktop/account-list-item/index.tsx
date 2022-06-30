@@ -1,15 +1,28 @@
+// Copyright (c) 2022 The Brave Authors. All rights reserved.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this file,
+// you can obtain one at http://mozilla.org/MPL/2.0/.
+
 import * as React from 'react'
-import { reduceAddress } from '../../../utils/reduce-address'
 import { create } from 'ethereum-blockies'
-import { Tooltip } from '../../shared'
+
+// utils
+import { getLocale } from '../../../../common/locale'
+import { reduceAddress } from '../../../utils/reduce-address'
+
+// types
 import {
   BraveWallet,
   WalletAccountType
 } from '../../../constants/types'
-import { getLocale } from '../../../../common/locale'
-import { useCopy } from '../../../common/hooks'
 
-// Styled Components
+// hookd
+import { useTemporaryCopyToClipboard } from '../../../common/hooks/use-copy-to-clipboard'
+
+// components
+import { Tooltip } from '../../shared/tooltip/index'
+
+// style
 import {
   StyledWrapper,
   AccountName,
@@ -41,27 +54,33 @@ function AccountListItem (props: Props) {
   } = props
 
   // custom hooks
-  const { copied, copyText } = useCopy()
+  const {
+    isCopied: copied,
+    temporaryCopyToClipboard: copyText
+  } = useTemporaryCopyToClipboard(1500)
 
-  const onCopyToClipboard = async () => {
+  // methods
+  const onCopyToClipboard = React.useCallback(async () => {
     await copyText(account.address)
-  }
+  }, [copyText, account.address])
 
-  const onSelectAccount = () => {
+  const onSelectAccount = React.useCallback(() => {
     onClick(account)
-  }
+  }, [onClick, account])
 
-  const orb = React.useMemo(() => {
-    return create({ seed: account.address.toLowerCase(), size: 8, scale: 16 }).toDataURL()
-  }, [account.address])
-
-  const removeAccount = () => {
+  const removeAccount = React.useCallback(() => {
     let confirmAction = confirm(`Are you sure to remove ${account.name}?`)
     if (confirmAction) {
       onRemoveAccount(account.address, isHardwareWallet, account.coin)
     }
-  }
+  }, [account, isHardwareWallet, onRemoveAccount])
 
+  // memos
+  const orb = React.useMemo(() => {
+    return create({ seed: account.address.toLowerCase(), size: 8, scale: 16 }).toDataURL()
+  }, [account.address])
+
+  // render
   return (
     <StyledWrapper>
       <NameAndIcon>

@@ -50,7 +50,8 @@ import {
 } from '../..'
 
 // Hooks
-import { useBalance, useCopy } from '../../../../common/hooks'
+import { useBalance } from '../../../../common/hooks/balance'
+import { useTemporaryCopyToClipboard } from '../../../../common/hooks/use-copy-to-clipboard'
 
 // Actions
 import { WalletPageActions } from '../../../../page/actions'
@@ -94,7 +95,10 @@ export const Account = (props: Props) => {
 
   // custom hooks
   const getBalance = useBalance(networkList)
-  const { copied, copyText } = useCopy()
+  const {
+    isCopied: copied,
+    temporaryCopyToClipboard: copyText
+  } = useTemporaryCopyToClipboard(1500)
 
   // memos
   const selectedAccount = React.useMemo(() => {

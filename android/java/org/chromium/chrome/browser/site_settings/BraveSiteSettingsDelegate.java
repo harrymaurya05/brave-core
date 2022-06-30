@@ -7,7 +7,7 @@ package org.chromium.chrome.browser.site_settings;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 
 import org.chromium.base.Callback;
 import org.chromium.chrome.browser.ChromeTabbedActivity;
@@ -21,7 +21,6 @@ public class BraveSiteSettingsDelegate extends ChromeSiteSettingsDelegate {
         super(context, profile);
     }
 
-    @Override
     public void closeButton() {
         Intent intent =
                 new Intent(BraveActivity.getChromeTabbedActivity(), ChromeTabbedActivity.class);
@@ -30,11 +29,12 @@ public class BraveSiteSettingsDelegate extends ChromeSiteSettingsDelegate {
     }
 
     @Override
-    public void getFaviconImageForURL(GURL faviconUrl, Callback<Bitmap> callback) {
+    public void getFaviconImageForURL(GURL faviconUrl, Callback<Drawable> callback) {
         if (!faviconUrl.isValid()) {
             callback.onResult(null);
             return;
         }
+
         super.getFaviconImageForURL(faviconUrl, callback);
     }
 }

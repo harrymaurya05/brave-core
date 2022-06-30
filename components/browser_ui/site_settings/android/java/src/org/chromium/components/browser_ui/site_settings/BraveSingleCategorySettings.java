@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import org.chromium.base.BraveReflectionUtil;
 import org.chromium.base.Log;
 import org.chromium.base.annotations.UsedByReflection;
+import org.chromium.chrome.browser.site_settings.BraveSiteSettingsDelegate;
 import org.chromium.components.content_settings.ContentSettingsType;
 import org.chromium.content_public.browser.BrowserContextHandle;
 
@@ -20,14 +21,16 @@ public class BraveSingleCategorySettings
     private static final String ADD_EXCEPTION_KEY = "add_exception";
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) { }
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.close_menu_id) {
-            getSiteSettingsDelegate().closeButton();
+        if (item.getItemId() == R.id.close_menu_id
+                && getSiteSettingsDelegate() instanceof BraveSiteSettingsDelegate) {
+            ((BraveSiteSettingsDelegate) getSiteSettingsDelegate()).closeButton();
         }
-		return super.onOptionsItemSelected(item);
+
+        return super.onOptionsItemSelected(item);
     }
 
     public String getAddExceptionDialogMessage() {

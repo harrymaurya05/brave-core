@@ -7,6 +7,7 @@
 
 #include "brave/browser/profiles/profile_util.h"
 #include "brave/browser/themes/brave_dark_mode_utils.h"
+#include "brave/components/brave_tabs/brave_tab_prefs.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
@@ -15,6 +16,12 @@
 #include "third_party/skia/include/core/SkColor.h"
 
 BraveTabStrip::~BraveTabStrip() = default;
+
+void BraveTabStrip::UpdateHoverCard(Tab* tab, HoverCardUpdateType update_type) {
+  if (brave_tabs::AreTooltipsEnabled(controller_->GetProfile()->GetPrefs()))
+    return;
+  TabStrip::UpdateHoverCard(tab, update_type);
+}
 
 SkColor BraveTabStrip::GetTabSeparatorColor() const {
   Profile* profile = controller()->GetProfile();

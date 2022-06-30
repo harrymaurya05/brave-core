@@ -7,11 +7,6 @@
 
 #define BRAVE_TAB_HELPERS brave::AttachTabHelpers(web_contents);
 
-// We need to always create the ThumbnailTabHelper regardless of the feature
-// flags which are enabled, so that we don't need to restart the browser when we
-// change settings.
-#define BRAVE_TAB_HOVER_CARD_PREVIEWS true ||
-
 // Dummy class for avoiding some TabHelpers from being added to the WebContents.
 class NoTabHelper {
  public:
@@ -33,5 +28,4 @@ class NoTabHelper {
 
 #undef NetErrorTabHelper
 #undef chrome_browser_net
-#undef BRAVE_TAB_HOVER_CARD_PREVIEWS
 #undef BRAVE_TAB_HELPERS

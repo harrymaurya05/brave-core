@@ -21,6 +21,7 @@
 #include "brave/components/speedreader/common/buildflags.h"
 #include "brave/components/tor/buildflags/buildflags.h"
 #include "build/build_config.h"
+#include "chrome/browser/ui/thumbnails/thumbnail_tab_helper.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/web_contents.h"
 #include "extensions/buildflags/buildflags.h"
@@ -79,6 +80,7 @@ void AttachTabHelpers(content::WebContents* web_contents) {
   // Add tab helpers here unless they are intended for android too
   BraveBookmarkTabHelper::CreateForWebContents(web_contents);
   brave_shields::BraveShieldsDataController::CreateForWebContents(web_contents);
+  ThumbnailTabHelper::CreateForWebContents(web_contents);
 #endif
 
   brave_rewards::RewardsTabHelper::CreateForWebContents(web_contents);

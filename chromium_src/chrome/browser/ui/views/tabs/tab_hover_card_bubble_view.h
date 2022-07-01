@@ -10,7 +10,6 @@
 // base class. Then, we can call this method from the subclass' override.
 #include "ui/gfx/image/image_skia.h"
 
-class TabHoverCardBubbleView;
 #define BRAVE_TAB_HOVER_CARD_BUBBLE_VIEW_H_             \
   bool has_thumbnail_view() { return thumbnail_view_; } \
                                                         \

@@ -21,7 +21,6 @@
 #include "brave/components/speedreader/common/buildflags.h"
 #include "brave/components/tor/buildflags/buildflags.h"
 #include "build/build_config.h"
-#include "chrome/browser/ui/thumbnails/thumbnail_tab_helper.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/web_contents.h"
 #include "extensions/buildflags/buildflags.h"
@@ -38,6 +37,7 @@
 
 #if !BUILDFLAG(IS_ANDROID)
 #include "brave/browser/ui/brave_shields_data_controller.h"
+#include "chrome/browser/ui/thumbnails/thumbnail_tab_helper.h"
 #endif
 
 #if BUILDFLAG(ENABLE_WIDEVINE)

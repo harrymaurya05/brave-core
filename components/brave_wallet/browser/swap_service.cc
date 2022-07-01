@@ -240,6 +240,8 @@ GURL SwapService::GetTransactionPayloadURL(mojom::SwapParamsPtr swap_params,
 // static
 GURL SwapService::GetJupiterQuoteURL(mojom::JupiterQuoteParamsPtr params,
                                      const std::string& chain_id) {
+  DCHECK(params);
+
   std::string spec =
       base::StringPrintf("%sv1/quote", base_url_for_test_.is_empty()
                                            ? GetBaseSwapURL(chain_id).c_str()

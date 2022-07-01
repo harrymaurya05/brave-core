@@ -19,6 +19,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -44,7 +45,7 @@ class PostClaimUpholdTest : public testing::Test {
 const char kExpectedAddress[] = "address";
 
 TEST_F(PostClaimUpholdTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -62,7 +63,7 @@ TEST_F(PostClaimUpholdTest, ServerOK) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError400FlaggedWallet) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -85,7 +86,7 @@ TEST_F(PostClaimUpholdTest, ServerError400FlaggedWallet) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError400RegionNotSupported) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -108,7 +109,7 @@ TEST_F(PostClaimUpholdTest, ServerError400RegionNotSupported) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError400UnknownMessage) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -131,7 +132,7 @@ TEST_F(PostClaimUpholdTest, ServerError400UnknownMessage) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError403KYCRequired) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -154,7 +155,7 @@ TEST_F(PostClaimUpholdTest, ServerError403KYCRequired) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError403MismatchedProviderAccounts) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -177,7 +178,7 @@ TEST_F(PostClaimUpholdTest, ServerError403MismatchedProviderAccounts) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError403TransactionVerificationFailure) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -201,7 +202,7 @@ TEST_F(PostClaimUpholdTest, ServerError403TransactionVerificationFailure) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError403UnknownMessage) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -224,7 +225,7 @@ TEST_F(PostClaimUpholdTest, ServerError403UnknownMessage) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError404) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -242,7 +243,7 @@ TEST_F(PostClaimUpholdTest, ServerError404) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError409) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -260,7 +261,7 @@ TEST_F(PostClaimUpholdTest, ServerError409) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerError500) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -278,7 +279,7 @@ TEST_F(PostClaimUpholdTest, ServerError500) {
 }
 
 TEST_F(PostClaimUpholdTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;

@@ -20,6 +20,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -43,11 +44,9 @@ class GetCredentialsTest : public testing::Test {
 };
 
 TEST_F(GetCredentialsTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
-      .WillByDefault(
-          Invoke([](
-              type::UrlRequestPtr request,
-              client::LoadURLCallback callback) {
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .WillByDefault(Invoke(
+          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
             response.status_code = 200;
             response.url = request->url;
@@ -83,11 +82,9 @@ TEST_F(GetCredentialsTest, ServerOK) {
 }
 
 TEST_F(GetCredentialsTest, ServerError202) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
-      .WillByDefault(
-          Invoke([](
-              type::UrlRequestPtr request,
-              client::LoadURLCallback callback) {
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .WillByDefault(Invoke(
+          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
             response.status_code = 202;
             response.url = request->url;
@@ -104,11 +101,9 @@ TEST_F(GetCredentialsTest, ServerError202) {
 }
 
 TEST_F(GetCredentialsTest, ServerError400) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
-      .WillByDefault(
-          Invoke([](
-              type::UrlRequestPtr request,
-              client::LoadURLCallback callback) {
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .WillByDefault(Invoke(
+          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
             response.status_code = 400;
             response.url = request->url;
@@ -125,11 +120,9 @@ TEST_F(GetCredentialsTest, ServerError400) {
 }
 
 TEST_F(GetCredentialsTest, ServerError404) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
-      .WillByDefault(
-          Invoke([](
-              type::UrlRequestPtr request,
-              client::LoadURLCallback callback) {
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .WillByDefault(Invoke(
+          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
             response.status_code = 404;
             response.url = request->url;
@@ -146,11 +139,9 @@ TEST_F(GetCredentialsTest, ServerError404) {
 }
 
 TEST_F(GetCredentialsTest, ServerError500) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
-      .WillByDefault(
-          Invoke([](
-              type::UrlRequestPtr request,
-              client::LoadURLCallback callback) {
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .WillByDefault(Invoke(
+          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
             response.status_code = 500;
             response.url = request->url;
@@ -167,11 +158,9 @@ TEST_F(GetCredentialsTest, ServerError500) {
 }
 
 TEST_F(GetCredentialsTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
-      .WillByDefault(
-          Invoke([](
-              type::UrlRequestPtr request,
-              client::LoadURLCallback callback) {
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .WillByDefault(Invoke(
+          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
             response.status_code = 453;
             response.url = request->url;

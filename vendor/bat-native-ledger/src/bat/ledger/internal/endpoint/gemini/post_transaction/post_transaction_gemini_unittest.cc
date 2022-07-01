@@ -19,6 +19,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -42,7 +43,7 @@ class GeminiPostTransactionTest : public testing::Test {
 };
 
 TEST_F(GeminiPostTransactionTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -72,7 +73,7 @@ TEST_F(GeminiPostTransactionTest, ServerOK) {
 }
 
 TEST_F(GeminiPostTransactionTest, UnrecognizedStatus) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -102,7 +103,7 @@ TEST_F(GeminiPostTransactionTest, UnrecognizedStatus) {
 }
 
 TEST_F(GeminiPostTransactionTest, ServerError401) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -124,7 +125,7 @@ TEST_F(GeminiPostTransactionTest, ServerError401) {
 }
 
 TEST_F(GeminiPostTransactionTest, ServerError403) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -146,7 +147,7 @@ TEST_F(GeminiPostTransactionTest, ServerError403) {
 }
 
 TEST_F(GeminiPostTransactionTest, ServerError404) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -168,7 +169,7 @@ TEST_F(GeminiPostTransactionTest, ServerError404) {
 }
 
 TEST_F(GeminiPostTransactionTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;

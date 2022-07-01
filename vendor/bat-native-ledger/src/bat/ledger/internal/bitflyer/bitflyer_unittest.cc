@@ -21,6 +21,7 @@
 // npm run test -- brave_unit_tests --filter=BitflyerTest*
 
 using ::testing::_;
+using ::testing::Matcher;
 using ::testing::Return;
 using ::testing::Test;
 using ::testing::TestParamInfo;
@@ -202,7 +203,7 @@ TEST_P(DisconnectBitflyerWallet, Paths) {
   ON_CALL(*mock_ledger_client_, GetStringState(state::kWalletBrave))
       .WillByDefault(Return(input_rewards_wallet));
 
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           [&](type::UrlRequestPtr, client::LoadURLCallback callback) {
             callback(rewards_unlink_wallet_response);

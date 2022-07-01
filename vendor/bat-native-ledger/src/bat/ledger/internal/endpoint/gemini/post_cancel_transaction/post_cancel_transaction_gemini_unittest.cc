@@ -18,6 +18,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -42,7 +43,7 @@ class GeminiPostCancelTransactionTest : public testing::Test {
 };
 
 TEST_F(GeminiPostCancelTransactionTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -60,7 +61,7 @@ TEST_F(GeminiPostCancelTransactionTest, ServerOK) {
 }
 
 TEST_F(GeminiPostCancelTransactionTest, ServerError401) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -78,7 +79,7 @@ TEST_F(GeminiPostCancelTransactionTest, ServerError401) {
 }
 
 TEST_F(GeminiPostCancelTransactionTest, ServerError403) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -96,7 +97,7 @@ TEST_F(GeminiPostCancelTransactionTest, ServerError403) {
 }
 
 TEST_F(GeminiPostCancelTransactionTest, ServerError404) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -114,7 +115,7 @@ TEST_F(GeminiPostCancelTransactionTest, ServerError404) {
 }
 
 TEST_F(GeminiPostCancelTransactionTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;

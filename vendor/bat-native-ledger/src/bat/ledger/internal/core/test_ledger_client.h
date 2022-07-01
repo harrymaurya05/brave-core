@@ -75,6 +75,9 @@ class TestLedgerClient : public LedgerClient {
   void LoadURL(mojom::UrlRequestPtr request,
                client::LoadURLCallback callback) override;
 
+  void LoadURL(mojom::UrlRequestPtr request,
+               client::LoadURLCallback2 callback) override;
+
   void Log(const char* file,
            const int line,
            const int verbose_level,
@@ -173,8 +176,12 @@ class TestLedgerClient : public LedgerClient {
   LedgerDatabase* database() { return &ledger_database_; }
 
  private:
+  template <typename LoadURLCallback>
+  void LoadURLImpl(mojom::UrlRequestPtr request, LoadURLCallback callback);
+
+  template <typename LoadURLCallback>
   void LoadURLAfterDelay(mojom::UrlRequestPtr request,
-                         client::LoadURLCallback callback);
+                         LoadURLCallback load_url_callback);
 
   template <typename RunDBTransactionCallback>
   void RunDBTransactionImpl(mojom::DBTransactionPtr transaction,

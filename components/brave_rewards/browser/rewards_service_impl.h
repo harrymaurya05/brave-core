@@ -463,8 +463,9 @@ class RewardsServiceImpl : public RewardsService,
     GetPendingContributionsCallback callback,
     ledger::type::PendingContributionInfoList list);
 
+  template <typename LoadURLCallback>
   void OnURLLoaderComplete(SimpleURLLoaderList::iterator url_loader_it,
-                           ledger::client::LoadURLCallback callback,
+                           LoadURLCallback load_url_callback,
                            std::unique_ptr<std::string> response_body);
 
   void StartNotificationTimers();
@@ -561,9 +562,14 @@ class RewardsServiceImpl : public RewardsService,
       ledger::type::PromotionPtr promotion);
   void LoadLedgerState(ledger::client::OnLoadCallback callback) override;
   void LoadPublisherState(ledger::client::OnLoadCallback callback) override;
+  template <typename LoadURLCallback>
+  void LoadURLImpl(ledger::type::UrlRequestPtr request,
+                   LoadURLCallback load_url_callback);
   void LoadURL(
       ledger::type::UrlRequestPtr request,
       ledger::client::LoadURLCallback callback) override;
+  void LoadURL(ledger::type::UrlRequestPtr request,
+               ledger::client::LoadURLCallback2 callback) override;
   void SetPublisherMinVisits(int visits) const override;
   void SetPublisherAllowNonVerified(bool allow) const override;
   void SetPublisherAllowVideos(bool allow) const override;

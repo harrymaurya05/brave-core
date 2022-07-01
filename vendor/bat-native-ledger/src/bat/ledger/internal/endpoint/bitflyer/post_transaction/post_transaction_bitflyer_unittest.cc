@@ -19,6 +19,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -42,7 +43,7 @@ class BitflyerPostTransactionTest : public testing::Test {
 };
 
 TEST_F(BitflyerPostTransactionTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -72,7 +73,7 @@ TEST_F(BitflyerPostTransactionTest, ServerOK) {
 }
 
 TEST_F(BitflyerPostTransactionTest, ServerError401) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -95,7 +96,7 @@ TEST_F(BitflyerPostTransactionTest, ServerError401) {
 }
 
 TEST_F(BitflyerPostTransactionTest, ServerError409_SESSION_TIME_OUT) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -125,7 +126,7 @@ TEST_F(BitflyerPostTransactionTest, ServerError409_SESSION_TIME_OUT) {
 }
 
 TEST_F(BitflyerPostTransactionTest, ServerError409_RandomStatusEnum) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -155,7 +156,7 @@ TEST_F(BitflyerPostTransactionTest, ServerError409_RandomStatusEnum) {
 }
 
 TEST_F(BitflyerPostTransactionTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;

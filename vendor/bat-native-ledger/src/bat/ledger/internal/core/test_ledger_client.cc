@@ -104,13 +104,25 @@ std::string TestLedgerClient::URIEncode(const std::string& value) {
   return base::EscapeQueryParamValue(value, false);
 }
 
-void TestLedgerClient::LoadURL(mojom::UrlRequestPtr request,
-                               client::LoadURLCallback callback) {
+template <typename LoadURLCallback>
+void TestLedgerClient::LoadURLImpl(mojom::UrlRequestPtr request,
+                                   LoadURLCallback callback) {
   DCHECK(request);
   base::SequencedTaskRunnerHandle::Get()->PostTask(
       FROM_HERE,
-      base::BindOnce(&TestLedgerClient::LoadURLAfterDelay,
-                     weak_factory_.GetWeakPtr(), std::move(request), callback));
+      base::BindOnce(&TestLedgerClient::LoadURLAfterDelay<LoadURLCallback>,
+                     weak_factory_.GetWeakPtr(), std::move(request),
+                     std::move(callback)));
+}
+
+void TestLedgerClient::LoadURL(mojom::UrlRequestPtr request,
+                               client::LoadURLCallback callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
+}
+
+void TestLedgerClient::LoadURL(mojom::UrlRequestPtr request,
+                               client::LoadURLCallback2 callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
 }
 
 void TestLedgerClient::Log(const char* file,
@@ -326,8 +338,28 @@ void TestLedgerClient::SetLogCallbackForTesting(LogCallback callback) {
   log_callback_ = std::move(callback);
 }
 
+template <typename>
+inline constexpr bool dependent_false_v = false;
+
+template <typename LoadURLCallback>
 void TestLedgerClient::LoadURLAfterDelay(mojom::UrlRequestPtr request,
-                                         client::LoadURLCallback callback) {
+                                         LoadURLCallback load_url_callback) {
+  auto callback =
+      [&load_url_callback](const ledger::type::UrlResponse& response) {
+        if constexpr (std::is_same_v<LoadURLCallback,
+                                     ledger::client::LoadURLCallback>) {
+          load_url_callback(response);
+        } else if constexpr (std::is_same_v<LoadURLCallback,  // NOLINT
+                                            ledger::client::LoadURLCallback2>) {
+          std::move(load_url_callback).Run(response);
+        } else {
+          static_assert(dependent_false_v<LoadURLCallback>,
+                        "LoadURLCallback must be either "
+                        "ledger::client::LoadURLCallback, or "
+                        "ledger::client::LoadURLCallback2!");
+        }
+      };
+
   auto iter = std::find_if(network_results_.begin(), network_results_.end(),
                            [&request](auto& result) {
                              return request->url == result.url &&

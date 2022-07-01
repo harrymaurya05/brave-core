@@ -966,9 +966,28 @@ void RewardsServiceImpl::OnPublisherStateLoaded(
       data);
 }
 
-void RewardsServiceImpl::LoadURL(
-    ledger::type::UrlRequestPtr request,
-    ledger::client::LoadURLCallback callback) {
+template <typename>
+inline constexpr bool dependent_false_v = false;
+
+template <typename LoadURLCallback>
+void RewardsServiceImpl::LoadURLImpl(ledger::type::UrlRequestPtr request,
+                                     LoadURLCallback load_url_callback) {
+  auto callback =
+      [&load_url_callback](const ledger::type::UrlResponse& response) {
+        if constexpr (std::is_same_v<LoadURLCallback,
+                                     ledger::client::LoadURLCallback>) {
+          load_url_callback(response);
+        } else if constexpr (std::is_same_v<LoadURLCallback,  // NOLINT
+                                            ledger::client::LoadURLCallback2>) {
+          std::move(load_url_callback).Run(response);
+        } else {
+          static_assert(dependent_false_v<LoadURLCallback>,
+                        "LoadURLCallback must be either "
+                        "ledger::client::LoadURLCallback, or "
+                        "ledger::client::LoadURLCallback2!");
+        }
+      };
+
   if (!request || request->url.empty()) {
     ledger::type::UrlResponse response;
     response.status_code = net::HTTP_BAD_REQUEST;
@@ -1044,14 +1063,42 @@ void RewardsServiceImpl::LoadURL(
       profile_->GetDefaultStoragePartition()
           ->GetURLLoaderFactoryForBrowserProcess()
           .get(),
-      base::BindOnce(&RewardsServiceImpl::OnURLLoaderComplete,
-                     base::Unretained(this), loader_it, callback));
+      base::BindOnce(&RewardsServiceImpl::OnURLLoaderComplete<LoadURLCallback>,
+                     base::Unretained(this), loader_it,
+                     std::move(load_url_callback)));
 }
 
+void RewardsServiceImpl::LoadURL(ledger::type::UrlRequestPtr request,
+                                 ledger::client::LoadURLCallback callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
+}
+
+void RewardsServiceImpl::LoadURL(ledger::type::UrlRequestPtr request,
+                                 ledger::client::LoadURLCallback2 callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
+}
+
+template <typename LoadURLCallback>
 void RewardsServiceImpl::OnURLLoaderComplete(
     SimpleURLLoaderList::iterator loader_it,
-    ledger::client::LoadURLCallback callback,
+    LoadURLCallback load_url_callback,
     std::unique_ptr<std::string> response_body) {
+  auto callback =
+      [&load_url_callback](const ledger::type::UrlResponse& response) {
+        if constexpr (std::is_same_v<LoadURLCallback,
+                                     ledger::client::LoadURLCallback>) {
+          load_url_callback(response);
+        } else if constexpr (std::is_same_v<LoadURLCallback,  // NOLINT
+                                            ledger::client::LoadURLCallback2>) {
+          std::move(load_url_callback).Run(response);
+        } else {
+          static_assert(dependent_false_v<LoadURLCallback>,
+                        "LoadURLCallback must be either "
+                        "ledger::client::LoadURLCallback, or "
+                        "ledger::client::LoadURLCallback2!");
+        }
+      };
+
   auto loader = std::move(*loader_it);
   url_loaders_.erase(loader_it);
 

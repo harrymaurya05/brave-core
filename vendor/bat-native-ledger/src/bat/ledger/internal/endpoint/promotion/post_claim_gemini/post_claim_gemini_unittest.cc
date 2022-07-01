@@ -20,6 +20,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -52,7 +53,7 @@ class PostClaimGeminiTest : public testing::Test {
 };
 
 TEST_F(PostClaimGeminiTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -68,7 +69,7 @@ TEST_F(PostClaimGeminiTest, ServerOK) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError400FlaggedWallet) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -89,7 +90,7 @@ TEST_F(PostClaimGeminiTest, ServerError400FlaggedWallet) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError400RegionNotSupported) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -110,7 +111,7 @@ TEST_F(PostClaimGeminiTest, ServerError400RegionNotSupported) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError400UnknownMessage) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -131,7 +132,7 @@ TEST_F(PostClaimGeminiTest, ServerError400UnknownMessage) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError403MismatchedProviderAccounts) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -152,7 +153,7 @@ TEST_F(PostClaimGeminiTest, ServerError403MismatchedProviderAccounts) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError403RequestSignatureVerificationFailure) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -173,7 +174,7 @@ TEST_F(PostClaimGeminiTest, ServerError403RequestSignatureVerificationFailure) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError403UnknownMessage) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -194,7 +195,7 @@ TEST_F(PostClaimGeminiTest, ServerError403UnknownMessage) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError404) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -210,7 +211,7 @@ TEST_F(PostClaimGeminiTest, ServerError404) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError409) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -226,7 +227,7 @@ TEST_F(PostClaimGeminiTest, ServerError409) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerError500) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -242,7 +243,7 @@ TEST_F(PostClaimGeminiTest, ServerError500) {
 }
 
 TEST_F(PostClaimGeminiTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;

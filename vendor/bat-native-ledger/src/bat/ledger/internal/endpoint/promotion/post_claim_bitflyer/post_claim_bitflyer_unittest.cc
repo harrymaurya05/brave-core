@@ -21,6 +21,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -53,7 +54,7 @@ class PostClaimBitflyerTest : public testing::Test {
 };
 
 TEST_F(PostClaimBitflyerTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -70,7 +71,7 @@ TEST_F(PostClaimBitflyerTest, ServerOK) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError400FlaggedWallet) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -92,7 +93,7 @@ TEST_F(PostClaimBitflyerTest, ServerError400FlaggedWallet) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError400RegionNotSupported) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -114,7 +115,7 @@ TEST_F(PostClaimBitflyerTest, ServerError400RegionNotSupported) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError400UnknownMessage) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -136,7 +137,7 @@ TEST_F(PostClaimBitflyerTest, ServerError400UnknownMessage) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError403MismatchedProviderAccounts) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -159,7 +160,7 @@ TEST_F(PostClaimBitflyerTest, ServerError403MismatchedProviderAccounts) {
 
 TEST_F(PostClaimBitflyerTest,
        ServerError403RequestSignatureVerificationFailure) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -181,7 +182,7 @@ TEST_F(PostClaimBitflyerTest,
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError403UnknownMessage) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -203,7 +204,7 @@ TEST_F(PostClaimBitflyerTest, ServerError403UnknownMessage) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError404) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -220,7 +221,7 @@ TEST_F(PostClaimBitflyerTest, ServerError404) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError409) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -237,7 +238,7 @@ TEST_F(PostClaimBitflyerTest, ServerError409) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerError500) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -254,7 +255,7 @@ TEST_F(PostClaimBitflyerTest, ServerError500) {
 }
 
 TEST_F(PostClaimBitflyerTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke(
           [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
             type::UrlResponse response;

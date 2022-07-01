@@ -100,9 +100,9 @@ uphold::Uphold* LedgerImpl::uphold() const {
   return uphold_.get();
 }
 
-void LedgerImpl::LoadURL(
-    type::UrlRequestPtr request,
-    client::LoadURLCallback callback) {
+template <typename LoadURLCallback>
+void LedgerImpl::LoadURLImpl(type::UrlRequestPtr request,
+                             LoadURLCallback callback) {
   DCHECK(request);
   if (IsShuttingDown()) {
     BLOG(1, request->url + " will not be executed as we are shutting down");
@@ -114,7 +114,17 @@ void LedgerImpl::LoadURL(
                                request->content_type, request->method));
   }
 
-  ledger_client_->LoadURL(std::move(request), callback);
+  ledger_client_->LoadURL(std::move(request), std::move(callback));
+}
+
+void LedgerImpl::LoadURL(type::UrlRequestPtr request,
+                         client::LoadURLCallback callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
+}
+
+void LedgerImpl::LoadURL(type::UrlRequestPtr request,
+                         client::LoadURLCallback2 callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
 }
 
 void LedgerImpl::StartServices() {

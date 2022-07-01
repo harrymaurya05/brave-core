@@ -29,6 +29,7 @@ using ::testing::AtMost;
 using ::testing::Between;
 using ::testing::Exactly;
 using ::testing::Invoke;
+using ::testing::Matcher;
 using ::testing::Return;
 using ::testing::Test;
 using ::testing::TestParamInfo;
@@ -68,7 +69,9 @@ TEST_F(UpholdTest, FetchBalanceConnectedWallet) {
     })");
   ON_CALL(*mock_ledger_client_, GetStringState(state::kWalletUphold))
       .WillByDefault(Return(wallet));
-  EXPECT_CALL(*mock_ledger_client_, LoadURL(_, _)).Times(0);
+  EXPECT_CALL(*mock_ledger_client_,
+              LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+      .Times(0);
 
   FetchBalanceCallback callback = std::bind(
       [&](type::Result result, double balance) {
@@ -376,7 +379,7 @@ TEST_P(Authorize, Paths) {
         return true;
       });
 
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           [&](type::UrlRequestPtr, client::LoadURLCallback callback) {
             callback(uphold_oauth_response);
@@ -594,7 +597,7 @@ TEST_P(GetUser, Paths) {
         return true;
       });
 
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           [&](type::UrlRequestPtr, client::LoadURLCallback callback) {
             callback(uphold_get_user_response);
@@ -944,7 +947,8 @@ TEST_P(GetCapabilities, Paths) {
         return true;
       });
 
-  EXPECT_CALL(*mock_ledger_client_, LoadURL(_, _))
+  EXPECT_CALL(*mock_ledger_client_,
+              LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .Times(AtMost(3))
       .WillOnce([&](type::UrlRequestPtr, client::LoadURLCallback callback) {
         callback(uphold_get_user_response);
@@ -1246,7 +1250,8 @@ TEST_P(GetCardID, Paths) {
         return true;
       });
 
-  EXPECT_CALL(*mock_ledger_client_, LoadURL(_, _))
+  EXPECT_CALL(*mock_ledger_client_,
+              LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .Times(AtMost(5))
       .WillOnce([&](type::UrlRequestPtr, client::LoadURLCallback callback) {
         callback(uphold_get_user_response);
@@ -1393,7 +1398,8 @@ TEST_P(GetAnonFunds, Paths) {
         return true;
       });
 
-  EXPECT_CALL(*mock_ledger_client_, LoadURL(_, _))
+  EXPECT_CALL(*mock_ledger_client_,
+              LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .Times(AtMost(4))
       .WillOnce([&](type::UrlRequestPtr, client::LoadURLCallback callback) {
         callback(uphold_get_user_response);
@@ -1789,7 +1795,8 @@ TEST_P(LinkWallet, Paths) {
         return true;
       });
 
-  EXPECT_CALL(*mock_ledger_client_, LoadURL(_, _))
+  EXPECT_CALL(*mock_ledger_client_,
+              LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .Times(AtMost(4))
       .WillOnce([&](type::UrlRequestPtr, client::LoadURLCallback callback) {
         callback(uphold_get_user_response);
@@ -1990,7 +1997,7 @@ TEST_P(DisconnectUpholdWallet, Paths) {
   ON_CALL(*mock_ledger_client_, GetStringState(state::kWalletBrave))
       .WillByDefault(Return(input_rewards_wallet));
 
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           [&](type::UrlRequestPtr, client::LoadURLCallback callback) {
             callback(rewards_unlink_wallet_response);

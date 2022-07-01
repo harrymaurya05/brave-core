@@ -55,6 +55,10 @@ class MockLedgerClient : public LedgerClient {
       type::UrlRequestPtr request,
       client::LoadURLCallback callback));
 
+  MOCK_METHOD2(LoadURL,
+               void(type::UrlRequestPtr request,
+                    client::LoadURLCallback2 callback));
+
   MOCK_METHOD2(SetPublisherExclude, void(
       const std::string& publisher_key,
       bool exclude));

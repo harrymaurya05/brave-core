@@ -37,9 +37,11 @@ class BatLedgerClientMojoBridge :
   void LoadLedgerState(ledger::client::OnLoadCallback callback) override;
   void LoadPublisherState(ledger::client::OnLoadCallback callback) override;
 
-  void LoadURL(
-      ledger::type::UrlRequestPtr request,
-      ledger::client::LoadURLCallback callback) override;
+  void LoadURL(ledger::type::UrlRequestPtr request,
+               ledger::client::LoadURLCallback callback) override;
+
+  void LoadURL(ledger::type::UrlRequestPtr request,
+               ledger::client::LoadURLCallback2 callback) override;
 
   void OnPanelPublisherInfo(ledger::type::Result result,
                             ledger::type::PublisherInfoPtr info,
@@ -131,6 +133,10 @@ class BatLedgerClientMojoBridge :
   absl::optional<std::string> DecryptString(const std::string& name) override;
 
  private:
+  template <typename LoadURLCallback>
+  void LoadURLImpl(ledger::type::UrlRequestPtr request,
+                   LoadURLCallback callback);
+
   bool Connected() const;
 
   mojo::AssociatedRemote<mojom::BatLedgerClient> bat_ledger_client_;

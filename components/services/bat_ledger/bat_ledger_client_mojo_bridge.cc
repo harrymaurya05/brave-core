@@ -21,21 +21,48 @@ BatLedgerClientMojoBridge::BatLedgerClientMojoBridge(
 
 BatLedgerClientMojoBridge::~BatLedgerClientMojoBridge() = default;
 
-void OnLoadURL(
-    const ledger::client::LoadURLCallback& callback,
-    ledger::type::UrlResponsePtr response_ptr) {
-  callback(response_ptr ? *response_ptr : ledger::type::UrlResponse());
+template <typename>
+inline constexpr bool dependent_false_v = false;
+
+template <typename LoadURLCallback>
+void OnLoadURL(LoadURLCallback callback,
+               ledger::type::UrlResponsePtr response_ptr) {
+  if constexpr (std::is_same_v<LoadURLCallback,
+                               ledger::client::LoadURLCallback>) {
+    callback(response_ptr ? *response_ptr : ledger::type::UrlResponse());
+  } else if constexpr (std::is_same_v<LoadURLCallback,  // NOLINT
+                                      ledger::client::LoadURLCallback2>) {
+    std::move(callback).Run(response_ptr ? *response_ptr
+                                         : ledger::type::UrlResponse());
+  } else {
+    static_assert(dependent_false_v<LoadURLCallback>,
+                  "LoadURLCallback must be either "
+                  "ledger::client::LoadURLCallback, or "
+                  "ledger::client::LoadURLCallback2!");
+  }
 }
 
-void BatLedgerClientMojoBridge::LoadURL(
-    ledger::type::UrlRequestPtr request,
-    ledger::client::LoadURLCallback callback) {
+template <typename LoadURLCallback>
+void BatLedgerClientMojoBridge::LoadURLImpl(ledger::type::UrlRequestPtr request,
+                                            LoadURLCallback callback) {
   if (!Connected())
     return;
 
   bat_ledger_client_->LoadURL(
       std::move(request),
-      base::BindOnce(&OnLoadURL, std::move(callback)));
+      base::BindOnce(&OnLoadURL<LoadURLCallback>, std::move(callback)));
+}
+
+void BatLedgerClientMojoBridge::LoadURL(
+    ledger::type::UrlRequestPtr request,
+    ledger::client::LoadURLCallback callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
+}
+
+void BatLedgerClientMojoBridge::LoadURL(
+    ledger::type::UrlRequestPtr request,
+    ledger::client::LoadURLCallback2 callback) {
+  LoadURLImpl(std::move(request), std::move(callback));
 }
 
 void BatLedgerClientMojoBridge::OnReconcileComplete(

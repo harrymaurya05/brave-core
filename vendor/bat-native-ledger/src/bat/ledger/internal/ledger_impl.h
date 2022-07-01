@@ -79,6 +79,9 @@ class LedgerImpl : public Ledger {
   virtual void LoadURL(type::UrlRequestPtr request,
                        client::LoadURLCallback callback);
 
+  virtual void LoadURL(type::UrlRequestPtr request,
+                       client::LoadURLCallback2 callback);
+
   bool IsShuttingDown() const;
 
   // Ledger Implementation
@@ -328,6 +331,9 @@ class LedgerImpl : public Ledger {
 
   template <typename T>
   void WhenReady(T callback);
+
+  template <typename LoadURLCallback>
+  void LoadURLImpl(type::UrlRequestPtr request, LoadURLCallback callback);
 
   LedgerClient* ledger_client_;
 

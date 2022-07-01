@@ -19,6 +19,7 @@
 // npm run test -- brave_unit_tests --filter=*GetWalletTest*
 
 using ::testing::_;
+using ::testing::Matcher;
 using ::testing::TestParamInfo;
 using ::testing::TestWithParam;
 using ::testing::Values;
@@ -177,7 +178,7 @@ TEST_P(GetWalletTest, Paths) {
   const auto& expected_custodian = std::get<3>(params);
   const auto expected_linked = std::get<4>(params);
 
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           [&](type::UrlRequestPtr, client::LoadURLCallback callback) {
             callback(rewards_services_get_wallet_response);

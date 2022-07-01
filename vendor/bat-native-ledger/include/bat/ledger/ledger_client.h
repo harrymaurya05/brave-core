@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 
+#include "base/callback_forward.h"
 #include "bat/ledger/export.h"
 #include "bat/ledger/mojom_structs.h"
 #include "third_party/abseil-cpp/absl/types/optional.h"
@@ -22,6 +23,8 @@ namespace client {
 using FetchIconCallback = std::function<void(bool, const std::string&)>;
 
 using LoadURLCallback = std::function<void(const type::UrlResponse&)>;
+
+using LoadURLCallback2 = base::OnceCallback<void(const type::UrlResponse&)>;
 
 using OnLoadCallback =
     std::function<void(const type::Result, const std::string&)>;
@@ -75,6 +78,9 @@ class LEDGER_EXPORT LedgerClient {
   virtual void LoadURL(
       type::UrlRequestPtr request,
       client::LoadURLCallback callback) = 0;
+
+  virtual void LoadURL(type::UrlRequestPtr request,
+                       client::LoadURLCallback2 callback) = 0;
 
   virtual void Log(
       const char* file,

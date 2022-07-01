@@ -22,6 +22,7 @@
 using ledger::uphold::Capabilities;
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -46,7 +47,7 @@ class GetCapabilitiesTest : public testing::Test {
 };
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKSufficientReceivesAndSends) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -84,7 +85,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKSufficientReceivesAndSends) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceives1) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -124,7 +125,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceives1) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceives2) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -162,7 +163,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceives2) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientSends1) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -202,7 +203,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientSends1) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientSends2) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -240,7 +241,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientSends2) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceivesAndSends1) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -282,7 +283,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceivesAndSends1) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceivesAndSends2) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -320,7 +321,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns200OKInsufficientReceivesAndSends2) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturns401Unauthorized) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;
@@ -338,7 +339,7 @@ TEST_F(GetCapabilitiesTest, ServerReturns401Unauthorized) {
 }
 
 TEST_F(GetCapabilitiesTest, ServerReturnsUnexpectedHTTPStatus) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(
           Invoke([](type::UrlRequestPtr, client::LoadURLCallback callback) {
             type::UrlResponse response;

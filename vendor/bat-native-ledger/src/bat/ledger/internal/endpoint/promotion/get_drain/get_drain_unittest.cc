@@ -22,6 +22,7 @@
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Matcher;
 
 namespace ledger {
 namespace endpoint {
@@ -61,7 +62,7 @@ class GetDrainTest : public testing::Test {
 };
 
 TEST_F(GetDrainTest, DrainComplete) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke([this](type::UrlRequestPtr request,
                                    client::LoadURLCallback callback) {
         type::UrlResponse response;
@@ -79,7 +80,7 @@ TEST_F(GetDrainTest, DrainComplete) {
 }
 
 TEST_F(GetDrainTest, DrainPending) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke([this](type::UrlRequestPtr request,
                                    client::LoadURLCallback callback) {
         type::UrlResponse response;
@@ -97,7 +98,7 @@ TEST_F(GetDrainTest, DrainPending) {
 }
 
 TEST_F(GetDrainTest, DrainInvalidResponse) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, _))
+  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
       .WillByDefault(Invoke([this](type::UrlRequestPtr request,
                                    client::LoadURLCallback callback) {
         type::UrlResponse response;

@@ -361,7 +361,7 @@ struct JupiterRoute {
   array<JupiterMarketInfo> market_infos;
 };
 
-struct JupiterSwapQuote {
+struct JupiterQuote {
   array<JupiterRoute> routes;
 };
 
@@ -372,7 +372,7 @@ struct JupiterQuoteParams {
   double slippage_percentage;
 };
 
-struct JupiterTransactionParams {
+struct JupiterSwapParams {
   JupiterRoute route;
   string user_public_key;
 };
@@ -664,11 +664,11 @@ interface SwapService {
       (bool success, SwapResponse? response, string? error_response);
 
   // Obtains a price quote from Jupiter for a Solana swap
-  GetJupiterPriceQuote(JupiterQuoteParams params) =>
-      (bool success, JupiterSwapQuote? response, string? error_response);
+  GetJupiterQuote(JupiterQuoteParams params) =>
+      (bool success, JupiterQuote? response, string? error_response);
 
   // Get the serialized transactions to perform the swap
-  GetJupiterTransactions(JupiterTransactionParams params) =>
+  GetJupiterSwapTransactions(JupiterSwapParams params) =>
       (bool success, JupiterSwapTransactions? response, string? error_response);
 
   // Obtains whether the given chain id supports swap

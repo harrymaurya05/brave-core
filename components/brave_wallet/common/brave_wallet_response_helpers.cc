@@ -47,12 +47,6 @@ std::unique_ptr<base::Value> GetProviderRequestReturnFromEthJsonResponse(
     bool* reject) {
   DCHECK(reject);
   *reject = true;
-  base::JSONReader::ValueWithError value_with_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          service_response, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  absl::optional<base::Value>& response = value_with_error.value;
-
   if (http_code != 200) {
     mojom::ProviderError code = mojom::ProviderError::kUnsupportedMethod;
     std::string message =
@@ -60,6 +54,9 @@ std::unique_ptr<base::Value> GetProviderRequestReturnFromEthJsonResponse(
     return GetProviderErrorDictionary(code, message);
   }
 
+  absl::optional<base::Value> response = base::JSONReader::Read(
+      service_response, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
+                            base::JSONParserOptions::JSON_PARSE_RFC);
   if (!response) {
     mojom::ProviderError code = mojom::ProviderError::kUnsupportedMethod;
     std::string message =

@@ -21,6 +21,7 @@ public class BraveSiteSettingsDelegate extends ChromeSiteSettingsDelegate {
         super(context, profile);
     }
 
+    @Override
     public void closeButton() {
         Intent intent =
                 new Intent(BraveActivity.getChromeTabbedActivity(), ChromeTabbedActivity.class);

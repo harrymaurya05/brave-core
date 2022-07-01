@@ -1,0 +1,10 @@
+diff --git a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsDelegate.java b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsDelegate.java
+index e378b8733cd6bd4b4d295bd67465ce1b7977a502..a0bb91af0f6cd64f04cafbcef38287d85c83230e 100644
+--- a/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsDelegate.java
++++ b/components/browser_ui/site_settings/android/java/src/org/chromium/components/browser_ui/site_settings/SiteSettingsDelegate.java
+@@ -129,4 +129,5 @@ public interface SiteSettingsDelegate {
+      * Called when the view this delegate is assigned to gets destroyed.
+      */
+     void onDestroyView();
++    default void closeButton() {};
+ }

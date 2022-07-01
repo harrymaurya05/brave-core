@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import org.chromium.base.BraveReflectionUtil;
 import org.chromium.base.Log;
 import org.chromium.base.annotations.UsedByReflection;
-import org.chromium.chrome.browser.site_settings.BraveSiteSettingsDelegate;
 import org.chromium.components.content_settings.ContentSettingsType;
 import org.chromium.content_public.browser.BrowserContextHandle;
 
@@ -25,9 +24,8 @@ public class BraveSingleCategorySettings
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.close_menu_id
-                && getSiteSettingsDelegate() instanceof BraveSiteSettingsDelegate) {
-            ((BraveSiteSettingsDelegate) getSiteSettingsDelegate()).closeButton();
+        if (item.getItemId() == R.id.close_menu_id) {
+            getSiteSettingsDelegate().closeButton();
         }
 
         return super.onOptionsItemSelected(item);

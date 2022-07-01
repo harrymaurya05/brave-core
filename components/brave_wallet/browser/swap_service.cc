@@ -15,6 +15,7 @@
 #include "net/base/url_util.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "services/network/public/cpp/simple_url_loader.h"
+#include "ui/base/l10n/l10n_util.h"
 
 namespace {
 
@@ -192,7 +193,7 @@ std::string SwapService::GetFeeRecipient(const std::string& chain_id) {
   } else if (IsMainnetEVMNetworkSupported(chain_id)) {
     feeRecipient = brave_wallet::kFeeRecipient;
   } else if (IsSolanaNetworkSupported(chain_id)) {
-    feeRecipient = brave_wallet::kFeeRecipient;
+    feeRecipient = brave_wallet::kSolanaFeeRecipient;
   }
 
   return feeRecipient;
@@ -272,7 +273,9 @@ void SwapService::GetPriceQuote(mojom::SwapParamsPtr swap_params,
                                 GetPriceQuoteCallback callback) {
   if (!IsEVMNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::ETH))) {
-    std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
+    std::move(callback).Run(
+        false, nullptr,
+        l10n_util::GetStringUTF8(IDS_BRAVE_WALLET_UNSUPPORTED_NETWORK));
     return;
   }
   auto internal_callback =
@@ -309,7 +312,9 @@ void SwapService::GetTransactionPayload(
     GetTransactionPayloadCallback callback) {
   if (!IsEVMNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::ETH))) {
-    std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
+    std::move(callback).Run(
+        false, nullptr,
+        l10n_util::GetStringUTF8(IDS_BRAVE_WALLET_UNSUPPORTED_NETWORK));
     return;
   }
   auto internal_callback =
@@ -346,7 +351,9 @@ void SwapService::GetJupiterQuote(mojom::JupiterQuoteParamsPtr params,
                                   GetJupiterQuoteCallback callback) {
   if (!IsSolanaNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::SOL))) {
-    std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
+    std::move(callback).Run(
+        false, nullptr,
+        l10n_util::GetStringUTF8(IDS_BRAVE_WALLET_UNSUPPORTED_NETWORK));
     return;
   }
 
@@ -385,7 +392,9 @@ void SwapService::GetJupiterSwapTransactions(
     GetJupiterSwapTransactionsCallback callback) {
   if (!IsSolanaNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::SOL))) {
-    std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
+    std::move(callback).Run(
+        false, nullptr,
+        l10n_util::GetStringUTF8(IDS_BRAVE_WALLET_UNSUPPORTED_NETWORK));
     return;
   }
 

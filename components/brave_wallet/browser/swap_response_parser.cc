@@ -228,7 +228,7 @@ mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
   return swap_response;
 }
 
-mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
+mojom::JupiterQuotePtr ParseJupiterQuote(const std::string& json) {
   //  {
   //    "data": [
   //      {
@@ -293,7 +293,7 @@ mojom::JupiterSwapQuotePtr ParseJupiterSwapQuote(const std::string& json) {
   if (!routes_value)
     return nullptr;
 
-  auto swap_quote = mojom::JupiterSwapQuote::New();
+  auto swap_quote = mojom::JupiterQuote::New();
   std::vector<mojom::JupiterRoutePtr> routes;
 
   // STEP 5: Parse individual fields to populate mojom::JupiterSwapQuote
@@ -490,8 +490,7 @@ mojom::JupiterSwapTransactionsPtr ParseJupiterSwapTransactions(
   return swap_transactions;
 }
 
-std::string EncodeJupiterTransactionParams(
-    mojom::JupiterTransactionParamsPtr params) {
+std::string EncodeJupiterTransactionParams(mojom::JupiterSwapParamsPtr params) {
   base::Value tx_params(base::Value::Type::DICTIONARY);
   tx_params.SetStringKey("feeAccount", brave_wallet::kSolanaFeeRecipient);
   tx_params.SetStringKey("userPublicKey", params->user_public_key);

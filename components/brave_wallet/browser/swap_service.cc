@@ -91,7 +91,7 @@ GURL Append0xSwapParams(const GURL& swap_url,
   return url;
 }
 
-GURL AppendJupiterSwapParams(
+GURL AppendJupiterQuoteParams(
     const GURL& swap_url,
     const brave_wallet::mojom::JupiterQuoteParams& params,
     const std::string& chain_id) {
@@ -238,15 +238,14 @@ GURL SwapService::GetTransactionPayloadURL(mojom::SwapParamsPtr swap_params,
 }
 
 // static
-GURL SwapService::GetJupiterPriceQuoteURL(
-    mojom::JupiterQuoteParamsPtr swap_params,
-    const std::string& chain_id) {
+GURL SwapService::GetJupiterQuoteURL(mojom::JupiterQuoteParamsPtr params,
+                                     const std::string& chain_id) {
   std::string spec =
       base::StringPrintf("%sv1/quote", base_url_for_test_.is_empty()
                                            ? GetBaseSwapURL(chain_id).c_str()
                                            : base_url_for_test_.spec().c_str());
   GURL url(spec);
-  url = AppendJupiterSwapParams(url, *swap_params, chain_id);
+  url = AppendJupiterQuoteParams(url, *params, chain_id);
 
   return url;
 }
@@ -341,8 +340,8 @@ void SwapService::OnGetTransactionPayload(
   std::move(callback).Run(true, std::move(swap_response), absl::nullopt);
 }
 
-void SwapService::GetJupiterPriceQuote(mojom::JupiterQuoteParamsPtr swap_params,
-                                       GetJupiterPriceQuoteCallback callback) {
+void SwapService::GetJupiterQuote(mojom::JupiterQuoteParamsPtr params,
+                                  GetJupiterQuoteCallback callback) {
   if (!IsSolanaNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::SOL))) {
     std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
@@ -350,18 +349,17 @@ void SwapService::GetJupiterPriceQuote(mojom::JupiterQuoteParamsPtr swap_params,
   }
 
   auto internal_callback =
-      base::BindOnce(&SwapService::OnGetJupiterPriceQuote,
+      base::BindOnce(&SwapService::OnGetJupiterQuote,
                      weak_ptr_factory_.GetWeakPtr(), std::move(callback));
   api_request_helper_.Request(
       "GET",
-      GetJupiterPriceQuoteURL(
-          std::move(swap_params),
-          json_rpc_service_->GetChainId(mojom::CoinType::SOL)),
+      GetJupiterQuoteURL(std::move(params),
+                         json_rpc_service_->GetChainId(mojom::CoinType::SOL)),
       "", "", true, std::move(internal_callback));
 }
 
-void SwapService::OnGetJupiterPriceQuote(
-    GetJupiterPriceQuoteCallback callback,
+void SwapService::OnGetJupiterQuote(
+    GetJupiterQuoteCallback callback,
     const int status,
     const std::string& body,
     const base::flat_map<std::string, std::string>& headers) {
@@ -369,7 +367,7 @@ void SwapService::OnGetJupiterPriceQuote(
     std::move(callback).Run(false, nullptr, body);
     return;
   }
-  mojom::JupiterSwapQuotePtr swap_quote = ParseJupiterSwapQuote(body);
+  mojom::JupiterQuotePtr swap_quote = ParseJupiterQuote(body);
 
   if (!swap_quote) {
     std::move(callback).Run(false, nullptr,
@@ -380,9 +378,9 @@ void SwapService::OnGetJupiterPriceQuote(
   std::move(callback).Run(true, std::move(swap_quote), absl::nullopt);
 }
 
-void SwapService::GetJupiterTransactions(
-    mojom::JupiterTransactionParamsPtr params,
-    GetJupiterTransactionsCallback callback) {
+void SwapService::GetJupiterSwapTransactions(
+    mojom::JupiterSwapParamsPtr params,
+    GetJupiterSwapTransactionsCallback callback) {
   if (!IsSolanaNetworkSupported(
           json_rpc_service_->GetChainId(mojom::CoinType::SOL))) {
     std::move(callback).Run(false, nullptr, "UNSUPPORTED_NETWORK");
@@ -390,7 +388,7 @@ void SwapService::GetJupiterTransactions(
   }
 
   auto internal_callback =
-      base::BindOnce(&SwapService::OnGetJupiterTransactions,
+      base::BindOnce(&SwapService::OnGetJupiterSwapTransactions,
                      weak_ptr_factory_.GetWeakPtr(), std::move(callback));
 
   api_request_helper_.Request(
@@ -401,8 +399,8 @@ void SwapService::GetJupiterTransactions(
       true, std::move(internal_callback));
 }
 
-void SwapService::OnGetJupiterTransactions(
-    GetJupiterTransactionsCallback callback,
+void SwapService::OnGetJupiterSwapTransactions(
+    GetJupiterSwapTransactionsCallback callback,
     const int status,
     const std::string& body,
     const base::flat_map<std::string, std::string>& headers) {

@@ -19,7 +19,7 @@
 namespace brave_wallet {
 
 namespace {
-const char* GetJupiterSwapQuoteTemplate() {
+const char* GetJupiterQuoteTemplate() {
   return R"(
     {
       "data": [
@@ -183,11 +183,11 @@ TEST(SwapResponseParserUnitTest, ParseTransactionPayload) {
   ASSERT_FALSE(ParseSwapResponse(json, true));
 }
 
-TEST(SwapResponseParserUnitTest, JupiterSwapQuote) {
-  auto* json_template = GetJupiterSwapQuoteTemplate();
+TEST(SwapResponseParserUnitTest, ParseJupiterQuote) {
+  auto* json_template = GetJupiterQuoteTemplate();
   std::string json = base::StringPrintf(json_template, "10000", "30");
 
-  mojom::JupiterSwapQuotePtr swap_quote = ParseJupiterSwapQuote(json);
+  mojom::JupiterQuotePtr swap_quote = ParseJupiterQuote(json);
   ASSERT_TRUE(swap_quote);
   ASSERT_EQ(swap_quote->routes.size(), 1UL);
   ASSERT_EQ(swap_quote->routes.at(0)->in_amount, 10000ULL);
@@ -224,42 +224,42 @@ TEST(SwapResponseParserUnitTest, JupiterSwapQuote) {
 
   // OK: Max uint64 amount value
   json = base::StringPrintf(json_template, "18446744073709551615", "30");
-  swap_quote = ParseJupiterSwapQuote(json);
+  swap_quote = ParseJupiterQuote(json);
   ASSERT_TRUE(swap_quote);
 
   // KO: Malformed quote
-  ASSERT_FALSE(ParseJupiterSwapQuote(""));
+  ASSERT_FALSE(ParseJupiterQuote(""));
 
   // KO: Invalid quote
-  ASSERT_FALSE(ParseJupiterSwapQuote(R"({"price": "3"})"));
+  ASSERT_FALSE(ParseJupiterQuote(R"({"price": "3"})"));
 
   // KO: uint64 amount value underflow
   json = base::StringPrintf(json_template, "-1", "30");
-  swap_quote = ParseJupiterSwapQuote(json);
+  swap_quote = ParseJupiterQuote(json);
   ASSERT_FALSE(swap_quote);
 
   // KO: uint64 amount value overflow (UINT64_MAX + 1)
   json = base::StringPrintf(json_template, "18446744073709551616", "30");
-  swap_quote = ParseJupiterSwapQuote(json);
+  swap_quote = ParseJupiterQuote(json);
   ASSERT_FALSE(swap_quote);
 
   // OK: kMaxSafeIntegerUint64 for lpFee value
   json = base::StringPrintf(json_template, "10000", "30");
-  swap_quote = ParseJupiterSwapQuote(json);
+  swap_quote = ParseJupiterQuote(json);
   ASSERT_TRUE(swap_quote);
 
   // KO: Integer lpFee value underflow
   json = base::StringPrintf(json_template, "10000", "-1");
-  swap_quote = ParseJupiterSwapQuote(json);
+  swap_quote = ParseJupiterQuote(json);
   ASSERT_FALSE(swap_quote);
 
   // KO: Integer lpFee value overflow (kMaxSafeIntegerUint64 + 1)
   json = base::StringPrintf(json_template, "10000", "9007199254740992");
-  swap_quote = ParseJupiterSwapQuote(json);
+  swap_quote = ParseJupiterQuote(json);
   ASSERT_FALSE(swap_quote);
 }
 
-TEST(SwapResponseParserUnitTest, JupiterSwapTransactions) {
+TEST(SwapResponseParserUnitTest, ParseJupiterSwapTransactions) {
   std::string json(R"(
     {
       "setupTransaction": "setup",
@@ -277,13 +277,13 @@ TEST(SwapResponseParserUnitTest, JupiterSwapTransactions) {
   ASSERT_FALSE(ParseJupiterSwapTransactions(R"({"foo": "bar"})"));
 }
 
-TEST(SwapResponseParserUnitTest, JupiterTransactionParams) {
-  auto* json_template = GetJupiterSwapQuoteTemplate();
+TEST(SwapResponseParserUnitTest, EncodeJupiterTransactionParams) {
+  auto* json_template = GetJupiterQuoteTemplate();
   std::string json = base::StringPrintf(json_template, "10000", "30");
-  mojom::JupiterSwapQuotePtr swap_quote = ParseJupiterSwapQuote(json);
+  mojom::JupiterQuotePtr swap_quote = ParseJupiterQuote(json);
   ASSERT_TRUE(swap_quote);
 
-  mojom::JupiterTransactionParams params;
+  mojom::JupiterSwapParams params;
   params.route = swap_quote->routes.at(0).Clone();
   params.user_public_key = "mockPubKey";
   auto encoded_params = EncodeJupiterTransactionParams(params.Clone());

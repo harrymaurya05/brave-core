@@ -732,7 +732,9 @@ void LedgerImpl::GetPendingContributionsTotal(
 }
 
 void LedgerImpl::FetchBalance(FetchBalanceCallback callback) {
-  WhenReady([this, callback]() { wallet()->FetchBalance(callback); });
+  WhenReady([this, callback = std::move(callback)]() mutable {
+    wallet()->FetchBalance(std::move(callback));
+  });
 }
 
 void LedgerImpl::GetExternalWallet(const std::string& wallet_type,

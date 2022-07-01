@@ -70,17 +70,16 @@ TEST_F(UpholdTest, FetchBalanceConnectedWallet) {
   ON_CALL(*mock_ledger_client_, GetStringState(state::kWalletUphold))
       .WillByDefault(Return(wallet));
   EXPECT_CALL(*mock_ledger_client_,
-              LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+              LoadURL(_, Matcher<client::LoadURLCallback2>(_)))
       .Times(0);
 
-  FetchBalanceCallback callback = std::bind(
-      [&](type::Result result, double balance) {
+  FetchBalanceCallback callback =
+      base::BindOnce([](type::Result result, double balance) {
         ASSERT_EQ(result, type::Result::LEDGER_OK);
         ASSERT_EQ(balance, 0.0);
-      },
-      _1, _2);
+      });
 
-  uphold_->FetchBalance(callback);
+  uphold_->FetchBalance(std::move(callback));
 }
 
 absl::optional<type::WalletStatus> GetStatusFromJSON(

@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/test/task_environment.h"
@@ -43,9 +44,10 @@ class GetBalanceTest : public testing::Test {
 };
 
 TEST_F(GetBalanceTest, ServerOK) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+  ON_CALL(*mock_ledger_client_,
+          LoadURL(_, Matcher<client::LoadURLCallback2>(_)))
       .WillByDefault(Invoke(
-          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
+          [](type::UrlRequestPtr request, client::LoadURLCallback2 callback) {
             type::UrlResponse response;
             response.status_code = 200;
             response.url = request->url;
@@ -119,50 +121,55 @@ TEST_F(GetBalanceTest, ServerOK) {
                 }
               ]
             })";
-            callback(response);
+            std::move(callback).Run(response);
           }));
 
-  balance_->Request("4c2b665ca060d912fec5c735c734859a06118cc8",
-                    [](const type::Result result, const double available) {
-                      EXPECT_EQ(result, type::Result::LEDGER_OK);
-                      EXPECT_EQ(available, 4.0);
-                    });
+  balance_->Request(
+      "4c2b665ca060d912fec5c735c734859a06118cc8",
+      base::BindOnce([](const type::Result result, const double available) {
+        EXPECT_EQ(result, type::Result::LEDGER_OK);
+        EXPECT_EQ(available, 4.0);
+      }));
 }
 
 TEST_F(GetBalanceTest, ServerError401) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+  ON_CALL(*mock_ledger_client_,
+          LoadURL(_, Matcher<client::LoadURLCallback2>(_)))
       .WillByDefault(Invoke(
-          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
+          [](type::UrlRequestPtr request, client::LoadURLCallback2 callback) {
             type::UrlResponse response;
             response.status_code = 401;
             response.url = request->url;
             response.body = "";
-            callback(response);
+            std::move(callback).Run(response);
           }));
 
-  balance_->Request("4c2b665ca060d912fec5c735c734859a06118cc8",
-                    [](const type::Result result, const double available) {
-                      EXPECT_EQ(result, type::Result::EXPIRED_TOKEN);
-                      EXPECT_EQ(available, 0.0);
-                    });
+  balance_->Request(
+      "4c2b665ca060d912fec5c735c734859a06118cc8",
+      base::BindOnce([](const type::Result result, const double available) {
+        EXPECT_EQ(result, type::Result::EXPIRED_TOKEN);
+        EXPECT_EQ(available, 0.0);
+      }));
 }
 
 TEST_F(GetBalanceTest, ServerErrorRandom) {
-  ON_CALL(*mock_ledger_client_, LoadURL(_, Matcher<client::LoadURLCallback>(_)))
+  ON_CALL(*mock_ledger_client_,
+          LoadURL(_, Matcher<client::LoadURLCallback2>(_)))
       .WillByDefault(Invoke(
-          [](type::UrlRequestPtr request, client::LoadURLCallback callback) {
+          [](type::UrlRequestPtr request, client::LoadURLCallback2 callback) {
             type::UrlResponse response;
             response.status_code = 453;
             response.url = request->url;
             response.body = "";
-            callback(response);
+            std::move(callback).Run(response);
           }));
 
-  balance_->Request("4c2b665ca060d912fec5c735c734859a06118cc8",
-                    [](const type::Result result, const double available) {
-                      EXPECT_EQ(result, type::Result::LEDGER_ERROR);
-                      EXPECT_EQ(available, 0.0);
-                    });
+  balance_->Request(
+      "4c2b665ca060d912fec5c735c734859a06118cc8",
+      base::BindOnce([](const type::Result result, const double available) {
+        EXPECT_EQ(result, type::Result::LEDGER_ERROR);
+        EXPECT_EQ(available, 0.0);
+      }));
 }
 
 }  // namespace bitflyer

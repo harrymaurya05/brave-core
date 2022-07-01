@@ -130,7 +130,10 @@ async function updateCoinAccountNetworkInfo (store: Store, coin: BraveWallet.Coi
   const selectedAccountAddress = coin === BraveWallet.CoinType.FIL
       ? await keyringService.getFilecoinSelectedAccount(coinsChainId.chainId)
       : await keyringService.getSelectedAccount(coin)
-  const defaultAccount = accounts.find((account) => account.address === selectedAccountAddress.address) ?? accounts[0]
+  const defaultAccount = accounts.find((account) => account.address === selectedAccountAddress.address)
+  if (defaultAccount == null) {
+    return;
+  }
   await store.dispatch(WalletActions.setSelectedAccount(defaultAccount))
   await store.dispatch(refreshTransactionHistory(defaultAccount.address))
 

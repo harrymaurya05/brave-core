@@ -315,8 +315,9 @@ class KeyringService : public KeyedService, public mojom::KeyringService {
   std::string GetHardwareKeyring(mojom::CoinType coin_type,
                                  const std::string& address) const;
 
-  void AddAccountForKeyring(const std::string& keyring_id,
-                            const std::string& account_name);
+  absl::optional<std::string> AddAccountForKeyring(
+      const std::string& keyring_id,
+      const std::string& account_name);
   void AddDiscoveryAccountsForKeyring(size_t discovery_account_index,
                                       int attempts_left);
   mojom::KeyringInfoPtr GetKeyringInfoSync(const std::string& keyring_id);

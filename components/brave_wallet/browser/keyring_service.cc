@@ -831,8 +831,12 @@ void KeyringService::AddFilecoinAccount(const std::string& account_name,
 
   auto* keyring = GetHDKeyringById(keyring_id);
 
+  absl::optional<std::string> address;
   if (keyring) {
-    AddAccountForKeyring(keyring_id, account_name);
+    address = AddAccountForKeyring(keyring_id, account_name);
+  }
+  if (address) {
+    SetSelectedAccountForCoin(mojom::CoinType::FIL, address.value());
   }
 
   NotifyAccountsChanged();
@@ -865,9 +869,14 @@ void KeyringService::AddAccount(const std::string& account_name,
       return;
     }
   }
+
+  absl::optional<std::string> address;
   auto* keyring = GetHDKeyringById(keyring_id);
   if (keyring) {
-    AddAccountForKeyring(keyring_id, account_name);
+    address = AddAccountForKeyring(keyring_id, account_name);
+  }
+  if (address) {
+    SetSelectedAccountForCoin(coin, address.value());
   }
 
   NotifyAccountsChanged();
@@ -947,6 +956,7 @@ void KeyringService::ImportFilecoinAccount(
                            base::Base64Encode(encrypted_key),
                            mojom::CoinType::FIL);
   SetImportedAccountForKeyring(prefs_, info, filecoin_keyring_id);
+  SetSelectedAccountForCoin(mojom::CoinType::FIL, address);
 
   NotifyAccountsChanged();
 
@@ -991,6 +1001,7 @@ void KeyringService::ImportAccount(const std::string& account_name,
 
   auto address =
       ImportAccountForKeyring(keyring_id, account_name, private_key_bytes);
+
   if (!address) {
     std::move(callback).Run(false, "");
     return;
@@ -1210,17 +1221,19 @@ void KeyringService::NotifyWalletBackupComplete() {
   }
 }
 
-void KeyringService::AddAccountForKeyring(const std::string& keyring_id,
-                                          const std::string& account_name) {
+absl::optional<std::string> KeyringService::AddAccountForKeyring(
+    const std::string& keyring_id,
+    const std::string& account_name) {
   auto* keyring = GetHDKeyringById(keyring_id);
   if (!keyring)
-    return;
+    return absl::nullopt;
   keyring->AddAccounts(1);
   size_t accounts_num = keyring->GetAccountsNumber();
   CHECK(accounts_num);
   SetAccountMetaForKeyring(
       prefs_, GetAccountPathByIndex(accounts_num - 1, keyring_id), account_name,
       keyring->GetAddress(accounts_num - 1), keyring_id);
+  return keyring->GetAccounts().at(accounts_num - 1);
 }
 
 void KeyringService::AddDiscoveryAccountsForKeyring(
@@ -1288,6 +1301,7 @@ absl::optional<std::string> KeyringService::ImportAccountForKeyring(
                            base::Base64Encode(encrypted_private_key),
                            GetCoinForKeyring(keyring_id));
   SetImportedAccountForKeyring(prefs_, info, keyring_id);
+  SetSelectedAccountForCoin(GetCoinForKeyring(keyring_id), address);
 
   NotifyAccountsChanged();
 
@@ -1364,6 +1378,8 @@ void KeyringService::AddHardwareAccounts(
   if (infos.empty())
     return;
 
+  bool account_selected = false;
+
   for (const auto& info : infos) {
     const auto& hardware_vendor = info->hardware_vendor;
     std::string device_id = info->device_id;
@@ -1394,6 +1410,11 @@ void KeyringService::AddHardwareAccounts(
     }
 
     meta_value->SetKey(info->address, std::move(hw_account));
+
+    if (!account_selected) {
+      SetSelectedAccountForCoin(infos[0]->coin, infos[0]->address);
+      account_selected = true;
+    }
   }
 
   NotifyAccountsChanged();

@@ -52,6 +52,7 @@
 #include "ios/chrome/browser/history/history_service_factory.h"
 #include "ios/chrome/browser/history/web_history_service_factory.h"
 #include "ios/chrome/browser/passwords/ios_chrome_password_store_factory.h"
+#include "ios/chrome/browser/sync/session_sync_service_factory.h"
 #include "ios/chrome/browser/sync/sync_service_factory.h"
 #include "ios/chrome/browser/ui/webui/chrome_web_ui_ios_controller_factory.h"
 #include "ios/chrome/browser/undo/bookmark_undo_service_factory.h"
@@ -196,6 +197,7 @@ const BraveCoreSwitch BraveCoreSwitchSyncURL =
 
   _bookmarksAPI = nil;
   _historyAPI = nil;
+  _openTabsAPI = nil;
   _passwordAPI = nil;
   _syncProfileService = nil;
   _syncAPI = nil;
@@ -282,6 +284,17 @@ static bool CustomLogHandler(int severity,
   return _historyAPI;
 }
 
+- (BraveOpenTabsAPI*)openTabsAPI {
+  if (!_openTabsAPI) {
+    sync_sessions::SessionSyncService* sync_service_ =
+        SessionSyncServiceFactory::GetForBrowserState(_mainBrowserState);
+    
+    _openTabsAPI = 
+        [[BraveOpenTabsAPI alloc] initWithSessionSyncService:sync_service_];
+  }
+  return _openTabsAPI;
+}
+
 - (BravePasswordAPI*)passwordAPI {
   if (!_passwordAPI) {
     scoped_refptr<password_manager::PasswordStoreInterface> password_store_ =
@@ -300,14 +313,6 @@ static bool CustomLogHandler(int severity,
     _syncAPI = [[BraveSyncAPI alloc] initWithBrowserState:_mainBrowserState];
   }
   return _syncAPI;
-}
-
-- (BraveOpenTabsAPI*)openTabsAPI {
-  if (!_openTabsAPI) {
-    _openTabsAPI = 
-        [[BraveOpenTabsAPI alloc] initWithBrowserState:_mainBrowserState];
-  }
-  return _openTabsAPI;
 }
 
 - (BraveSyncProfileServiceIOS*)syncProfileService {

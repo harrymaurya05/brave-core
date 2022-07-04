@@ -19,6 +19,7 @@
 #include "brave/browser/ui/views/brave_actions/brave_action_view.h"
 #include "brave/browser/ui/views/brave_actions/brave_rewards_action_stub_view.h"
 #include "brave/browser/ui/views/brave_actions/brave_shields_action_view.h"
+#include "brave/browser/ui/views/brave_actions/brave_today_action_view.h"
 #include "brave/browser/ui/views/rounded_separator.h"
 #include "brave/components/brave_rewards/common/pref_names.h"
 #include "brave/components/constants/brave_switches.h"
@@ -94,9 +95,9 @@ void BraveActionsContainer::Init() {
   brave_button_separator_->SetColor(SkColorSetRGB(0xb2, 0xb5, 0xb7));
   constexpr int kSeparatorMargin = 3;
   constexpr int kSeparatorWidth = 1;
-  brave_button_separator_->SetPreferredSize(gfx::Size(
-                                    kSeparatorWidth + kSeparatorMargin*2,
-                                    GetLayoutConstant(LOCATION_BAR_ICON_SIZE)));
+  brave_button_separator_->SetPreferredSize(
+      gfx::Size(kSeparatorWidth + kSeparatorMargin * 2,
+                GetLayoutConstant(LOCATION_BAR_ICON_SIZE)));
   // separator left & right margin
   brave_button_separator_->SetBorder(views::CreateEmptyBorder(
       gfx::Insets::TLBR(0, kSeparatorMargin, 0, kSeparatorMargin)));
@@ -104,6 +105,7 @@ void BraveActionsContainer::Init() {
   // make sure separator is at index 0
   AddChildViewAt(brave_button_separator_, 0);
   AddActionViewForShields();
+  AddActionViewForToday();
   actions_[brave_rewards_extension_id].position_ = ACTION_ANY_POSITION;
 
   // React to Brave Rewards preferences changes.
@@ -177,8 +179,8 @@ void BraveActionsContainer::AddActionStubForRewards() {
   if (actions_[id].view_) {
     return;
   }
-  actions_[id].view_ = std::make_unique<BraveRewardsActionStubView>(
-      browser_->profile(), this);
+  actions_[id].view_ =
+      std::make_unique<BraveRewardsActionStubView>(browser_->profile(), this);
   AttachAction(id);
 }
 
@@ -223,8 +225,8 @@ void BraveActionsContainer::AddAction(const std::string& id) {
 
 void BraveActionsContainer::RemoveAction(const std::string& id) {
   DCHECK(IsContainerAction(id));
-  VLOG(1) << "RemoveAction (" << id << "), was loaded: "
-          << static_cast<bool>(actions_[id].view_);
+  VLOG(1) << "RemoveAction (" << id
+          << "), was loaded: " << static_cast<bool>(actions_[id].view_);
   // This will reset references and automatically remove the child from the
   // parent (us)
   actions_[id].Reset();
@@ -267,6 +269,15 @@ void BraveActionsContainer::AddActionViewForShields() {
   shields_action_btn_->Init();
 }
 
+void BraveActionsContainer::AddActionViewForToday() {
+  today_action_btn_ =
+      AddChildViewAt(std::make_unique<BraveTodayActionView>(
+                         browser_->profile(), browser_->tab_strip_model()),
+                     0);
+  today_action_btn_->SetPreferredSize(GetToolbarActionSize());
+  today_action_btn_->Init();
+}
+
 void BraveActionsContainer::Update() {
   // Update state of each action and also determine if there are any buttons to
   // show
@@ -276,6 +287,9 @@ void BraveActionsContainer::Update() {
     shields_action_btn_->Update();
     can_show = shields_action_btn_->GetVisible();
   }
+
+  if (today_action_btn_)
+    today_action_btn_->Update();
 
   for (auto const& pair : actions_) {
     if (pair.second.view_controller_)
@@ -313,19 +327,19 @@ gfx::Size BraveActionsContainer::GetToolbarActionSize() {
 }
 
 void BraveActionsContainer::WriteDragDataForView(View* sender,
-                                                   const gfx::Point& press_pt,
-                                                   OSExchangeData* data) {
+                                                 const gfx::Point& press_pt,
+                                                 OSExchangeData* data) {
   // Not supporting drag for action buttons inside this container
 }
 
 int BraveActionsContainer::GetDragOperationsForView(View* sender,
-                                                      const gfx::Point& p) {
+                                                    const gfx::Point& p) {
   return ui::DragDropTypes::DRAG_NONE;
 }
 
 bool BraveActionsContainer::CanStartDragForView(View* sender,
-                                                  const gfx::Point& press_pt,
-                                                  const gfx::Point& p) {
+                                                const gfx::Point& press_pt,
+                                                const gfx::Point& p) {
   return false;
 }
 // end ToolbarActionView::Delegate members
@@ -337,12 +351,12 @@ void BraveActionsContainer::OnRewardsStubButtonClicked() {
   actions_[brave_rewards_extension_id].view_->SetState(
       views::Button::STATE_PRESSED);
   extensions::ExtensionService* service =
-           extension_system_->extension_service();
+      extension_system_->extension_service();
   if (service) {
     is_rewards_pressed_ = true;
     extensions::ComponentLoader* loader = service->component_loader();
-          static_cast<extensions::BraveComponentLoader*>(loader)->
-              AddRewardsExtension();
+    static_cast<extensions::BraveComponentLoader*>(loader)
+        ->AddRewardsExtension();
 
     if (rewards_service_) {
       rewards_service_->StartProcess(base::DoNothing());
@@ -396,8 +410,8 @@ void BraveActionsContainer::OnBraveActionShouldTrigger(
   }
   if (actions_[extension_id].view_controller_) {
     if (ui_relative_path)
-      actions_[extension_id].view_controller_
-          ->ExecuteActionUI(*ui_relative_path);
+      actions_[extension_id].view_controller_->ExecuteActionUI(
+          *ui_relative_path);
     else
       actions_[extension_id].view_controller_->ExecuteUserAction(
           ToolbarActionViewController::InvocationSource::kApi);

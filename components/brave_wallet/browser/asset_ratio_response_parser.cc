@@ -44,19 +44,10 @@ bool ParseAssetPrice(const std::string& json,
 
   DCHECK(values);
 
-<<<<<<< HEAD
-  base::JSONReader::ValueWithError value_with_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                    base::JSONParserOptions::JSON_PARSE_RFC);
-  absl::optional<base::Value>& records_v = value_with_error.value;
-  if (!records_v || !records_v->is_dict()) {
-=======
   absl::optional<base::Value> records_v =
       base::JSONReader::Read(json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
                                        base::JSONParserOptions::JSON_PARSE_RFC);
-  if (!records_v) {
->>>>>>> 41ba5100ea (Correcting JsonReader::Read calls as upstream)
+  if (!records_v || !records_v->is_dict()) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
     return false;
   }
@@ -113,19 +104,10 @@ bool ParseAssetPriceHistory(const std::string& json,
   //   }
   // }
 
-<<<<<<< HEAD
-  base::JSONReader::ValueWithError value_with_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                    base::JSONParserOptions::JSON_PARSE_RFC);
-  absl::optional<base::Value>& records_v = value_with_error.value;
-  if (!records_v || !records_v->is_dict()) {
-=======
   absl::optional<base::Value> records_v =
       base::JSONReader::Read(json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
                                        base::JSONParserOptions::JSON_PARSE_RFC);
-  if (!records_v) {
->>>>>>> 41ba5100ea (Correcting JsonReader::Read calls as upstream)
+  if (!records_v || !records_v->is_dict()) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
     return false;
   }
@@ -180,19 +162,10 @@ std::string ParseEstimatedTime(const std::string& json) {
   //   "lastUpdated": "2021-09-22T21:45:40.015Z"
   // }
 
-<<<<<<< HEAD
-  base::JSONReader::ValueWithError value_with_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                    base::JSONParserOptions::JSON_PARSE_RFC);
-  absl::optional<base::Value>& records_v = value_with_error.value;
-  if (!records_v || !records_v->is_dict()) {
-=======
   absl::optional<base::Value> records_v =
       base::JSONReader::Read(json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
                                        base::JSONParserOptions::JSON_PARSE_RFC);
-  if (!records_v) {
->>>>>>> 41ba5100ea (Correcting JsonReader::Read calls as upstream)
+  if (!records_v || !records_v->is_dict()) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
     return "";
   }
@@ -240,19 +213,10 @@ mojom::BlockchainTokenPtr ParseTokenInfo(const std::string& json,
   //   "lastUpdated": "2021-12-09T22:02:23.187Z"
   // }
 
-<<<<<<< HEAD
-  base::JSONReader::ValueWithError value_with_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                    base::JSONParserOptions::JSON_PARSE_RFC);
-  absl::optional<base::Value>& records_v = value_with_error.value;
-  if (!records_v || !records_v->is_dict()) {
-=======
   absl::optional<base::Value> records_v =
       base::JSONReader::Read(json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
                                        base::JSONParserOptions::JSON_PARSE_RFC);
-  if (!records_v) {
->>>>>>> 41ba5100ea (Correcting JsonReader::Read calls as upstream)
+  if (!records_v || !records_v->is_dict()) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
     return nullptr;
   }

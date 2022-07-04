@@ -108,7 +108,7 @@ void PlaylistDownloadRequestManager::RunMediaDetector(const std::string& url) {
   DCHECK_GE(in_progress_youtube_urls_count_, 0);
   in_progress_youtube_urls_count_++;
 
-  web_contents_->GetMainFrame()->ExecuteJavaScriptInIsolatedWorld(
+  web_contents_->GetPrimaryMainFrame()->ExecuteJavaScriptInIsolatedWorld(
       base::UTF8ToUTF16(media_detector_script_),
       base::BindOnce(&PlaylistDownloadRequestManager::OnGetMedia,
                      weak_factory_.GetWeakPtr()),

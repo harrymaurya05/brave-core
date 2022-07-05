@@ -7,6 +7,8 @@
 
 #include "base/json/json_reader.h"
 #include "base/strings/stringprintf.h"
+#include "base/test/gtest_util.h"
+#include "brave/components/brave_wallet/browser/json_rpc_requests_helper.h"
 #include "brave/components/brave_wallet/browser/swap_request_helper.h"
 #include "brave/components/brave_wallet/browser/swap_response_parser.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
@@ -106,5 +108,8 @@ TEST(SwapRequestHelperUnitTest, EncodeJupiterTransactionParams) {
       expected_params,
       base::JSON_PARSE_CHROMIUM_EXTENSIONS | base::JSON_ALLOW_TRAILING_COMMAS);
   ASSERT_EQ(encoded_params, GetJSON(*expected_params_value));
+
+  // Empty params
+  EXPECT_DCHECK_DEATH(EncodeJupiterTransactionParams(nullptr));
 }
 }  // namespace brave_wallet

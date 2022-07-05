@@ -563,9 +563,9 @@ void JSSolanaProvider::OnConnect(
   if (error == mojom::SolanaProviderError::kSuccess) {
     result = CreatePublicKey(context, public_key);
   } else {
-    std::unique_ptr<base::Value> formed_response =
+    base::Value formed_response =
         GetSolanaProviderErrorDictionary(error, error_message);
-    result = v8_value_converter_->ToV8Value(formed_response.get(), context);
+    result = v8_value_converter_->ToV8Value(&formed_response, context);
   }
 
   SendResponse(std::move(global_context), std::move(promise_resolver), isolate,
@@ -596,9 +596,9 @@ void JSSolanaProvider::OnSignAndSendTransaction(
   if (error == mojom::SolanaProviderError::kSuccess) {
     v8_result = v8_value_converter_->ToV8Value(&result, context);
   } else {
-    std::unique_ptr<base::Value> formed_response =
+    base::Value formed_response =
         GetSolanaProviderErrorDictionary(error, error_message);
-    v8_result = v8_value_converter_->ToV8Value(formed_response.get(), context);
+    v8_result = v8_value_converter_->ToV8Value(&formed_response, context);
   }
 
   SendResponse(std::move(global_context), std::move(promise_resolver), isolate,
@@ -643,9 +643,9 @@ void JSSolanaProvider::OnSignMessage(
               .ToChecked());
     v8_result = object;
   } else {
-    std::unique_ptr<base::Value> formed_response =
+    base::Value formed_response =
         GetSolanaProviderErrorDictionary(error, error_message);
-    v8_result = v8_value_converter_->ToV8Value(formed_response.get(), context);
+    v8_result = v8_value_converter_->ToV8Value(&formed_response, context);
   }
 
   SendResponse(std::move(global_context), std::move(promise_resolver), isolate,
@@ -667,9 +667,9 @@ void JSSolanaProvider::OnSignTransaction(
   if (error == mojom::SolanaProviderError::kSuccess) {
     result = CreateTransaction(context, serialized_tx);
   } else {
-    std::unique_ptr<base::Value> formed_response =
+    base::Value formed_response =
         GetSolanaProviderErrorDictionary(error, error_message);
-    result = v8_value_converter_->ToV8Value(formed_response.get(), context);
+    result = v8_value_converter_->ToV8Value(&formed_response, context);
   }
 
   SendResponse(std::move(global_context), std::move(promise_resolver), isolate,
@@ -701,9 +701,9 @@ void JSSolanaProvider::OnSignAllTransactions(
     }
     result = tx_array;
   } else {
-    std::unique_ptr<base::Value> formed_response =
+    base::Value formed_response =
         GetSolanaProviderErrorDictionary(error, error_message);
-    result = v8_value_converter_->ToV8Value(formed_response.get(),
+    result = v8_value_converter_->ToV8Value(&formed_response,
                                             global_context.Get(isolate));
   }
 
@@ -737,9 +737,9 @@ void JSSolanaProvider::OnRequest(
           v8_value_converter_->ToV8Value(&result, global_context.Get(isolate));
     }
   } else {
-    std::unique_ptr<base::Value> formed_response =
+    base::Value formed_response =
         GetSolanaProviderErrorDictionary(error, error_message);
-    v8_result = v8_value_converter_->ToV8Value(formed_response.get(),
+    v8_result = v8_value_converter_->ToV8Value(&formed_response,
                                                global_context.Get(isolate));
   }
 

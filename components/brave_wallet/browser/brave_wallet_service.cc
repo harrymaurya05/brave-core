@@ -1123,12 +1123,11 @@ void BraveWalletService::AddSuggestTokenRequest(
   DCHECK(request->token->is_erc20 && !request->token->is_erc721);
 
   if (add_suggest_token_requests_.contains(request->token->contract_address)) {
-    std::unique_ptr<base::Value> formed_response;
     bool reject = true;
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kInvalidParams,
         l10n_util::GetStringUTF8(IDS_WALLET_ALREADY_IN_PROGRESS_ERROR));
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
+    std::move(callback).Run(std::move(id), std::move(formed_response), reject,
                             "", false);
     return;
   }
@@ -1163,12 +1162,11 @@ void BraveWalletService::AddGetPublicKeyRequest(
     base::Value id) {
   // There can be only 1 request per origin
   if (add_get_encryption_public_key_requests_.contains(origin)) {
-    std::unique_ptr<base::Value> formed_response;
     bool reject = true;
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_ALREADY_IN_PROGRESS_ERROR));
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
+    std::move(callback).Run(std::move(id), std::move(formed_response), reject,
                             "", false);
     return;
   }
@@ -1184,12 +1182,11 @@ void BraveWalletService::AddDecryptRequest(
   url::Origin origin = request->origin_info->origin;
   // There can be only 1 request per origin
   if (decrypt_requests_.contains(origin)) {
-    std::unique_ptr<base::Value> formed_response;
     bool reject = true;
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_ALREADY_IN_PROGRESS_ERROR));
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
+    std::move(callback).Run(std::move(id), std::move(formed_response), reject,
                             "", false);
     return;
   }
@@ -1237,7 +1234,6 @@ void BraveWalletService::NotifyAddSuggestTokenRequestsProcessed(
       auto callback = std::move(add_suggest_token_callbacks_[addr]);
       base::Value id = std::move(add_suggest_token_ids_[addr]);
 
-      std::unique_ptr<base::Value> formed_response;
       bool reject = false;
       if (approved &&
           !AddUserAsset(add_suggest_token_requests_[addr]->token.Clone()) &&
@@ -1247,11 +1243,11 @@ void BraveWalletService::NotifyAddSuggestTokenRequestsProcessed(
         add_suggest_token_callbacks_.erase(addr);
         add_suggest_token_ids_.erase(addr);
 
-        formed_response = GetProviderErrorDictionary(
+        base::Value formed_response = GetProviderErrorDictionary(
             mojom::ProviderError::kInternalError,
             l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
         reject = true;
-        std::move(callback).Run(std::move(id), std::move(*formed_response),
+        std::move(callback).Run(std::move(id), std::move(formed_response),
                                 reject, "", false);
         continue;
       }
@@ -1259,10 +1255,9 @@ void BraveWalletService::NotifyAddSuggestTokenRequestsProcessed(
       add_suggest_token_requests_.erase(addr);
       add_suggest_token_callbacks_.erase(addr);
       add_suggest_token_ids_.erase(addr);
-      formed_response = base::Value::ToUniquePtrValue(base::Value(approved));
       reject = false;
-      std::move(callback).Run(std::move(id), std::move(*formed_response),
-                              reject, "", false);
+      std::move(callback).Run(std::move(id), base::Value(approved), reject, "",
+                              false);
     }
   }
 }
@@ -1289,26 +1284,21 @@ void BraveWalletService::NotifyGetPublicKeyRequestProcessed(
     if (!keyring_service_
              ->GetPublicKeyFromX25519_XSalsa20_Poly1305ByDefaultKeyring(address,
                                                                         &key)) {
-      std::unique_ptr<base::Value> formed_response;
-      formed_response = GetProviderErrorDictionary(
+      base::Value formed_response = GetProviderErrorDictionary(
           mojom::ProviderError::kInternalError,
           l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
-      std::move(callback).Run(std::move(id), std::move(*formed_response),
-                              reject, "", false);
+      std::move(callback).Run(std::move(id), std::move(formed_response), reject,
+                              "", false);
       return;
     }
 
-    std::unique_ptr<base::Value> formed_response;
-    formed_response = base::Value::ToUniquePtrValue(base::Value(key));
     reject = false;
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
-                            "", false);
+    std::move(callback).Run(std::move(id), base::Value(key), reject, "", false);
   } else {
-    std::unique_ptr<base::Value> formed_response;
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_USER_REJECTED_REQUEST));
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
+    std::move(callback).Run(std::move(id), std::move(formed_response), reject,
                             "", false);
   }
 }
@@ -1332,27 +1322,23 @@ void BraveWalletService::NotifyDecryptRequestProcessed(
   if (approved) {
     std::string key;
     if (!request->unsafe_message) {
-      std::unique_ptr<base::Value> formed_response;
-      formed_response = GetProviderErrorDictionary(
+      base::Value formed_response = GetProviderErrorDictionary(
           mojom::ProviderError::kInternalError,
           l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
-      std::move(callback).Run(std::move(id), std::move(*formed_response),
-                              reject, "", false);
+      std::move(callback).Run(std::move(id), std::move(formed_response), reject,
+                              "", false);
       return;
     }
 
-    std::unique_ptr<base::Value> formed_response;
-    formed_response =
-        base::Value::ToUniquePtrValue(base::Value(*request->unsafe_message));
     reject = false;
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
-                            "", false);
+    std::move(callback).Run(std::move(id),
+                            base::Value(*request->unsafe_message), reject, "",
+                            false);
   } else {
-    std::unique_ptr<base::Value> formed_response;
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_USER_REJECTED_REQUEST));
-    std::move(callback).Run(std::move(id), std::move(*formed_response), reject,
+    std::move(callback).Run(std::move(id), std::move(formed_response), reject,
                             "", false);
   }
 }
@@ -1376,15 +1362,14 @@ void BraveWalletService::Base58Encode(
 void BraveWalletService::CancelAllSuggestedTokenCallbacks() {
   add_suggest_token_requests_.clear();
   // Reject pending suggest token requests when network changed.
-  std::unique_ptr<base::Value> formed_response;
   bool reject = true;
   for (auto& callback : add_suggest_token_callbacks_) {
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_USER_REJECTED_REQUEST));
     std::move(callback.second)
         .Run(std::move(add_suggest_token_ids_[callback.first]),
-             std::move(*formed_response), reject, "", false);
+             std::move(formed_response), reject, "", false);
   }
   add_suggest_token_callbacks_.clear();
   add_suggest_token_ids_.clear();
@@ -1419,15 +1404,14 @@ void BraveWalletService::CancelAllSignAllTransactionsCallbacks() {
 
 void BraveWalletService::CancelAllGetEncryptionPublicKeyCallbacks() {
   add_get_encryption_public_key_requests_.clear();
-  std::unique_ptr<base::Value> formed_response;
   bool reject = true;
   for (auto& callback : add_get_encryption_public_key_callbacks_) {
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_USER_REJECTED_REQUEST));
     std::move(callback.second)
         .Run(std::move(get_encryption_public_key_ids_[callback.first]),
-             std::move(*formed_response), reject, "", false);
+             std::move(formed_response), reject, "", false);
   }
   add_get_encryption_public_key_callbacks_.clear();
   get_encryption_public_key_ids_.clear();
@@ -1435,15 +1419,14 @@ void BraveWalletService::CancelAllGetEncryptionPublicKeyCallbacks() {
 
 void BraveWalletService::CancelAllDecryptCallbacks() {
   decrypt_requests_.clear();
-  std::unique_ptr<base::Value> formed_response;
   bool reject = true;
   for (auto& callback : decrypt_callbacks_) {
-    formed_response = GetProviderErrorDictionary(
+    base::Value formed_response = GetProviderErrorDictionary(
         mojom::ProviderError::kUserRejectedRequest,
         l10n_util::GetStringUTF8(IDS_WALLET_USER_REJECTED_REQUEST));
     std::move(callback.second)
         .Run(std::move(decrypt_ids_[callback.first]),
-             std::move(*formed_response), reject, "", false);
+             std::move(formed_response), reject, "", false);
   }
   decrypt_callbacks_.clear();
   decrypt_ids_.clear();

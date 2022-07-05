@@ -3,14 +3,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import { Account, Accounts } from './accounts'
 import CryptoView from './crypto'
 import { PortfolioAsset, PortfolioOverview } from './portfolio'
+import { MarketView } from './market'
 
 export {
-  Account,
-  Accounts,
   CryptoView,
   PortfolioAsset,
-  PortfolioOverview
+  PortfolioOverview,
+  MarketView
 }

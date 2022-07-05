@@ -17,7 +17,7 @@ import { SearchBar, AppList } from '../../components/shared'
 import { getLocale } from '../../../common/locale'
 import { AppsList } from '../../options/apps-list-options'
 import { filterAppList } from '../../utils/filter-app-list'
-import { Accounts, PortfolioOverview } from '../../components/desktop/views'
+import { Accounts, PortfolioOverview, MarketView } from '../../components/desktop/views'
 import WalletPageStory from '../wrappers/wallet-page-story-wrapper'
 
 export interface Props {

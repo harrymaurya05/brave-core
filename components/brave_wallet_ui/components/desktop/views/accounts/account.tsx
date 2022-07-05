@@ -51,7 +51,7 @@ import {
 
 // Hooks
 import { useBalance } from '../../../../common/hooks/balance'
-import { useTemporaryCopyToClipboard } from '../../../../common/hooks/use-copy-to-clipboard'
+import { useCopyToClipboard } from '../../../../common/hooks/use-copy-to-clipboard'
 
 // Actions
 import { WalletPageActions } from '../../../../page/actions'
@@ -64,29 +64,24 @@ export interface Props {
   goBack: () => void
 }
 
-export const Account = (props: Props) => {
-  const {
-    goBack,
-    onViewPrivateKey,
-    onDoneViewingPrivateKey,
-    toggleNav,
-    onUpdateAccountName
-  } = props
-
+export const Account = ({
+  goBack,
+  onViewPrivateKey,
+  onDoneViewingPrivateKey,
+  toggleNav,
+  onUpdateAccountName
+}: Props) => {
   // routing
   const { id: accountId } = useParams<{ id: string }>()
 
   // redux
   const dispatch = useDispatch()
-  const {
-    accounts,
-    transactions,
-    transactionSpotPrices,
-    userVisibleTokensInfo,
-    defaultCurrencies,
-    networkList
-  } = useSelector(({ wallet }: { wallet: WalletState }) => wallet)
-
+  const accounts = useSelector(({ wallet }: { wallet: WalletState }) => wallet.accounts)
+  const transactions = useSelector(({ wallet }: { wallet: WalletState }) => wallet.transactions)
+  const transactionSpotPrices = useSelector(({ wallet }: { wallet: WalletState }) => wallet.transactionSpotPrices)
+  const userVisibleTokensInfo = useSelector(({ wallet }: { wallet: WalletState }) => wallet.userVisibleTokensInfo)
+  const defaultCurrencies = useSelector(({ wallet }: { wallet: WalletState }) => wallet.defaultCurrencies)
+  const networkList = useSelector(({ wallet }: { wallet: WalletState }) => wallet.networkList)
   const privateKey = useSelector(({ page }: { page: PageState }) => page.privateKey)
 
   // state
@@ -97,8 +92,8 @@ export const Account = (props: Props) => {
   const getBalance = useBalance(networkList)
   const {
     isCopied: copied,
-    temporaryCopyToClipboard: copyText
-  } = useTemporaryCopyToClipboard(1500)
+    copyToClipboard: copyText
+  } = useCopyToClipboard(1500)
 
   // memos
   const selectedAccount = React.useMemo(() => {

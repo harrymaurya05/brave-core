@@ -16,8 +16,8 @@ import {
   WalletAccountType
 } from '../../../constants/types'
 
-// hookd
-import { useTemporaryCopyToClipboard } from '../../../common/hooks/use-copy-to-clipboard'
+// hooks
+import { useCopyToClipboard } from '../../../common/hooks/use-copy-to-clipboard'
 
 // components
 import { Tooltip } from '../../shared/tooltip/index'
@@ -45,19 +45,17 @@ export interface Props {
   onRemoveAccount: (address: string, hardware: boolean, coin: BraveWallet.CoinType) => void
 }
 
-function AccountListItem (props: Props) {
-  const {
-    account,
-    isHardwareWallet,
-    onClick,
-    onRemoveAccount
-  } = props
-
+export const AccountListItem = ({
+  account,
+  isHardwareWallet,
+  onClick,
+  onRemoveAccount
+}: Props) => {
   // custom hooks
   const {
     isCopied: copied,
-    temporaryCopyToClipboard: copyText
-  } = useTemporaryCopyToClipboard(1500)
+    copyToClipboard: copyText
+  } = useCopyToClipboard(1500)
 
   // methods
   const onCopyToClipboard = React.useCallback(async () => {

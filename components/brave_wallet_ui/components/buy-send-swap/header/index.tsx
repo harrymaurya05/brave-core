@@ -16,7 +16,7 @@ import { reduceAddress } from '../../../utils/reduce-address'
 import { reduceAccountDisplayName } from '../../../utils/reduce-account-name'
 
 // hooks
-import { useTemporaryCopyToClipboard } from '../../../common/hooks/use-copy-to-clipboard'
+import { useCopyToClipboard } from '../../../common/hooks/use-copy-to-clipboard'
 
 // components
 import { Tooltip, SelectNetworkButton } from '../../shared'
@@ -44,8 +44,8 @@ export const SwapHeader = ({ onChangeSwapView }: Props) => {
   // hooks
   const {
     isCopied: copied,
-    temporaryCopyToClipboard: copyText
-  } = useTemporaryCopyToClipboard(1500)
+    copyToClipboard: copyText
+  } = useCopyToClipboard(1500)
 
   // methods
   const onShowAccounts = React.useCallback(() => {

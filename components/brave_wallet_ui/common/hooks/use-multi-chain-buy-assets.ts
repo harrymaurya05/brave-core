@@ -33,7 +33,7 @@ export function useMultiChainBuyAssets () {
   const { getAllBuyAssets, getBuyAssetUrl } = useLib()
 
   // state
-  const [buyAmount, setBuyAmount] = React.useState('')
+  const [buyAmount, setBuyAmount] = React.useState<string>('')
   const [selectedAsset, setSelectedAsset] = React.useState<BraveWallet.BlockchainToken | undefined>()
   const [options, setOptions] = React.useState<
     {

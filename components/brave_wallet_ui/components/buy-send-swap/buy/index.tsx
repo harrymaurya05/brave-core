@@ -51,11 +51,9 @@ export const Buy = ({
   const [showBuyOptions, setShowBuyOptions] = React.useState<boolean>(false)
 
   // Redux
-  const {
-    selectedNetwork,
-    selectedAccount,
-    defaultCurrencies
-  } = useSelector(({ wallet }: { wallet: WalletState }) => wallet)
+  const selectedNetwork = useSelector(({ wallet }: { wallet: WalletState }) => wallet.selectedNetwork)
+  const selectedAccount = useSelector(({ wallet }: { wallet: WalletState }) => wallet.selectedAccount)
+  const defaultCurrencies = useSelector(({ wallet }: { wallet: WalletState }) => wallet.defaultCurrencies)
 
   // Custom Hooks
   const { wyreAssetOptions, rampAssetOptions } = useAssets()
@@ -103,7 +101,13 @@ export const Buy = ({
         })
       })
       .catch(e => console.error(e))
-  }, [selectedAsset, getBuyAssetUrl, selectedNetwork, selectedAccount, buyAmount])
+  }, [
+    selectedAsset,
+    getBuyAssetUrl,
+    selectedNetwork,
+    selectedAccount,
+    buyAmount
+  ])
 
   const onShowAssets = React.useCallback(() => {
     onChangeBuyView('assets', 'from')

@@ -42,6 +42,13 @@ static_library("brave_vpn") {
 
   libs = []
 
+  # if (is_android) {
+  sources += [
+    "brave_vpn_navigation_throttle.cc",
+    "brave_vpn_navigation_throttle.h",
+  ]
+  # }
+
   if (is_win || is_mac) {
     sources += [
       "brave_vpn_connection_info.cc",

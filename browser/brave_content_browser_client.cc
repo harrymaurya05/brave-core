@@ -210,6 +210,11 @@ using extensions::ChromeContentBrowserClientExtensionsPart;
 #include "brave/browser/brave_ads/brave_ads_host.h"
 #endif  // BUILDFLAG(IS_ANDROID)
 
+// TODO(bsclifton): put behind BUILDFLAG(IS_ANDROID)
+#include "brave/components/brave_vpn/brave_vpn_navigation_throttle.h"
+#include "brave/browser/brave_vpn/brave_vpn_service_factory.h"
+// END(bsclifton)
+
 namespace {
 
 bool HandleURLReverseOverrideRewrite(GURL* url,
@@ -987,6 +992,18 @@ BraveContentBrowserClient::CreateThrottlesForNavigation(
                   handle, HostContentSettingsMapFactory::GetForProfile(
                               Profile::FromBrowserContext(context))))
     throttles.push_back(std::move(reduce_language_navigation_throttle));
+
+  // TODO(bsclifton): clean this up and put real reference
+  // also put guards around it. Only needed for Android.
+  std::unique_ptr<brave_vpn::BraveVpnNavigationThrottle>
+      brave_vpn_navigation_throttle =
+          brave_vpn::BraveVpnNavigationThrottle::MaybeCreateThrottleFor(
+              handle, brave_vpn::BraveVpnServiceFactory::GetForProfile(
+                          Profile::FromBrowserContext(context)));
+  if (brave_vpn_navigation_throttle != nullptr) {
+    throttles.push_back(std::move(brave_vpn_navigation_throttle));
+  }
+  // TODO(bsclifton): end
 
   return throttles;
 }

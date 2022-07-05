@@ -2387,13 +2387,19 @@ void AdsServiceImpl::ShowScheduledCaptchaNotification(
     return;
   }
 
+  LOG(ERROR) << "BraveCaptcha"
+             << "Captcha Id : " << captcha_id << "payment Id : " << payment_id;
+
+#if BUILDFLAG(IS_ANDROID)
+  AdsServiceImpl::ShowScheduledCaptcha(payment_id, captcha_id);
+#else
   const int snooze_count = pref_service->GetInteger(
       brave_adaptive_captcha::kScheduledCaptchaSnoozeCount);
-
   ads_tooltips_delegate_->ShowCaptchaTooltip(
       payment_id, captcha_id, snooze_count == 0,
       base::BindOnce(&AdsServiceImpl::ShowScheduledCaptcha, AsWeakPtr()),
       base::BindOnce(&AdsServiceImpl::SnoozeScheduledCaptcha, AsWeakPtr()));
+#endif
 #endif
 }
 

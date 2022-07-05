@@ -21,8 +21,11 @@ export const mockPageState: PageState = {
   showAddModal: false,
   showIsRestoring: false,
   showRecoveryPhrase: false,
-  mnemonic: mockedMnemonic.concat(` ${mockedMnemonic}`), // 24 word phrase
   isImportWalletsCheckComplete: false,
   importWalletAttempts: 0,
-  walletTermsAcknowledged: false
+  walletTermsAcknowledged: false,
+  mnemonic: mockedMnemonic
+    .replace('tomato', 'FIRST')
+    .replace('velvet', 'THIRD')
+    .concat(` ${mockedMnemonic} LAST`) // 25 word phrase
 }

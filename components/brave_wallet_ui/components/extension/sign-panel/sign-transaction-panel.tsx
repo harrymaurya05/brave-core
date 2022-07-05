@@ -264,7 +264,7 @@ export const SignTransactionPanel = ({ signMode }: Props) => {
       <ButtonRow>
         <NavButton
           buttonType='secondary'
-          text={getLocale('braveWalletBackupButtonCancel')}
+          text={getLocale('braveWalletButtonCancel')}
           onSubmit={onCancel}
           disabled={isDisabled}
         />

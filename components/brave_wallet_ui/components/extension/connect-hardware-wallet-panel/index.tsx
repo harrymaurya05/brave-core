@@ -75,7 +75,7 @@ function ConnectHardwareWalletPanel (props: Props) {
       {
         hardwareWalletCode !== 'deviceBusy' && (
           <ButtonWrapper>
-            <NavButton buttonType='secondary' text={getLocale('braveWalletBackupButtonCancel')} onSubmit={onCancel} />
+            <NavButton buttonType='secondary' text={getLocale('braveWalletButtonCancel')} onSubmit={onCancel} />
           </ButtonWrapper>
         )
       }

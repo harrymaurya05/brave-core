@@ -331,7 +331,8 @@ struct SwapResponse {
 // Structs to model Jupiter (swap) HTTP API interactions
 // Swagger spec: https://quote-api.jup.ag/docs/static/index.html
 //
-// [XXX] - amount field is incorrectly modelled as number in spec.
+// Note that amount field is incorrectly modelled as number in spec,
+// but it has been fixed here.
 struct JupiterFee {
   uint64 amount;
   string mint;

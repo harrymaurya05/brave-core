@@ -525,7 +525,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
                         const std::string& message,
                         const std::vector<uint8_t>& domain_hash,
                         const std::vector<uint8_t>& primary_hash,
-                        base::Value&& domain,
+                        base::Value::Dict domain,
                         std::string* signature_out,
                         mojom::ProviderError* error_out,
                         std::string* error_message_out) {
@@ -1618,12 +1618,12 @@ TEST_F(EthereumProviderImplUnitTest, SignTypedMessage) {
   std::string signature;
   mojom::ProviderError error;
   std::string error_message;
-  base::Value domain(base::Value::Type::DICTIONARY);
+  base::Value::Dict domain;
   std::vector<uint8_t> domain_hash = DecodeHexHash(
       "f2cee375fa42b42143804025fc449deafd50cc031ca257e0b194a650a912090f");
   std::vector<uint8_t> primary_hash = DecodeHexHash(
       "c52c0ee5d84264471806290a3f2c4cecfc5490626bf912d01f240d7a274b371e");
-  domain.SetIntKey("chainId", 1);
+  domain.Set("chainId", 1);
   SignTypedMessage(absl::nullopt, "1234", "{...}", domain_hash, primary_hash,
                    domain.Clone(), &signature, &error, &error_message);
   EXPECT_TRUE(signature.empty());
@@ -1640,13 +1640,6 @@ TEST_F(EthereumProviderImplUnitTest, SignTypedMessage) {
             l10n_util::GetStringUTF8(IDS_WALLET_INVALID_PARAMETERS));
 
   const std::string address = "0x1234567890123456789012345678901234567890";
-  // domain not dict
-  SignTypedMessage(absl::nullopt, address, "{...}", domain_hash, primary_hash,
-                   base::Value("not dict"), &signature, &error, &error_message);
-  EXPECT_TRUE(signature.empty());
-  EXPECT_EQ(error, mojom::ProviderError::kInvalidParams);
-  EXPECT_EQ(error_message,
-            l10n_util::GetStringUTF8(IDS_WALLET_INVALID_PARAMETERS));
 
   // not valid domain hash
   SignTypedMessage(absl::nullopt, address, "{...}", {}, primary_hash,
@@ -1664,7 +1657,7 @@ TEST_F(EthereumProviderImplUnitTest, SignTypedMessage) {
   EXPECT_EQ(error_message,
             l10n_util::GetStringUTF8(IDS_WALLET_INVALID_PARAMETERS));
 
-  domain.SetIntKey("chainId", 4);
+  domain.Set("chainId", 4);
   std::string chain_id = "0x4";
   // not active network
   SignTypedMessage(absl::nullopt, address, "{...}", domain_hash, primary_hash,
@@ -1675,7 +1668,7 @@ TEST_F(EthereumProviderImplUnitTest, SignTypedMessage) {
             l10n_util::GetStringFUTF8(
                 IDS_BRAVE_WALLET_SIGN_TYPED_MESSAGE_CHAIN_ID_MISMATCH,
                 base::ASCIIToUTF16(chain_id)));
-  domain.SetIntKey("chainId", 1);
+  domain.Set("chainId", 1);
 
   SignTypedMessage(absl::nullopt, address, "{...}", domain_hash, primary_hash,
                    domain.Clone(), &signature, &error, &error_message);

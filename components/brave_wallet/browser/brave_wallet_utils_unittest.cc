@@ -42,7 +42,7 @@ namespace brave_wallet {
 namespace {
 
 void UpdateCustomNetworks(PrefService* prefs,
-                          std::vector<base::Value>* values) {
+                          std::vector<base::Value::Dict>* values) {
   DictionaryPrefUpdate update(prefs, kBraveWalletCustomNetworks);
   base::Value* dict = update.Get();
   ASSERT_TRUE(dict);
@@ -51,9 +51,10 @@ void UpdateCustomNetworks(PrefService* prefs,
     list = dict->SetKey(kEthereumPrefKey, base::Value(base::Value::Type::LIST));
   }
   ASSERT_TRUE(list);
-  list->ClearList();
+  auto& list_value = list->GetList();
+  list_value.clear();
   for (auto& it : *values) {
-    list->Append(std::move(it));
+    list_value.Append(std::move(it));
   }
 }
 
@@ -677,7 +678,7 @@ TEST_F(BraveWalletUtilsUnitTest, GetAllEthCustomChainsTest) {
   prefs.registry()->RegisterDictionaryPref(kBraveWalletCustomNetworks);
   ASSERT_TRUE(GetAllEthCustomChains(&prefs).empty());
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain1("chain_id", "chain_name", {"https://url1.com"},
                             {"https://url1.com"}, {"https://url1.com"},
                             "symbol_name", "symbol", 11, mojom::CoinType::ETH,
@@ -702,7 +703,7 @@ TEST_F(BraveWalletUtilsUnitTest, KnownEthChainExists) {
   prefs.registry()->RegisterDictionaryPref(kBraveWalletCustomNetworks);
   prefs.registry()->RegisterBooleanPref(kSupportEip1559OnLocalhostChain, false);
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain("chain_id", "chain_name", {"https://url1.com"},
                            {"https://url1.com"}, {"https://url1.com"},
                            "symbol_name", "symbol", 11, mojom::CoinType::ETH,
@@ -726,7 +727,7 @@ TEST_F(BraveWalletUtilsUnitTest, CustomEthChainExists) {
   prefs.registry()->RegisterDictionaryPref(kBraveWalletCustomNetworks);
   prefs.registry()->RegisterBooleanPref(kSupportEip1559OnLocalhostChain, false);
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain1("chain_id", "chain_name", {"https://url1.com"},
                             {"https://url1.com"}, {"https://url1.com"},
                             "symbol_name", "symbol", 11, mojom::CoinType::ETH,
@@ -755,7 +756,7 @@ TEST_F(BraveWalletUtilsUnitTest, GetAllChainsTest) {
   prefs.registry()->RegisterDictionaryPref(kBraveWalletCustomNetworks);
   prefs.registry()->RegisterBooleanPref(kSupportEip1559OnLocalhostChain, false);
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain1(mojom::kPolygonMainnetChainId, "chain_name",
                             {"https://url1.com"}, {"https://url1.com"},
                             {"https://url1.com"}, "symbol_name", "symbol", 11,
@@ -810,7 +811,7 @@ TEST_F(BraveWalletUtilsUnitTest, GetNetworkURLTest) {
   prefs.registry()->RegisterDictionaryPref(kBraveWalletCustomNetworks);
   prefs.registry()->RegisterBooleanPref(kSupportEip1559OnLocalhostChain, false);
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain1("chain_id", "chain_name", {"https://url1.com"},
                             {"https://url1.com"}, {"https://url1.com"},
                             "symbol_name", "symbol", 11, mojom::CoinType::ETH,
@@ -915,7 +916,7 @@ TEST_F(BraveWalletUtilsUnitTest, GetCustomEthChain) {
 
   EXPECT_FALSE(GetCustomEthChain(&prefs, "0x5566"));
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain("0x5566", "chain_name", {"https://url1.com"},
                            {"https://url1.com"}, {"https://url1.com"},
                            "symbol_name", "symbol", 11, mojom::CoinType::ETH,
@@ -934,7 +935,7 @@ TEST_F(BraveWalletUtilsUnitTest, GetChain) {
   prefs.registry()->RegisterDictionaryPref(kBraveWalletCustomNetworks);
   prefs.registry()->RegisterBooleanPref(kSupportEip1559OnLocalhostChain, false);
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain1("0x5566", "chain_name", {"https://url1.com"},
                             {"https://url1.com"}, {"https://url1.com"},
                             "symbol_name", "symbol", 11, mojom::CoinType::ETH,
@@ -1021,7 +1022,7 @@ TEST_F(BraveWalletUtilsUnitTest, GetNetworkId) {
   prefs.registry()->RegisterBooleanPref(kSupportEip1559OnLocalhostChain, false);
   ASSERT_TRUE(GetAllEthCustomChains(&prefs).empty());
 
-  std::vector<base::Value> values;
+  std::vector<base::Value::Dict> values;
   mojom::NetworkInfo chain1("chain_id", "chain_name", {"https://url1.com"},
                             {"https://url1.com"}, {"https://url1.com"},
                             "symbol_name", "symbol", 11, mojom::CoinType::ETH,

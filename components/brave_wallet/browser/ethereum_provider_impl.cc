@@ -1301,7 +1301,8 @@ void EthereumProviderImpl::OnRequestEthereumPermissions(
         NOTREACHED();
     }
   } else if (method == kRequestPermissionsMethod) {
-    formed_response = PermissionRequestResponseToValue(origin, accounts);
+    formed_response =
+        base::Value(PermissionRequestResponseToValue(origin, accounts));
   } else {
     base::Value::List list;
     for (size_t i = 0; i < accounts.size(); i++) {
@@ -1384,7 +1385,8 @@ void EthereumProviderImpl::OnContinueGetAllowedAccounts(
     formed_response = base::Value(std::move(list));
     update_bindings = false;
   } else {
-    formed_response = PermissionRequestResponseToValue(origin, accounts);
+    formed_response =
+        base::Value(PermissionRequestResponseToValue(origin, accounts));
     update_bindings = true;
   }
   std::move(callback).Run(std::move(id), std::move(formed_response), reject, "",

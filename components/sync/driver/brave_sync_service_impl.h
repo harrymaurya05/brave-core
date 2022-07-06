@@ -57,6 +57,8 @@ class BraveSyncServiceImpl : public SyncServiceImpl {
   void PermanentlyDeleteAccount(
       base::OnceCallback<void(const SyncProtocolError&)> callback);
 
+  bool GetIsDisabledByAdmin() const;
+
  private:
   friend class BraveSyncServiceImplTest;
   FRIEND_TEST_ALL_PREFIXES(BraveSyncServiceImplTest,

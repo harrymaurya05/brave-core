@@ -219,4 +219,8 @@ void BraveSyncServiceImpl::PermanentlyDeleteAccount(
   PermanentlyDeleteAccountImpl(1, std::move(callback));
 }
 
+bool BraveSyncServiceImpl::GetIsDisabledByAdmin() const {
+  return sync_disabled_by_admin_;
+}
+
 }  // namespace syncer

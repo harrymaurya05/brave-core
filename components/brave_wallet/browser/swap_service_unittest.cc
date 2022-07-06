@@ -331,6 +331,24 @@ TEST_F(SwapServiceUnitTest, IsSwapSupported) {
   EXPECT_FALSE(IsSwapSupported("invalid chain_id"));
 }
 
+TEST_F(SwapServiceUnitTest, GetJupiterQuoteURL) {
+  auto url = swap_service_->GetJupiterQuoteURL(GetCannedJupiterSwapParams(),
+                                               mojom::kSolanaMainnet);
+  ASSERT_EQ(url,
+            "https://quote-api.jup.ag/v1/quote?"
+            "inputMint=So11111111111111111111111111111111111111112&"
+            "outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&"
+            "amount=10000&"
+            "feeBps=85&"
+            "slippagePercentage=1.000000");
+}
+
+TEST_F(SwapServiceUnitTest, GetJupiterSwapTransactionsURL) {
+  auto url =
+      swap_service_->GetJupiterSwapTransactionsURL(mojom::kSolanaMainnet);
+  ASSERT_EQ(url, "https://quote-api.jup.ag/v1/swap");
+}
+
 TEST_F(SwapServiceUnitTest, GetJupiterQuote) {
   SetInterceptor(R"(
     {

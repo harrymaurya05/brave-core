@@ -14,7 +14,6 @@
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
 #include "brave/components/brave_wallet/browser/json_rpc_requests_helper.h"
 #include "brave/components/brave_wallet/browser/json_rpc_response_parser.h"
-#include "brave/components/json/rs/src/lib.rs.h"
 
 namespace {
 
@@ -224,74 +223,49 @@ mojom::SwapResponsePtr ParseSwapResponse(const std::string& json,
 }
 
 mojom::JupiterQuotePtr ParseJupiterQuote(const std::string& json) {
-  //  {
-  //    "data": [
-  //      {
-  //        "inAmount": 10000,
-  //        "outAmount": 261273,
-  //        "amount": 10000,
-  //        "otherAmountThreshold": 258660,
-  //        "outAmountWithSlippage": 258660,
-  //        "swapMode": "ExactIn",
-  //        "priceImpactPct": 0.008955716118219659,
-  //        "marketInfos": [
-  //          {
-  //            "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
-  //            "label": "Orca",
-  //            "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  //            "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
-  //            "notEnoughLiquidity": false,
-  //            "inAmount": 10000,
-  //            "outAmount": 117001203,
-  //            "priceImpactPct": 1.196568750220778e-7,
-  //            "lpFee": {
-  //              "amount": 30,
-  //              "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  //              "pct": 0.003
-  //            },
-  //            "platformFee": {
-  //              "amount": 0,
-  //              "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
-  //              "pct": 0
+  //    {
+  //      "data": [
+  //        {
+  //          "inAmount": "10000",
+  //          "outAmount": "261273",
+  //          "amount": "10000",
+  //          "otherAmountThreshold": "258660",
+  //          "outAmountWithSlippage": "258660",
+  //          "swapMode": "ExactIn",
+  //          "priceImpactPct": 0.008955716118219659,
+  //          "marketInfos": [
+  //            {
+  //              "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
+  //              "label": "Orca",
+  //              "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  //              "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+  //              "notEnoughLiquidity": false,
+  //              "inAmount": "10000",
+  //              "outAmount": "117001203",
+  //              "priceImpactPct": 1.196568750220778e-7,
+  //              "lpFee": {
+  //                "amount": 30,
+  //                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  //                "pct": 0.003
+  //              },
+  //              "platformFee": {
+  //                "amount": 0,
+  //                "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+  //                "pct": 0
+  //              }
   //            }
-  //          }
-  //        ]
-  //      }
-  //    ],
-  //    "timeTaken": 0.044471802000089156
-  //  }
-
-  // STEP 1: convert JSON integer fields in routes to string values.
-  auto converted_json = ConvertMultiUint64InObjectArrayToString(
-      "/data", {"inAmount", "outAmount", "amount", "otherAmountThreshold"},
-      json);
-  if (!converted_json) {
-    LOG(ERROR) << "Failed to parse integer fields, JSON is: " << json;
-    return nullptr;
-  }
-
-  // STEP 2: Obtain number of routes in swap quote.
-  auto routes_value_1 = GetRoutesFromJupiterSwapQuote(*converted_json);
-  if (!routes_value_1)
-    return nullptr;
-
-  // STEP 3: Loop over the routes and convert JSON integer fields in
-  // marketInfos to string values.
-  for (int i = 0; i < static_cast<int>(routes_value_1->size()); i++) {
-    converted_json = ConvertMultiUint64InObjectArrayToString(
-        base::StringPrintf("/data/%d/marketInfos", i),
-        {"inAmount", "outAmount"}, *converted_json);
-  }
-
-  // STEP 4: Parse the final converted JSON again to obtain the routes.
-  auto routes_value = GetRoutesFromJupiterSwapQuote(*converted_json);
+  //          ]
+  //        }
+  //      ],
+  //      "timeTaken": 0.044471802000089156
+  //    }
+  const auto routes_value = GetRoutesFromJupiterSwapQuote(json);
   if (!routes_value)
     return nullptr;
 
   auto swap_quote = mojom::JupiterQuote::New();
   std::vector<mojom::JupiterRoutePtr> routes;
 
-  // STEP 5: Parse individual fields to populate mojom::JupiterSwapQuote
   for (const auto& route_value : *routes_value) {
     const auto& route_dict = route_value.GetDict();
     mojom::JupiterRoute route;
@@ -481,6 +455,36 @@ mojom::JupiterSwapTransactionsPtr ParseJupiterSwapTransactions(
     swap_transactions->cleanup_transaction = *cleanup_transaction;
 
   return swap_transactions;
+}
+
+// Function to convert uint64 numbers in JSON string to strings.
+//
+// For sample JSON response, refer to ParseJupiterQuote.
+absl::optional<std::string> ConvertJupiterQuoteUint64ToString(
+    const std::string& json) {
+  // STEP 1: convert JSON integer fields in routes to string values.
+  auto converted_json = ConvertMultiUint64InObjectArrayToString(
+      "/data", {"inAmount", "outAmount", "amount", "otherAmountThreshold"},
+      json);
+  if (!converted_json) {
+    LOG(ERROR) << "Failed to parse integer fields, JSON is: " << json;
+    return absl::nullopt;
+  }
+
+  // STEP 2: Obtain number of routes in swap quote.
+  auto routes_value_1 = GetRoutesFromJupiterSwapQuote(*converted_json);
+  if (!routes_value_1)
+    return absl::nullopt;
+
+  // STEP 3: Loop over the routes and convert JSON integer fields in
+  // marketInfos to string values.
+  for (int i = 0; i < static_cast<int>(routes_value_1->size()); i++) {
+    converted_json = ConvertMultiUint64InObjectArrayToString(
+        base::StringPrintf("/data/%d/marketInfos", i),
+        {"inAmount", "outAmount"}, *converted_json);
+  }
+
+  return converted_json;
 }
 
 }  // namespace brave_wallet

@@ -361,11 +361,16 @@ void SwapService::GetJupiterQuote(mojom::JupiterQuoteParamsPtr params,
   auto internal_callback =
       base::BindOnce(&SwapService::OnGetJupiterQuote,
                      weak_ptr_factory_.GetWeakPtr(), std::move(callback));
+
+  auto conversion_callback = base::BindOnce(&ConvertJupiterQuoteUint64ToString);
+
+  base::flat_map<std::string, std::string> request_headers;
   api_request_helper_.Request(
       "GET",
       GetJupiterQuoteURL(std::move(params),
                          json_rpc_service_->GetChainId(mojom::CoinType::SOL)),
-      "", "", true, std::move(internal_callback));
+      "", "", true, std::move(internal_callback), request_headers, -1u,
+      std::move(conversion_callback));
 }
 
 void SwapService::OnGetJupiterQuote(

@@ -28,12 +28,52 @@ brave_wallet::mojom::SwapParamsPtr GetCannedSwapParams() {
   return params;
 }
 
-brave_wallet::mojom::JupiterQuoteParamsPtr GetCannedJupiterSwapParams() {
+brave_wallet::mojom::JupiterQuoteParamsPtr GetCannedJupiterQuoteParams() {
   auto params = brave_wallet::mojom::JupiterQuoteParams::New();
   params->output_mint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
   params->input_mint = "So11111111111111111111111111111111111111112";
   params->amount = "10000";
   params->slippage_percentage = 1;
+  return params;
+}
+
+brave_wallet::mojom::JupiterSwapParamsPtr GetCannedJupiterSwapParams() {
+  auto params = brave_wallet::mojom::JupiterSwapParams::New();
+
+  auto route = brave_wallet::mojom::JupiterRoute::New();
+  route->in_amount = 10000ULL;
+  route->out_amount = 261273ULL;
+  route->amount = 10000ULL;
+  route->other_amount_threshold = 258660ULL;
+  route->swap_mode = "ExactIn";
+  route->price_impact_pct = 0.008955716118219659;
+
+  auto market_info = brave_wallet::mojom::JupiterMarketInfo::New();
+  market_info->id = "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK";
+  market_info->label = "Orca";
+  market_info->input_mint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  market_info->output_mint = "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey";
+  market_info->not_enough_liquidity = false;
+  market_info->in_amount = 10000ULL;
+  market_info->out_amount = 117001203ULL;
+  market_info->price_impact_pct = 1.196568750220778e-7;
+
+  auto lp_fee = brave_wallet::mojom::JupiterFee::New();
+  lp_fee->amount = 30ULL;
+  lp_fee->mint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  lp_fee->pct = 0.003;
+
+  auto platform_fee = brave_wallet::mojom::JupiterFee::New();
+  platform_fee->amount = 0ULL;
+  platform_fee->mint = "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey";
+  platform_fee->pct = 0;
+
+  market_info->lp_fee = lp_fee.Clone();
+  market_info->platform_fee = platform_fee.Clone();
+  route->market_infos.push_back(market_info.Clone());
+  params->route = route.Clone();
+  params->user_public_key = "foo";
+
   return params;
 }
 
@@ -332,7 +372,7 @@ TEST_F(SwapServiceUnitTest, IsSwapSupported) {
 }
 
 TEST_F(SwapServiceUnitTest, GetJupiterQuoteURL) {
-  auto url = swap_service_->GetJupiterQuoteURL(GetCannedJupiterSwapParams(),
+  auto url = swap_service_->GetJupiterQuoteURL(GetCannedJupiterQuoteParams(),
                                                mojom::kSolanaMainnet);
   ASSERT_EQ(url,
             "https://quote-api.jup.ag/v1/quote?"
@@ -390,7 +430,7 @@ TEST_F(SwapServiceUnitTest, GetJupiterQuote) {
 
   bool callback_run = false;
   swap_service_->GetJupiterQuote(
-      GetCannedJupiterSwapParams(),
+      GetCannedJupiterQuoteParams(),
       base::BindLambdaForTesting([&](bool success,
                                      brave_wallet::mojom::JupiterQuotePtr
                                          response,
@@ -446,7 +486,7 @@ TEST_F(SwapServiceUnitTest, GetJupiterQuote) {
   SetInterceptor(R"({})");
   callback_run = false;
   swap_service_->GetJupiterQuote(
-      GetCannedJupiterSwapParams(),
+      GetCannedJupiterQuoteParams(),
       base::BindLambdaForTesting(
           [&](bool success, brave_wallet::mojom::JupiterQuotePtr response,
               const absl::optional<std::string>& error) {
@@ -462,9 +502,53 @@ TEST_F(SwapServiceUnitTest, GetJupiterQuote) {
   SetInterceptor(R"(foo)");
   callback_run = false;
   swap_service_->GetJupiterQuote(
-      GetCannedJupiterSwapParams(),
+      GetCannedJupiterQuoteParams(),
       base::BindLambdaForTesting(
           [&](bool success, brave_wallet::mojom::JupiterQuotePtr response,
+              const absl::optional<std::string>& error) {
+            callback_run = true;
+            EXPECT_FALSE(success);
+            EXPECT_FALSE(response);
+            EXPECT_NE(error, absl::nullopt);
+          }));
+  base::RunLoop().RunUntilIdle();
+  EXPECT_TRUE(callback_run);
+}
+
+TEST_F(SwapServiceUnitTest, GetJupiterSwapTransactions) {
+  SetInterceptor(R"(
+    {
+      "setupTransaction": "foo",
+      "swapTransaction": "bar",
+      "cleanupTransaction": "baz"
+    })");
+
+  bool callback_run = false;
+  swap_service_->GetJupiterSwapTransactions(
+      GetCannedJupiterSwapParams(),
+      base::BindLambdaForTesting(
+          [&](bool success,
+              brave_wallet::mojom::JupiterSwapTransactionsPtr response,
+              const absl::optional<std::string>& error) {
+            callback_run = true;
+            ASSERT_TRUE(success);
+            ASSERT_EQ(error, absl::nullopt);
+            EXPECT_EQ(response->setup_transaction, "foo");
+            EXPECT_EQ(response->swap_transaction, "bar");
+            EXPECT_EQ(response->cleanup_transaction, "baz");
+          }));
+
+  base::RunLoop().RunUntilIdle();
+  EXPECT_TRUE(callback_run);
+
+  // Invalid JSON
+  SetInterceptor(R"(foo)");
+  callback_run = false;
+  swap_service_->GetJupiterSwapTransactions(
+      GetCannedJupiterSwapParams(),
+      base::BindLambdaForTesting(
+          [&](bool success,
+              brave_wallet::mojom::JupiterSwapTransactionsPtr response,
               const absl::optional<std::string>& error) {
             callback_run = true;
             EXPECT_FALSE(success);

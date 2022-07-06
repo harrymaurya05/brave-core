@@ -28,6 +28,15 @@ brave_wallet::mojom::SwapParamsPtr GetCannedSwapParams() {
   return params;
 }
 
+brave_wallet::mojom::JupiterQuoteParamsPtr GetCannedJupiterSwapParams() {
+  auto params = brave_wallet::mojom::JupiterQuoteParams::New();
+  params->output_mint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  params->input_mint = "So11111111111111111111111111111111111111112";
+  params->amount = "10000";
+  params->slippage_percentage = 1;
+  return params;
+}
+
 void OnRequestResponse(
     bool* callback_run,
     bool expected_success,
@@ -320,6 +329,132 @@ TEST_F(SwapServiceUnitTest, IsSwapSupported) {
   EXPECT_FALSE(IsSwapSupported(mojom::kRinkebyChainId));
   EXPECT_FALSE(IsSwapSupported(""));
   EXPECT_FALSE(IsSwapSupported("invalid chain_id"));
+}
+
+TEST_F(SwapServiceUnitTest, GetJupiterQuote) {
+  SetInterceptor(R"(
+    {
+      "data": [
+        {
+          "inAmount": 10000,
+          "outAmount": 261273,
+          "amount": 10000,
+          "otherAmountThreshold": 258660,
+          "outAmountWithSlippage": 258660,
+          "swapMode": "ExactIn",
+          "priceImpactPct": 0.008955716118219659,
+          "marketInfos": [
+            {
+              "id": "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK",
+              "label": "Orca",
+              "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+              "notEnoughLiquidity": false,
+              "inAmount": 10000,
+              "outAmount": 117001203,
+              "priceImpactPct": 1.196568750220778e-7,
+              "lpFee": {
+                "amount": 30,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "pct": 0.003
+              },
+              "platformFee": {
+                "amount": 0,
+                "mint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
+                "pct": 0
+              }
+            }
+          ]
+        }
+      ],
+      "timeTaken": 0.044471802000089156
+    })");
+
+  bool callback_run = false;
+  swap_service_->GetJupiterQuote(
+      GetCannedJupiterSwapParams(),
+      base::BindLambdaForTesting([&](bool success,
+                                     brave_wallet::mojom::JupiterQuotePtr
+                                         response,
+                                     const absl::optional<std::string>& error) {
+        callback_run = true;
+        ASSERT_TRUE(success);
+        ASSERT_EQ(error, absl::nullopt);
+
+        ASSERT_EQ(response->routes.size(), 1UL);
+        EXPECT_EQ(response->routes.at(0)->in_amount, 10000ULL);
+        EXPECT_EQ(response->routes.at(0)->out_amount, 261273ULL);
+        EXPECT_EQ(response->routes.at(0)->amount, 10000ULL);
+        EXPECT_EQ(response->routes.at(0)->other_amount_threshold, 258660ULL);
+        EXPECT_EQ(response->routes.at(0)->swap_mode, "ExactIn");
+        EXPECT_EQ(response->routes.at(0)->price_impact_pct,
+                  0.008955716118219659);
+        ASSERT_EQ(response->routes.at(0)->market_infos.size(), 1UL);
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->id,
+                  "2yNwARmTmc3NzYMETCZQjAE5GGCPgviH6hiBsxaeikTK");
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->label, "Orca");
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->input_mint,
+                  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->output_mint,
+                  "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey");
+        EXPECT_EQ(
+            response->routes.at(0)->market_infos.at(0)->not_enough_liquidity,
+            false);
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->in_amount,
+                  10000ULL);
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->out_amount,
+                  117001203ULL);
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->price_impact_pct,
+                  1.196568750220778e-7);
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->lp_fee->amount,
+                  30ULL);
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->lp_fee->mint,
+                  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->lp_fee->pct,
+                  0.003);
+        EXPECT_EQ(
+            response->routes.at(0)->market_infos.at(0)->platform_fee->amount,
+            0ULL);
+        EXPECT_EQ(
+            response->routes.at(0)->market_infos.at(0)->platform_fee->mint,
+            "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey");
+        EXPECT_EQ(response->routes.at(0)->market_infos.at(0)->platform_fee->pct,
+                  0);
+      }));
+  base::RunLoop().RunUntilIdle();
+  EXPECT_TRUE(callback_run);
+
+  // Empty JSON for conversion
+  SetInterceptor(R"({})");
+  callback_run = false;
+  swap_service_->GetJupiterQuote(
+      GetCannedJupiterSwapParams(),
+      base::BindLambdaForTesting(
+          [&](bool success, brave_wallet::mojom::JupiterQuotePtr response,
+              const absl::optional<std::string>& error) {
+            callback_run = true;
+            EXPECT_FALSE(success);
+            EXPECT_FALSE(response);
+            EXPECT_NE(error, absl::nullopt);
+          }));
+  base::RunLoop().RunUntilIdle();
+  EXPECT_TRUE(callback_run);
+
+  // Invalid JSON
+  SetInterceptor(R"(foo)");
+  callback_run = false;
+  swap_service_->GetJupiterQuote(
+      GetCannedJupiterSwapParams(),
+      base::BindLambdaForTesting(
+          [&](bool success, brave_wallet::mojom::JupiterQuotePtr response,
+              const absl::optional<std::string>& error) {
+            callback_run = true;
+            EXPECT_FALSE(success);
+            EXPECT_FALSE(response);
+            EXPECT_NE(error, absl::nullopt);
+          }));
+  base::RunLoop().RunUntilIdle();
+  EXPECT_TRUE(callback_run);
 }
 
 }  // namespace brave_wallet

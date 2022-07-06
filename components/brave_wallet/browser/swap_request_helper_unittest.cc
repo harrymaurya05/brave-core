@@ -21,11 +21,11 @@ const char* GetJupiterQuoteTemplate() {
     {
       "data": [
         {
-          "inAmount": %s,
-          "outAmount": 261273,
-          "amount": 10000,
-          "otherAmountThreshold": 258660,
-          "outAmountWithSlippage": 258660,
+          "inAmount": "%s",
+          "outAmount": "261273",
+          "amount": "10000",
+          "otherAmountThreshold": "258660",
+          "outAmountWithSlippage": "258660",
           "swapMode": "ExactIn",
           "priceImpactPct": 0.008955716118219659,
           "marketInfos": [
@@ -35,8 +35,8 @@ const char* GetJupiterQuoteTemplate() {
               "inputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
               "outputMint": "MNDEFzGvMt87ueuHvVU9VcTqsAP5b3fTGPsHuuPA5ey",
               "notEnoughLiquidity": false,
-              "inAmount": 10000,
-              "outAmount": 117001203,
+              "inAmount": "10000",
+              "outAmount": "117001203",
               "priceImpactPct": 1.196568750220778e-7,
               "lpFee": {
                 "amount": %s,

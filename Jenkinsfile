@@ -74,7 +74,7 @@ pipeline {
                                             remote {
                                                 // credentials('brave-builds-github-token-for-pr-builder')
                                                 github('brave/devops', 'ssh')
-                                                credentials('brave-builds-private-key')
+                                                credentials('brave-builds-github-ssh-key')
                                             }
                                             branch('${params.DEVOPS_BRANCH}')
                                             // branch('wknapik-more-signal-less-noise')

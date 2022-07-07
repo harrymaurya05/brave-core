@@ -206,22 +206,9 @@ void BraveWalletPermissionContext::GetAllowedAccounts(
     return;
   }
 
-<<<<<<< HEAD
   // Fail if there is no last committed URL yet
   auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
-  if (web_contents->GetMainFrame()->GetLastCommittedURL().is_empty()) {
-=======
-  auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
-  // Fail the request came from 3p origin.
-  if (web_contents->GetPrimaryMainFrame()->GetLastCommittedOrigin() !=
-      rfh->GetLastCommittedOrigin()) {
-    std::move(callback).Run(false, std::vector<std::string>());
-    return;
-  }
-
-  // Fail if there is no last committed URL yet
   if (web_contents->GetPrimaryMainFrame()->GetLastCommittedURL().is_empty()) {
->>>>>>> b9958ec4f9 (Removal of WebContents::GetMainFrame)
     std::move(callback).Run(true, std::vector<std::string>());
     return;
   }

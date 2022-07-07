@@ -334,18 +334,18 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest, Iframe3P) {
     ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), c.top_url));
     EXPECT_TRUE(content::EvalJs(primary_main_frame(), c.script).ExtractBool());
     EXPECT_TRUE(NavigateIframeToURL(web_contents(), "test", c.iframe_url));
-    EXPECT_TRUE(
-        content::EvalJs(ChildFrameAt(primary_main_frame(), 0), kEvalEthereumUndefined)
-            .ExtractBool());
+    EXPECT_TRUE(content::EvalJs(ChildFrameAt(primary_main_frame(), 0),
+                                kEvalEthereumUndefined)
+                    .ExtractBool());
   }
   for (auto& c : ethereum_defined_cases) {
     SCOPED_TRACE(testing::Message() << c.script << c.top_url << c.iframe_url);
     ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), c.top_url));
     EXPECT_TRUE(content::EvalJs(primary_main_frame(), c.script).ExtractBool());
     EXPECT_TRUE(NavigateIframeToURL(web_contents(), "test", c.iframe_url));
-    EXPECT_FALSE(
-        content::EvalJs(ChildFrameAt(primary_main_frame(), 0), kEvalEthereumUndefined)
-            .ExtractBool());
+    EXPECT_FALSE(content::EvalJs(ChildFrameAt(primary_main_frame(), 0),
+                                 kEvalEthereumUndefined)
+                     .ExtractBool());
   }
 }
 

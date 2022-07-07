@@ -17,6 +17,7 @@
 #include "base/containers/flat_set.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "base/task/thread_pool.h"
 #include "base/time/time.h"
 #include "brave/components/brave_private_cdn/headers.h"
 #include "brave/components/brave_today/browser/html_parsing.h"
@@ -339,19 +340,34 @@ void DirectFeedController::OnResponse(
     std::move(callback).Run(std::move(result));
     return;
   }
-  // Reponse is valid, but still might not be a feed
-  FeedData data;
-  if (!parse_feed_string(::rust::String(body_content), data)) {
-    VLOG(1) << feed_url.spec() << " not a valid feed.";
-    VLOG(2) << "Response body was:";
-    VLOG(2) << body_content;
-    std::move(callback).Run(std::move(result));
-    return;
-  }
-  // Valid feed
-  result->success = true;
-  result->data = data;
-  std::move(callback).Run(std::move(result));
+
+  // Response is valid, but still might not be a feed
+  base::ThreadPool::PostTaskAndReplyWithResult(
+      FROM_HERE,
+      base::BindOnce(
+          [](const GURL& feed_url,
+             const std::string& body_content) -> absl::optional<FeedData> {
+            FeedData data;
+            if (!parse_feed_string(::rust::String(body_content), data)) {
+              VLOG(1) << feed_url.spec() << " not a valid feed.";
+              VLOG(2) << "Response body was:";
+              VLOG(2) << body_content;
+              return absl::nullopt;
+            }
+            return data;
+          },
+          feed_url, std::move(body_content)),
+      base::BindOnce(
+          [](DownloadFeedCallback callback,
+             std::unique_ptr<DirectFeedResponse> result,
+             absl::optional<FeedData> data) {
+            if (data) {
+              result->success = true;
+              result->data = data.value();
+            }
+            std::move(callback).Run(std::move(result));
+          },
+          std::move(callback), std::move(result)));
 }
 
 }  // namespace brave_news

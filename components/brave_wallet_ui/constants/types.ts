@@ -29,6 +29,7 @@ export interface WalletAccountType {
   accountType: 'Primary' | 'Secondary' | 'Ledger' | 'Trezor'
   deviceId?: string
   coin: BraveWallet.CoinType
+  keyringId: string
 }
 
 export interface UserAccountType {
@@ -298,6 +299,7 @@ export interface AccountInfo {
   isImported: boolean
   hardware?: HardwareInfo
   coin: BraveWallet.CoinType
+  keyringId?: string
 }
 
 export interface WalletInfoBase {

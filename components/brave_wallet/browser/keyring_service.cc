@@ -162,6 +162,7 @@ std::string GetAccountName(size_t number) {
 
 void SerializeHardwareAccounts(const std::string& device_id,
                                const base::Value* account_value,
+                               const std::string& keyring_id,
                                std::vector<mojom::AccountInfoPtr>* accounts) {
   for (const auto account : account_value->DictItems()) {
     std::string address = account.first;
@@ -191,7 +192,7 @@ void SerializeHardwareAccounts(const std::string& device_id,
     accounts->push_back(mojom::AccountInfo::New(
         address, name, false,
         mojom::HardwareInfo::New(derivation_path, hardware_vendor, device_id),
-        coin));
+        coin, keyring_id));
   }
 }
 
@@ -1314,6 +1315,7 @@ std::vector<mojom::AccountInfoPtr> KeyringService::GetAccountInfosForKeyring(
         prefs_, GetAccountPathByIndex(i, keyring_id), keyring_id);
     account_info->is_imported = false;
     account_info->coin = GetCoinForKeyring(keyring_id);
+    account_info->keyring_id = keyring_id;
     result.push_back(std::move(account_info));
   }
   // append imported account info
@@ -1324,6 +1326,7 @@ std::vector<mojom::AccountInfoPtr> KeyringService::GetAccountInfosForKeyring(
     account_info->name = imported_account_info.account_name;
     account_info->is_imported = true;
     account_info->coin = imported_account_info.coin;
+    account_info->keyring_id = keyring_id;
     result.push_back(std::move(account_info));
   }
 
@@ -1349,7 +1352,7 @@ std::vector<mojom::AccountInfoPtr> KeyringService::GetHardwareAccountsSync(
     const base::Value* account_value = hw_keyring.second.FindKey(kAccountMetas);
     if (!account_value)
       continue;
-    SerializeHardwareAccounts(device_id, account_value, &accounts);
+    SerializeHardwareAccounts(device_id, account_value, keyring_id, &accounts);
   }
 
   return accounts;

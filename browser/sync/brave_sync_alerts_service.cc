@@ -9,9 +9,12 @@
 #include "brave/components/sync/driver/brave_sync_service_impl.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sync/sync_service_factory.h"
-#include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_finder.h"
 #include "components/infobars/content/content_infobar_manager.h"
+
+#if !BUILDFLAG(IS_ANDROID)
+#include "chrome/browser/ui/browser.h"
+#endif
 
 using syncer::BraveSyncServiceImpl;
 
@@ -38,6 +41,28 @@ void BraveSyncAlertsService::OnStateChanged(syncer::SyncService* service) {
     return;
   }
 
+#if BUILDFLAG(IS_ANDROID)
+  ShowAndroidInfobar();
+#else
+  ShowDesktopInfobar();
+#endif
+}
+
+void BraveSyncAlertsService::OnSyncShutdown(syncer::SyncService* sync_service) {
+  if (sync_service_observer_.IsObservingSource(sync_service)) {
+    sync_service_observer_.RemoveObservation(sync_service);
+  }
+}
+
+#if BUILDFLAG(IS_ANDROID)
+
+void BraveSyncAlertsService::ShowAndroidInfobar() {
+  DCHECK(false);
+}
+
+#else
+
+void BraveSyncAlertsService::ShowDesktopInfobar() {
   Browser* browser = chrome::FindLastActive();
   if (browser) {
     content::WebContents* active_web_contents =
@@ -52,8 +77,4 @@ void BraveSyncAlertsService::OnStateChanged(syncer::SyncService* service) {
   }
 }
 
-void BraveSyncAlertsService::OnSyncShutdown(syncer::SyncService* sync_service) {
-  if (sync_service_observer_.IsObservingSource(sync_service)) {
-    sync_service_observer_.RemoveObservation(sync_service);
-  }
-}
+#endif

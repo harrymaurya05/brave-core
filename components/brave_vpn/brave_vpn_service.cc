@@ -23,6 +23,7 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/notreached.h"
+#include "base/power_monitor/power_monitor.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "brave/components/brave_vpn/brave_vpn_constants.h"
@@ -148,6 +149,7 @@ BraveVpnService::BraveVpnService(
   if (preference && !preference->IsDefaultValue()) {
     ReloadPurchasedState();
   }
+  base::PowerMonitor::AddPowerSuspendObserver(this);
 }
 #endif
 
@@ -868,6 +870,11 @@ void BraveVpnService::OnCreateSupportTicket(
           << "\nresponse_code=" << status;
   std::move(callback).Run(success, body);
 }
+void BraveVpnService::OnSuspend() {
+  needs_connect_ = is_connected();
+}
+
+void BraveVpnService::OnResume() {}
 #endif  // !BUILDFLAG(IS_ANDROID)
 
 void BraveVpnService::AddObserver(

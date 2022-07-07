@@ -39,6 +39,17 @@ void OnGetPriceHistory(
   *callback_run = true;
 }
 
+void OnGetCoinMarkets(
+    bool* callback_run,
+    bool expected_success,
+    std::vector<brave_wallet::mojom::CoinMarketPtr> expected_values,
+    bool success,
+    std::vector<brave_wallet::mojom::CoinMarketPtr> values) {
+  EXPECT_EQ(expected_success, success);
+  EXPECT_EQ(expected_values, values);
+  *callback_run = true;
+}
+
 }  // namespace
 
 namespace brave_wallet {

@@ -213,7 +213,7 @@ class SolanaProviderImplUnitTest : public testing::Test {
     run_loop.Run();
   }
 
-  std::string Connect(absl::optional<base::Value> arg,
+  std::string Connect(absl::optional<base::Value::Dict> arg,
                       mojom::SolanaProviderError* error_out,
                       std::string* error_message_out) {
     std::string account;
@@ -244,13 +244,12 @@ class SolanaProviderImplUnitTest : public testing::Test {
         blob_msg, display_encoding,
         base::BindLambdaForTesting([&](mojom::SolanaProviderError error,
                                        const std::string& error_message,
-                                       base::Value result) {
+                                       base::Value::Dict result) {
           if (error_out)
             *error_out = error;
           if (error_message_out)
             *error_message_out = error_message;
-          const std::string* signature =
-              result.GetDict().FindString("signature");
+          const std::string* signature = result.FindString("signature");
           if (signature)
             signature_out = *signature;
           run_loop.Quit();
@@ -259,11 +258,11 @@ class SolanaProviderImplUnitTest : public testing::Test {
     return signature_out;
   }
 
-  base::Value SignAndSendTransaction(
+  base::Value::Dict SignAndSendTransaction(
       const std::string& encoded_serialized_message,
       mojom::SolanaProviderError expected_error,
       const std::string& expected_error_message) {
-    base::Value result_out(base::Value::Type::DICTIONARY);
+    base::Value::Dict result_out;
     base::RunLoop run_loop;
     provider_->SignAndSendTransaction(
         mojom::SolanaSignTransactionParam::New(
@@ -272,7 +271,7 @@ class SolanaProviderImplUnitTest : public testing::Test {
         absl::nullopt,
         base::BindLambdaForTesting([&](mojom::SolanaProviderError error,
                                        const std::string& error_message,
-                                       base::Value result) {
+                                       base::Value::Dict result) {
           EXPECT_EQ(error, expected_error);
           EXPECT_EQ(error_message, expected_error_message);
           result_out = std::move(result);
@@ -331,19 +330,19 @@ class SolanaProviderImplUnitTest : public testing::Test {
     return result_out;
   }
 
-  base::Value Request(const std::string& json,
-                      mojom::SolanaProviderError expected_error,
-                      const std::string& expected_error_message) {
-    base::Value result_out(base::Value::Type::DICTIONARY);
+  base::Value::Dict Request(const std::string& json,
+                            mojom::SolanaProviderError expected_error,
+                            const std::string& expected_error_message) {
+    base::Value::Dict result_out;
     auto value = base::JSONReader::Read(json);
     if (!value)
       return result_out;
     base::RunLoop run_loop;
     provider_->Request(
-        value->Clone(),
+        value->GetDict().Clone(),
         base::BindLambdaForTesting([&](mojom::SolanaProviderError error,
                                        const std::string& error_message,
-                                       base::Value result) {
+                                       base::Value::Dict result) {
           EXPECT_EQ(error, expected_error);
           EXPECT_EQ(error_message, expected_error_message);
           result_out = std::move(result);
@@ -447,8 +446,8 @@ TEST_F(SolanaProviderImplUnitTest, EagerlyConnect) {
   Navigate(GURL("https://brave.com"));
   mojom::SolanaProviderError error;
   std::string error_message;
-  base::Value dict(base::Value::Type::DICT);
-  dict.GetDict().Set("onlyIfTrusted", true);
+  base::Value::Dict dict;
+  dict.Set("onlyIfTrusted", true);
   // no permission will be rejected automatically
   std::string account = Connect(dict.Clone(), &error, &error_message);
   EXPECT_TRUE(account.empty());
@@ -478,7 +477,7 @@ TEST_F(SolanaProviderImplUnitTest, EagerlyConnect) {
   UnlockWallet();
 
   // extra parameters doesn't matter
-  dict.GetDict().Set("ExtraP", "aramters");
+  dict.Set("ExtraP", "aramters");
   account = Connect(dict.Clone(), &error, &error_message);
   EXPECT_EQ(account, address);
   EXPECT_EQ(error, mojom::SolanaProviderError::kSuccess);
@@ -554,8 +553,8 @@ TEST_F(SolanaProviderImplUnitTest, NoSelectedAccount) {
   EXPECT_EQ(error_message, l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
   EXPECT_FALSE(IsConnected());
 
-  base::Value dict(base::Value::Type::DICT);
-  dict.GetDict().Set("onlyIfTrusted", true);
+  base::Value::Dict dict;
+  dict.Set("onlyIfTrusted", true);
   // eagerly connect
   account = Connect(dict.Clone(), &error, &error_message);
   EXPECT_TRUE(account.empty());
@@ -668,7 +667,7 @@ TEST_F(SolanaProviderImplUnitTest, SignTransactionAPIs) {
   auto value = SignAndSendTransaction(
       kEncodedSerializedMsg, mojom::SolanaProviderError::kUnauthorized,
       l10n_util::GetStringUTF8(IDS_WALLET_NOT_AUTHED));
-  EXPECT_EQ(value, base::Value(base::Value::Type::DICTIONARY));
+  EXPECT_EQ(value, base::Value::Dict());
   auto signed_tx = SignTransaction(
       kEncodedSerializedMsg, mojom::SolanaProviderError::kUnauthorized,
       l10n_util::GetStringUTF8(IDS_WALLET_NOT_AUTHED));
@@ -686,7 +685,7 @@ TEST_F(SolanaProviderImplUnitTest, SignTransactionAPIs) {
   value = SignAndSendTransaction(
       "", mojom::SolanaProviderError::kInternalError,
       l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
-  EXPECT_EQ(value, base::Value(base::Value::Type::DICTIONARY));
+  EXPECT_EQ(value, base::Value::Dict());
   signed_tx =
       SignTransaction("", mojom::SolanaProviderError::kInternalError,
                       l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
@@ -699,16 +698,16 @@ TEST_F(SolanaProviderImplUnitTest, SignTransactionAPIs) {
 
 TEST_F(SolanaProviderImplUnitTest, Request) {
   // no method
-  base::Value result =
+  base::Value::Dict result =
       Request(R"({params: {}})", mojom::SolanaProviderError::kParsingError,
               l10n_util::GetStringUTF8(IDS_WALLET_PARSING_ERROR));
-  EXPECT_TRUE(result.GetDict().empty());
+  EXPECT_TRUE(result.empty());
 
   // params not dictionary
   result = Request(R"({method: "connect", params: []})",
                    mojom::SolanaProviderError::kParsingError,
                    l10n_util::GetStringUTF8(IDS_WALLET_PARSING_ERROR));
-  EXPECT_TRUE(result.GetDict().empty());
+  EXPECT_TRUE(result.empty());
 
   // no params for non connect and disconnect
   for (const std::string& method : {"signTransaction", "signAndSendTransaction",
@@ -717,7 +716,7 @@ TEST_F(SolanaProviderImplUnitTest, Request) {
         base::StringPrintf(R"({method: "%s", params: {}})", method.c_str()),
         mojom::SolanaProviderError::kParsingError,
         l10n_util::GetStringUTF8(IDS_WALLET_PARSING_ERROR));
-    EXPECT_TRUE(result.GetDict().empty());
+    EXPECT_TRUE(result.empty());
   }
 
   // method not found
@@ -725,11 +724,11 @@ TEST_F(SolanaProviderImplUnitTest, Request) {
       Request(R"({method: "newMethod", params: {}})",
               mojom::SolanaProviderError::kMethodNotFound,
               l10n_util::GetStringUTF8(IDS_WALLET_REQUEST_PROCESSING_ERROR));
-  EXPECT_TRUE(result.GetDict().empty());
+  EXPECT_TRUE(result.empty());
   result = Request(
       R"({method: "newMethod"})", mojom::SolanaProviderError::kMethodNotFound,
       l10n_util::GetStringUTF8(IDS_WALLET_REQUEST_PROCESSING_ERROR));
-  EXPECT_TRUE(result.GetDict().empty());
+  EXPECT_TRUE(result.empty());
 
   for (const std::string& method : {"signTransaction", "signAndSendTransaction",
                                     "signAllTransactions", "signMessage"}) {
@@ -743,7 +742,7 @@ TEST_F(SolanaProviderImplUnitTest, Request) {
         Request(base::StringPrintf(json, method.c_str(), kEncodedSerializedMsg),
                 mojom::SolanaProviderError::kUnauthorized,
                 l10n_util::GetStringUTF8(IDS_WALLET_NOT_AUTHED));
-    EXPECT_TRUE(result.GetDict().empty());
+    EXPECT_TRUE(result.empty());
   }
 }
 

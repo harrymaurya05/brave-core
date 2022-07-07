@@ -72,9 +72,8 @@ pipeline {
                                     scm {
                                         git {
                                             remote {
-                                                credentials('mihai-test')
+                                                credentials('brave-builds-github-token-for-pr-builder')
                                                 github('brave/devops', 'https')
-                                                // credentials('brave-builds-github-ssh-key')
                                             }
                                             branch('${params.DEVOPS_BRANCH}')
                                             // branch('wknapik-more-signal-less-noise')

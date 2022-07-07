@@ -24,9 +24,10 @@ import { BuyOptions } from '../../options/buy-with-options'
 import { useIsMounted } from './useIsMounted'
 import { useLib } from './useLib'
 
-export function useMultiChainBuyAssets () {
+export const useMultiChainBuyAssets = () => {
   // redux
   const networkList = useSelector(({ wallet }: { wallet: WalletState }) => wallet.networkList)
+  const selectedCurrency = useSelector(({ wallet }: { wallet: WalletState }) => wallet.selectedCurrency)
 
   // custom hooks
   const isMounted = useIsMounted()
@@ -102,7 +103,8 @@ export function useMultiChainBuyAssets () {
       onRampProvider: buyOption,
       chainId: selectedAssetNetwork.chainId,
       address: depositAddress,
-      amount: buyAmount
+      amount: buyAmount,
+      currencyCode: selectedCurrency ? selectedCurrency.currencyCode : 'USD'
     })
       .then(url => {
         chrome.tabs.create({ url }, () => {
@@ -112,7 +114,13 @@ export function useMultiChainBuyAssets () {
         })
       })
       .catch(e => console.error(e))
-  }, [getBuyAssetUrl, selectedAssetNetwork, buyAmount, selectedAsset])
+  }, [
+    selectedAsset,
+    selectedAssetNetwork,
+    getBuyAssetUrl,
+    buyAmount,
+    selectedCurrency
+  ])
 
   return {
     allAssetOptions: options.allAssetOptions,

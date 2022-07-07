@@ -71,11 +71,11 @@ pipeline {
                                     scm {
                                         git {
                                             remote {
-                                                credentials('brave-builds-github-token-for-pr-builder')
-                                                github('brave/devops', 'https')
+                                                // credentials('brave-builds-github-token-for-pr-builder')
+                                                github('brave/devops', 'ssh')
                                             }
-                                            // branch('${params.DEVOPS_BRANCH}')
-                                            branch('wknapik-more-signal-less-noise')
+                                            branch('${params.DEVOPS_BRANCH}')
+                                            // branch('wknapik-more-signal-less-noise')
                                         }
                                     }
                                     scriptPath("jenkins/jobs/browser/pr-brave-browser-${PLATFORM}.Jenkinsfile")

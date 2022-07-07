@@ -68,11 +68,13 @@ pipeline {
                             }
                             definition {
                                 cpsScm {
+                                    lightweight()
                                     scm {
                                         git {
                                             remote {
                                                 // credentials('brave-builds-github-token-for-pr-builder')
                                                 github('brave/devops', 'ssh')
+                                                credentials('brave-builds-private-key')
                                             }
                                             branch('${params.DEVOPS_BRANCH}')
                                             // branch('wknapik-more-signal-less-noise')

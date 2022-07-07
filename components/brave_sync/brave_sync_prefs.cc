@@ -27,8 +27,9 @@ const char kSyncV1MetaInfoCleared[] = "brave_sync_v2.v1_meta_info_cleared";
 // Has dismissed message about migration to sync v2
 const char kSyncV2MigrateNoticeDismissed[] =
     "brave_sync_v2.migrate_notice_dismissed";
-const char kSyncAccountDeletedNoticeDismissed[] =
-    "brave_sync_v2.account_deleted_notice_dismissed";
+const char kSyncAccountDeletedNoticePending[] =
+    "brave_sync_v2.account_deleted_notice_pending";
+
 // Deprecated
 // ============================================================================
 const char kSyncSeed[] = "brave_sync.seed";
@@ -75,7 +76,7 @@ void Prefs::RegisterProfilePrefs(PrefRegistrySimple* registry) {
   // brave://settings/braveSync
   // Manage your synced devices
   //   Sync is disabled by your administrator.
-  registry->RegisterBooleanPref(kSyncAccountDeletedNoticeDismissed, false);
+  registry->RegisterBooleanPref(kSyncAccountDeletedNoticePending, false);
 
   // Deprecated
   // ============================================================================
@@ -146,6 +147,7 @@ bool Prefs::SetSeed(const std::string& seed) {
   std::string encoded_seed;
   base::Base64Encode(encrypted_seed, &encoded_seed);
   pref_service_->SetString(kSyncV2Seed, encoded_seed);
+  SetSyncAccountDeletedNoticePending(false);
   return true;
 }
 
@@ -183,17 +185,16 @@ void Prefs::SetDismissSyncMigrateNotice(bool is_dismissed) {
   pref_service_->SetBoolean(kSyncV2MigrateNoticeDismissed, is_dismissed);
 }
 
-bool Prefs::IsSyncAccountDeletedNoticeDismissed() const {
-  return pref_service_->GetBoolean(kSyncAccountDeletedNoticeDismissed);
+bool Prefs::IsSyncAccountDeletedNoticePending() const {
+  return pref_service_->GetBoolean(kSyncAccountDeletedNoticePending);
 }
 
-void Prefs::SetDismissSyncAccountDeletedNotice(bool is_dismissed) {
-  pref_service_->SetBoolean(kSyncAccountDeletedNoticeDismissed, is_dismissed);
+void Prefs::SetSyncAccountDeletedNoticePending(bool is_pending) {
+  pref_service_->SetBoolean(kSyncAccountDeletedNoticePending, is_pending);
 }
 
 void Prefs::Clear() {
   pref_service_->ClearPref(kSyncV2Seed);
-  pref_service_->ClearPref(kSyncAccountDeletedNoticeDismissed);
 }
 
 void MigrateBraveSyncPrefs(PrefService* prefs) {

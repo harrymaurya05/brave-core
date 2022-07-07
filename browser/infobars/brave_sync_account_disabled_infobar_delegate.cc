@@ -30,8 +30,9 @@ void BraveSyncAccountDisabledInfoBarDelegate::Create(
     Profile* profile,
     Browser* browser) {
   brave_sync::Prefs brave_sync_prefs(profile->GetPrefs());
-  const bool has_dismissed = brave_sync_prefs.IsSyncMigrateNoticeDismissed();
-  if (has_dismissed) {
+  const bool notification_pending =
+      brave_sync_prefs.IsSyncAccountDeletedNoticePending();
+  if (!notification_pending) {
     return;
   }
 
@@ -66,7 +67,7 @@ bool BraveSyncAccountDisabledInfoBarDelegate::ShouldExpire(
 
 void BraveSyncAccountDisabledInfoBarDelegate::InfoBarDismissed() {
   brave_sync::Prefs brave_sync_prefs(profile_->GetPrefs());
-  brave_sync_prefs.SetDismissSyncMigrateNotice(true);
+  brave_sync_prefs.SetSyncAccountDeletedNoticePending(false);
 }
 
 std::u16string BraveSyncAccountDisabledInfoBarDelegate::GetMessageText() const {
@@ -85,6 +86,8 @@ std::u16string BraveSyncAccountDisabledInfoBarDelegate::GetButtonLabel(
 }
 
 bool BraveSyncAccountDisabledInfoBarDelegate::Accept() {
+  brave_sync::Prefs brave_sync_prefs(profile_->GetPrefs());
+  brave_sync_prefs.SetSyncAccountDeletedNoticePending(false);
   brave::ShowSync(browser_);
   return true;
 }

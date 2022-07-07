@@ -7,6 +7,7 @@
 
 #include "brave/browser/infobars/brave_sync_account_disabled_infobar_delegate.h"
 #include "brave/components/sync/driver/brave_sync_service_impl.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_finder.h"
@@ -32,13 +33,8 @@ BraveSyncAlertsService::BraveSyncAlertsService(Profile* profile)
 BraveSyncAlertsService::~BraveSyncAlertsService() {}
 
 void BraveSyncAlertsService::OnStateChanged(syncer::SyncService* service) {
-  if (!service || !service->IsEngineInitialized()) {
-    return;
-  }
-
-  BraveSyncServiceImpl* brave_sync_service =
-      static_cast<BraveSyncServiceImpl*>(service);
-  if (!brave_sync_service->GetIsDisabledByAdmin()) {
+  brave_sync::Prefs brave_sync_prefs(profile_->GetPrefs());
+  if (!brave_sync_prefs.IsSyncAccountDeletedNoticePending()) {
     return;
   }
 

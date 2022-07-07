@@ -31,6 +31,7 @@ import {
 import { NewUnapprovedTxAdded } from '../../common/constants/action_types'
 import { Store } from '../../common/async/types'
 import { getTokenParam } from '../../utils/api-utils'
+import { getLocale } from '../../../common/locale'
 
 const handler = new AsyncActionHandler()
 
@@ -196,17 +197,33 @@ handler.on(WalletPageActions.importFromCryptoWallets.getType(), async (store: St
 })
 
 handler.on(WalletPageActions.importFromMetaMask.getType(), async (store: Store, payload: ImportFromExternalWalletPayloadType) => {
-  const braveWalletService = getWalletPageApiProxy().braveWalletService
-  const keyringService = getWalletPageApiProxy().keyringService
-  const result =
-    await braveWalletService.importFromExternalWallet(
-      BraveWallet.ExternalWalletType.MetaMask, payload.password, payload.newPassword)
-  if (result.success) {
+  const {
+    braveWalletService,
+    keyringService
+  } = getWalletPageApiProxy()
+
+  const result = await braveWalletService.importFromExternalWallet(
+    BraveWallet.ExternalWalletType.MetaMask,
+    payload.password,
+    payload.newPassword
+  )
+
+  // complete backup if a new password was provided
+  if (payload.newPassword && result.success) {
     keyringService.notifyWalletBackupComplete()
   }
+
+  // was the provided import password correct?
+  const checkExistingPasswordError = result.errorMessage === getLocale('braveWalletImportPasswordError')
+    ? result.errorMessage
+    : undefined
+
+  // was import successful (if attempted)
+  const importError = payload.newPassword ? result.errorMessage || undefined : undefined
+
   store.dispatch(WalletPageActions.setImportWalletError({
-    hasError: !result.success,
-    errorMessage: result.errorMessage ?? undefined,
+    hasError: !!(importError || checkExistingPasswordError),
+    errorMessage: importError || checkExistingPasswordError,
     incrementAttempts: true
   }))
 })

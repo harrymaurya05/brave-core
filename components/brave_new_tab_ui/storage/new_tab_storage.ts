@@ -19,6 +19,7 @@ export const defaultState: NewTab.State = {
   showBackgroundImage: false,
   showStats: false,
   showToday: false,
+  showBraveNewsButton: false,
   showClock: false,
   clockFormat: '',
   showTopSites: false,

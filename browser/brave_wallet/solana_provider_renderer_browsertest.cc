@@ -1214,7 +1214,7 @@ IN_PROC_BROWSER_TEST_F(SolanaProviderRendererTest, Iframe3P) {
     SCOPED_TRACE(testing::Message() << c.script << c.iframe_url);
     ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), c.top_url));
     content::RenderFrameHost* main_frame =
-        web_contents(browser())->GetMainFrame();
+        web_contents(browser())->GetPrimaryMainFrame();
     EXPECT_TRUE(content::EvalJs(main_frame, c.script).ExtractBool());
     EXPECT_TRUE(
         NavigateIframeToURL(web_contents(browser()), "test", c.iframe_url));
@@ -1226,7 +1226,7 @@ IN_PROC_BROWSER_TEST_F(SolanaProviderRendererTest, Iframe3P) {
     SCOPED_TRACE(testing::Message() << c.script << c.top_url << c.iframe_url);
     ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), c.top_url));
     content::RenderFrameHost* main_frame =
-        web_contents(browser())->GetMainFrame();
+        web_contents(browser())->GetPrimaryMainFrame();
     EXPECT_TRUE(content::EvalJs(main_frame, c.script).ExtractBool());
     EXPECT_TRUE(
         NavigateIframeToURL(web_contents(browser()), "test", c.iframe_url));

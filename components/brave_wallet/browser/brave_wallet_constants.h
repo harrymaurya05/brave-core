@@ -676,6 +676,8 @@ constexpr char kAffiliateAddress[] =
 constexpr int64_t kBlockTrackerDefaultTimeInSeconds = 20;
 
 constexpr char kPolygonMainnetEndpoint[] = "https://mainnet-polygon.brave.com/";
+constexpr char kOptimismMainnetEndpoint[] =
+    "https://mainnet-optimism.brave.com/";
 
 // Unstoppable domains record key for ethereum address.
 constexpr char kCryptoEthAddressKey[] = "crypto.ETH.address";

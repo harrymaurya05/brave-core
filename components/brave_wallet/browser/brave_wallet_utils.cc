@@ -146,7 +146,7 @@ const brave_wallet::mojom::NetworkInfo kKnownEthNetworks[] = {
      "Optimism",
      {"https://optimistic.etherscan.io"},
      {},
-     {"https://mainnet.optimism.io"},
+     {},
      "ETH",
      "Ether",
      18,
@@ -322,6 +322,7 @@ const base::flat_map<std::string, std::string> kInfuraSubdomains = {
 const base::flat_set<std::string> kInfuraChains = {
     brave_wallet::mojom::kMainnetChainId,
     brave_wallet::mojom::kPolygonMainnetChainId,
+    brave_wallet::mojom::kOptimismMainnetChainId,
     brave_wallet::mojom::kRinkebyChainId,
     brave_wallet::mojom::kRopstenChainId,
     brave_wallet::mojom::kGoerliChainId,
@@ -351,6 +352,10 @@ constexpr const char kEnsRegistryContractAddress[] =
 std::string GetInfuraURLForKnownChainId(const std::string& chain_id) {
   if (chain_id == brave_wallet::mojom::kPolygonMainnetChainId) {
     return kPolygonMainnetEndpoint;
+  }
+
+  if (chain_id == brave_wallet::mojom::kOptimismMainnetChainId) {
+    return kOptimismMainnetEndpoint;
   }
 
   auto subdomain = brave_wallet::GetInfuraSubdomainForKnownChainId(chain_id);

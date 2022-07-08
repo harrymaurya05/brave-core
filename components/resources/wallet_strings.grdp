@@ -554,7 +554,7 @@
   <message name="IDS_BRAVE_WALLET_DEPOSIT_ONLY_SEND_ON_X_NETWORK" desc="Warning to only send tokens to a address via a specific network">Only send tokens to this address on <ph name="VALUE">$1</ph></message>
   <message name="BRAVE_WALLET_PERKS_TOKENS" desc="Description of how the wallet allows access to many crypto tokens">Buy, send, and swap 200+ crypto assets</message>
   <message name="BRAVE_WALLET_PERKS_BROWSER_NATIVE" desc="Description of how the wallet is browser-native">Browser-native, no risky extensions</message>
-  <message name="BRAVE_WALLET_MULTI_CHAIN" desc="Description of how the wallet allows access to multiple blockchains">Multi-chain & NFT support</message>
+  <message name="BRAVE_WALLET_MULTI_CHAIN" desc="Description of how the wallet allows access to multiple blockchains">Multi-chain &amp; NFT support</message>
   <message name="BRAVE_WALLET_UNLOCK_NEEDED_TO_CREATE_ACCOUNT" desc="Message to inform the user that their wallet must be unlocked before a new account can be created">Unlock needed to create an account</message>
   <message name="BRAVE_WALLET_CLICK_TO_SWITCH" desc="Action text for switching selection">Click to switch</message>
 </grit-part>
